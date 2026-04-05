@@ -1,7 +1,7 @@
 'use client';
 
 import type { RawEvent } from '@/types';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, isValid } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 const statusConfig = {
@@ -34,6 +34,10 @@ export default function RecentEvents({ events, loading }: { events: RawEvent[]; 
         )}
         {!loading && events.map(event => {
           const cfg = statusConfig[event.status] ?? statusConfig.processing;
+          const at = new Date(event.created_at);
+          const timeLabel = isValid(at)
+            ? formatDistanceToNow(at, { addSuffix: true, locale: es })
+            : '—';
           return (
             <div
               key={event.id}
@@ -56,7 +60,7 @@ export default function RecentEvents({ events, loading }: { events: RawEvent[]; 
                   {cfg.label} · {event.id.slice(0, 8)}…
                 </div>
                 <div style={{ fontSize: '9px', color: 'var(--muted)', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>
-                  {formatDistanceToNow(new Date(event.created_at), { addSuffix: true, locale: es })}
+                  {timeLabel}
                 </div>
               </div>
             </div>

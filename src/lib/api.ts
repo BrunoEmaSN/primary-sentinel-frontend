@@ -25,6 +25,49 @@ function unwrapListPayload<T>(body: unknown): T[] {
   return [];
 }
 
+/** GET /api/dlq devuelve `RawEvent.toSnapshot()` (camelCase); lo adaptamos a `DLQEvent`. */
+function normalizeDlqRow(row: Record<string, unknown>): DLQEvent {
+  const id = String(row.id ?? '');
+  const created =
+    (typeof row.createdAt === 'string' && row.createdAt) ||
+    (typeof row.created_at === 'string' && row.created_at) ||
+    new Date().toISOString();
+
+  const raw = row.rawPayload !== undefined ? row.rawPayload : row.payload;
+  const payload: Record<string, unknown> =
+    raw !== null && typeof raw === 'object' && !Array.isArray(raw)
+      ? (raw as Record<string, unknown>)
+      : {};
+
+  const log = row.errorLog;
+  const errorLog = Array.isArray(log) ? log.filter((e): e is string => typeof e === 'string') : [];
+  const error_reason =
+    errorLog.length > 0
+      ? errorLog[errorLog.length - 1]!
+      : typeof row.error_reason === 'string'
+        ? row.error_reason
+        : 'Payload con estructura desconocida';
+
+  const attempts =
+    typeof row.healingAttempts === 'number'
+      ? row.healingAttempts
+      : typeof row.attempts === 'number'
+        ? row.attempts
+        : 0;
+
+  return {
+    id,
+    event_id: id,
+    endpoint_id: String(row.endpointId ?? row.endpoint_id ?? ''),
+    tenant_id: String(row.tenantId ?? row.tenant_id ?? ''),
+    payload,
+    error_reason,
+    attempts,
+    notified: typeof row.notified === 'boolean' ? row.notified : false,
+    created_at: created,
+  };
+}
+
 async function getToken(): Promise<string | null> {
   // Dynamic import so this works in both client and server contexts
   if (typeof window !== 'undefined') {
@@ -85,6 +128,36 @@ export async function deleteEndpoint(id: string): Promise<ApiResponse<void>> {
   return apiFetch<void>(`/api/endpoints/${id}`, { method: 'DELETE' });
 }
 
+/** Worker devuelve `toSnapshot()` en camelCase; el UI espera snake_case. */
+function normalizeRawEvent(e: Record<string, unknown>): RawEvent {
+  const created =
+    (typeof e.created_at === 'string' && e.created_at) ||
+    (typeof e.createdAt === 'string' && e.createdAt) ||
+    new Date().toISOString();
+  const updated =
+    (typeof e.updated_at === 'string' && e.updated_at) ||
+    (typeof e.updatedAt === 'string' && e.updatedAt) ||
+    created;
+
+  const logs = e.errorLog;
+  const errorFromLog =
+    Array.isArray(logs) && logs.length > 0 ? (logs as string[]).join('\n') : undefined;
+
+  return {
+    id: String(e.id ?? ''),
+    endpoint_id: String(e.endpoint_id ?? e.endpointId ?? ''),
+    tenant_id: String(e.tenant_id ?? e.tenantId ?? ''),
+    status: e.status as RawEvent['status'],
+    payload: (e.payload ?? e.rawPayload ?? {}) as Record<string, unknown>,
+    healed_payload: (e.healed_payload ?? e.validatedPayload) as Record<string, unknown> | undefined,
+    rule_id: (e.rule_id ?? e.transformationRuleId) as string | undefined,
+    error_message: typeof e.error_message === 'string' ? e.error_message : errorFromLog,
+    attempts: Number(e.attempts ?? e.healingAttempts ?? 0),
+    created_at: created,
+    updated_at: updated,
+  };
+}
+
 // ─── Events ───────────────────────────────────────────────────────────────────
 
 export async function listEvents(
@@ -101,10 +174,20 @@ export async function listEvents(
   >(`/api/endpoints/${endpointId}/events?${qs}`);
   const body = res.data;
   if (!body) return { events: [], total: 0, limit: 20, offset: 0 };
-  if ('events' in body && Array.isArray(body.events)) return body;
+  if ('events' in body && Array.isArray(body.events)) {
+    return {
+      ...body,
+      events: body.events.map((ev) => normalizeRawEvent(ev as unknown as Record<string, unknown>)),
+    };
+  }
   if ('data' in body && Array.isArray((body as { data: RawEvent[] }).data)) {
     const b = body as { data: RawEvent[]; total: number; limit: number; offset: number };
-    return { events: b.data, total: b.total, limit: b.limit, offset: b.offset };
+    return {
+      events: b.data.map((ev) => normalizeRawEvent(ev as unknown as Record<string, unknown>)),
+      total: b.total,
+      limit: b.limit,
+      offset: b.offset,
+    };
   }
   return { events: [], total: 0, limit: 20, offset: 0 };
 }
@@ -170,8 +253,11 @@ export async function deleteRule(
 // ─── DLQ ──────────────────────────────────────────────────────────────────────
 
 export async function listDLQ(): Promise<DLQEvent[]> {
-  const res = await apiFetch<DLQEvent[] | { data: DLQEvent[]; total?: number }>('/api/dlq');
-  return unwrapListPayload<DLQEvent>(res.data);
+  const res = await apiFetch<unknown[] | { data: unknown[]; total?: number }>('/api/dlq');
+  const rows = unwrapListPayload<unknown>(res.data).filter(
+    (r): r is Record<string, unknown> => r !== null && typeof r === 'object' && !Array.isArray(r)
+  );
+  return rows.map(normalizeDlqRow);
 }
 
 export async function reinjectDLQEvent(
