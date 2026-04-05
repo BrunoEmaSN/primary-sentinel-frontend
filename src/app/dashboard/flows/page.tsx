@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { listEndpoints, createEndpoint, deleteEndpoint, listEvents } from '@/lib/api';
-import type { Endpoint, RawEvent } from '@/types';
+import type { Endpoint } from '@/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8787';
 
@@ -24,7 +24,7 @@ export default function FlowsPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
-  async function load() {
+  const load = useCallback(async () => {
     const eps = await listEndpoints();
     setEndpoints(eps);
     // fetch event counts per endpoint
@@ -35,9 +35,11 @@ export default function FlowsPage() {
     }));
     setEventCounts(counts);
     setLoading(false);
-  }
+  }, []);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
@@ -61,14 +63,14 @@ export default function FlowsPage() {
     });
 
     if (res.error) { setError(res.error); }
-    else { setShowModal(false); setForm(DEFAULT_FORM); load(); }
+    else { setShowModal(false); setForm(DEFAULT_FORM); void load(); }
     setSaving(false);
   }
 
   async function handleDelete(id: string) {
     if (!confirm('¿Eliminar este endpoint?')) return;
     await deleteEndpoint(id);
-    load();
+    void load();
   }
 
   return (

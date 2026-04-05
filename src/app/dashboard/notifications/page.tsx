@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -25,9 +25,9 @@ const typeConfig = {
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
-  async function load() {
+  const load = useCallback(async () => {
     // Fetch from Supabase notifications table
     const { data, error } = await supabase
       .from('notifications')
@@ -39,10 +39,10 @@ export default function NotificationsPage() {
       setNotifications(data as Notification[]);
     }
     setLoading(false);
-  }
+  }, [supabase]);
 
   useEffect(() => {
-    load();
+    void load();
 
     // Realtime subscription
     const channel = supabase
@@ -57,7 +57,7 @@ export default function NotificationsPage() {
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, []);
+  }, [load, supabase]);
 
   async function markAllRead() {
     await supabase.from('notifications').update({ read: true }).eq('read', false);

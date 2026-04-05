@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { listDLQ, reinjectDLQEvent, discardDLQEvent } from '@/lib/api';
 import type { DLQEvent } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
@@ -14,13 +14,15 @@ export default function DLQPage() {
   const [actionLoading, setActionLoading] = useState('');
   const [toast, setToast] = useState('');
 
-  async function load() {
+  const load = useCallback(async () => {
     const dlq = await listDLQ();
     setEvents(dlq);
     setLoading(false);
-  }
+  }, []);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   function showToast(msg: string) {
     setToast(msg);
@@ -31,7 +33,7 @@ export default function DLQPage() {
     setActionLoading(ev.id);
     const res = await reinjectDLQEvent(ev.id, corrected);
     if (res.error) { showToast('Error: ' + res.error); }
-    else { showToast('✦ Evento reinyectado exitosamente'); setSelected(null); load(); }
+    else { showToast('✦ Evento reinyectado exitosamente'); setSelected(null); void load(); }
     setActionLoading('');
   }
 
@@ -41,7 +43,7 @@ export default function DLQPage() {
     await discardDLQEvent(ev.id);
     showToast('Evento descartado');
     setActionLoading('');
-    load();
+    void load();
   }
 
   return (

@@ -1,33 +1,34 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8787';
 
-export default function SettingsPage() {
-  const [user, setUser] = useState<User | null>(null);
-  const [saved, setSaved] = useState(false);
-  const supabase = createClient();
+type SectionProps = {
+  title: string;
+  children: ReactNode;
+};
 
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setUser(data.user));
-  }, []);
+type RowProps = {
+  label: string;
+  sub?: string;
+  children: ReactNode;
+};
 
-  function handleSave() {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
-  }
-
-  const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
+function Section({ title, children }: SectionProps) {
+  return (
     <div className="sentinel-card" style={{ marginBottom: '16px' }}>
       <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700, marginBottom: '14px' }}>{title}</div>
       {children}
     </div>
   );
+}
 
-  const Row = ({ label, sub, children }: { label: string; sub?: string; children: React.ReactNode }) => (
+function Row({ label, sub, children }: RowProps) {
+  return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--border)' }}>
       <div>
         <div style={{ fontSize: '12px', fontWeight: 500 }}>{label}</div>
@@ -36,6 +37,22 @@ export default function SettingsPage() {
       {children}
     </div>
   );
+}
+
+export default function SettingsPage() {
+  const [user, setUser] = useState<User | null>(null);
+  const [saved, setSaved] = useState(false);
+  const supabase = useMemo(() => createClient(), []);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setUser(data.user));
+  }, [supabase]);
+
+  function handleSave() {
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2500);
+  }
+
 
   return (
     <div className="fade-up">

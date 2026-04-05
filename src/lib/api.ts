@@ -14,6 +14,17 @@ import type {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8787';
 
+/** Backend list routes return `{ data: T[], ... }`; unwrap to `T[]`. */
+function unwrapListPayload<T>(body: unknown): T[] {
+  if (body == null) return [];
+  if (Array.isArray(body)) return body as T[];
+  if (typeof body === 'object' && 'data' in body) {
+    const d = (body as { data: unknown }).data;
+    if (Array.isArray(d)) return d as T[];
+  }
+  return [];
+}
+
 async function getToken(): Promise<string | null> {
   // Dynamic import so this works in both client and server contexts
   if (typeof window !== 'undefined') {
@@ -52,8 +63,8 @@ async function apiFetch<T>(
 // ─── Endpoints ────────────────────────────────────────────────────────────────
 
 export async function listEndpoints(): Promise<Endpoint[]> {
-  const res = await apiFetch<Endpoint[]>('/api/endpoints');
-  return res.data ?? [];
+  const res = await apiFetch<Endpoint[] | { data: Endpoint[]; count?: number }>('/api/endpoints');
+  return unwrapListPayload<Endpoint>(res.data);
 }
 
 export async function getEndpoint(id: string): Promise<Endpoint | null> {
@@ -85,10 +96,17 @@ export async function listEvents(
   if (params.limit) qs.set('limit', String(params.limit));
   if (params.offset) qs.set('offset', String(params.offset));
 
-  const res = await apiFetch<EventsListResponse>(
-    `/api/endpoints/${endpointId}/events?${qs}`
-  );
-  return res.data ?? { events: [], total: 0, limit: 20, offset: 0 };
+  const res = await apiFetch<
+    EventsListResponse | { data: RawEvent[]; total: number; limit: number; offset: number }
+  >(`/api/endpoints/${endpointId}/events?${qs}`);
+  const body = res.data;
+  if (!body) return { events: [], total: 0, limit: 20, offset: 0 };
+  if ('events' in body && Array.isArray(body.events)) return body;
+  if ('data' in body && Array.isArray((body as { data: RawEvent[] }).data)) {
+    const b = body as { data: RawEvent[]; total: number; limit: number; offset: number };
+    return { events: b.data, total: b.total, limit: b.limit, offset: b.offset };
+  }
+  return { events: [], total: 0, limit: 20, offset: 0 };
 }
 
 export async function listAllEvents(
@@ -111,10 +129,10 @@ export async function listAllEvents(
 // ─── Rules ────────────────────────────────────────────────────────────────────
 
 export async function listRules(endpointId: string): Promise<TransformationRule[]> {
-  const res = await apiFetch<TransformationRule[]>(
-    `/api/endpoints/${endpointId}/rules`
-  );
-  return res.data ?? [];
+  const res = await apiFetch<
+    TransformationRule[] | { data: TransformationRule[]; count?: number }
+  >(`/api/endpoints/${endpointId}/rules`);
+  return unwrapListPayload<TransformationRule>(res.data);
 }
 
 export async function listAllRules(): Promise<TransformationRule[]> {
@@ -152,8 +170,8 @@ export async function deleteRule(
 // ─── DLQ ──────────────────────────────────────────────────────────────────────
 
 export async function listDLQ(): Promise<DLQEvent[]> {
-  const res = await apiFetch<DLQEvent[]>('/api/dlq');
-  return res.data ?? [];
+  const res = await apiFetch<DLQEvent[] | { data: DLQEvent[]; total?: number }>('/api/dlq');
+  return unwrapListPayload<DLQEvent>(res.data);
 }
 
 export async function reinjectDLQEvent(

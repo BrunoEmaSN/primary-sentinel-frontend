@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { listEndpoints, listAllEvents, listAllRules, listDLQ } from '@/lib/api';
 import type { RawEvent, TransformationRule, Endpoint } from '@/types';
 import StatsCards from '@/components/dashboard/StatsCards';
@@ -16,7 +16,7 @@ export default function DashboardPage() {
   const [dlqCount, setDlqCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  async function load() {
+  const load = useCallback(async () => {
     const [eps, evts, rls, dlq] = await Promise.all([
       listEndpoints(),
       listAllEvents({ limit: 20 }),
@@ -28,13 +28,13 @@ export default function DashboardPage() {
     setRules(rls);
     setDlqCount(dlq.length);
     setLoading(false);
-  }
+  }, []);
 
   useEffect(() => {
-    load();
-    const interval = setInterval(load, 15000); // refresh every 15s
+    void load();
+    const interval = setInterval(() => { void load(); }, 15000); // refresh every 15s
     return () => clearInterval(interval);
-  }, []);
+  }, [load]);
 
   const eventsToday = events.filter(e => {
     const d = new Date(e.created_at);

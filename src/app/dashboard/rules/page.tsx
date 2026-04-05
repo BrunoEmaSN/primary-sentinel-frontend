@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { listEndpoints, listRules, updateRule, deleteRule } from '@/lib/api';
 import type { TransformationRule, Endpoint } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
@@ -13,7 +13,7 @@ export default function RulesPage() {
   const [selectedRule, setSelectedRule] = useState<TransformationRule | null>(null);
   const [filter, setFilter] = useState<'all' | 'pending' | 'active' | 'quarantined'>('all');
 
-  async function load() {
+  const load = useCallback(async () => {
     const eps = await listEndpoints();
     setEndpoints(eps);
     const allRules: TransformationRule[] = [];
@@ -24,24 +24,26 @@ export default function RulesPage() {
     allRules.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     setRules(allRules);
     setLoading(false);
-  }
+  }, []);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   async function approve(rule: TransformationRule) {
     await updateRule(rule.endpoint_id, rule.id, { status: 'active' });
-    load();
+    await load();
   }
 
   async function deactivate(rule: TransformationRule) {
     await updateRule(rule.endpoint_id, rule.id, { status: 'inactive' });
-    load();
+    await load();
   }
 
   async function remove(rule: TransformationRule) {
     if (!confirm(`¿Eliminar regla "${rule.name}"?`)) return;
     await deleteRule(rule.endpoint_id, rule.id);
-    load();
+    await load();
   }
 
   const filtered = rules.filter(r => filter === 'all' || r.status === filter);
