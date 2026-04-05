@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
+import SentinelBrand from '@/components/SentinelBrand';
 
 export default function AuthPage() {
   const router = useRouter();
@@ -52,22 +53,7 @@ export default function AuthPage() {
 
       <div className="fade-up" style={{ width: '100%', maxWidth: '400px' }}>
         {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '40px', justifyContent: 'center' }}>
-          <div style={{
-            width: '36px', height: '36px',
-            background: 'var(--accent)', borderRadius: '8px',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <svg width="20" height="20" viewBox="0 0 16 16" fill="none">
-              <path d="M8 2L14 5.5V10.5L8 14L2 10.5V5.5L8 2Z" stroke="#0a0b0d" strokeWidth="1.5"/>
-              <circle cx="8" cy="8" r="2" fill="#0a0b0d"/>
-            </svg>
-          </div>
-          <div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '16px', fontWeight: 700 }}>SENTINEL</div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', color: 'var(--muted)', letterSpacing: '2px' }}>AI · SAAS</div>
-          </div>
-        </div>
+        <SentinelBrand variant="auth" />
 
         {/* Card */}
         <div className="sentinel-card" style={{ padding: '28px' }}>

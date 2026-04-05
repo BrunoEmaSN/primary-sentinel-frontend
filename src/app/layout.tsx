@@ -4,6 +4,9 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'Sentinel — Self-Healing AI Pipeline',
   description: 'Monitor, auto-repair, and manage your data pipelines with AI.',
+  icons: {
+    icon: '/logo.svg',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

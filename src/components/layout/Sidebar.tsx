@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import SentinelBrand from '@/components/SentinelBrand';
 
 const navItems = [
   { label: 'Dashboard',     href: '/dashboard',               section: 'Monitor' },
@@ -28,17 +29,8 @@ export default function Sidebar() {
       height: '100vh',
     }}>
       {/* Logo */}
-      <div style={{ padding: '18px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <div style={{ width: '28px', height: '28px', background: 'var(--accent)', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M8 2L14 5.5V10.5L8 14L2 10.5V5.5L8 2Z" stroke="#0a0b0d" strokeWidth="1.5"/>
-            <circle cx="8" cy="8" r="2" fill="#0a0b0d"/>
-          </svg>
-        </div>
-        <div>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', fontWeight: 700 }}>SENTINEL</div>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', color: 'var(--muted)', letterSpacing: '1.5px' }}>AI · SAAS</div>
-        </div>
+      <div style={{ padding: '18px 16px', borderBottom: '1px solid var(--border)' }}>
+        <SentinelBrand variant="sidebar" />
       </div>
 
       {/* Nav */}
