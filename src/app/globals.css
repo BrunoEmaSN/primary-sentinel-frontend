@@ -1,0 +1,135 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-mono: 'Space Mono', monospace;
+  --font-sans: 'DM Sans', sans-serif;
+
+  --bg: #0a0b0d;
+  --bg2: #0f1114;
+  --bg3: #14171c;
+  --card: #161a20;
+  --border: #1e2530;
+  --border2: #2a3444;
+  --accent: #c8f550;
+  --accent-dim: #a8d42e;
+  --blue: #3b82f6;
+  --red: #ef4444;
+  --amber: #f59e0b;
+  --teal: #14b8a6;
+  --text: #e8eaed;
+  --muted: #6b7a8d;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* Focus ring */
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@layer components {
+  .mono { font-family: var(--font-mono); }
+
+  /* Pills / badges */
+  .pill {
+    @apply inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold font-mono;
+  }
+  .pill-active  { background: rgba(200,245,80,.1);  color: var(--accent); border: 1px solid rgba(200,245,80,.25); }
+  .pill-pending { background: rgba(245,158,11,.1);  color: var(--amber);  border: 1px solid rgba(245,158,11,.25); }
+  .pill-inactive { background: rgba(107,122,141,.1); color: var(--muted); border: 1px solid var(--border2); }
+  .pill-dead    { background: rgba(239,68,68,.1);   color: var(--red);   border: 1px solid rgba(239,68,68,.25); }
+  .pill-healed  { background: rgba(20,184,166,.1);  color: var(--teal);  border: 1px solid rgba(20,184,166,.25); }
+
+  /* Cards */
+  .sentinel-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+
+  /* Buttons */
+  .btn-primary {
+    @apply flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-bold font-mono cursor-pointer transition-all;
+    background: var(--accent);
+    color: #0a0b0d;
+  }
+  .btn-primary:hover { background: var(--accent-dim); }
+
+  .btn-ghost {
+    @apply flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-mono cursor-pointer transition-all;
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border2);
+  }
+  .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+
+  .btn-danger {
+    @apply flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-mono cursor-pointer transition-all;
+    background: rgba(239,68,68,.08);
+    color: var(--red);
+    border: 1px solid rgba(239,68,68,.2);
+  }
+  .btn-danger:hover { background: rgba(239,68,68,.15); }
+
+  /* Input */
+  .sentinel-input {
+    @apply w-full rounded-md px-3 py-2 text-[11px] font-mono outline-none transition-all;
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    color: var(--text);
+  }
+  .sentinel-input:focus { border-color: var(--accent); }
+  .sentinel-input::placeholder { color: var(--muted); }
+
+  /* Table */
+  .sentinel-table { @apply w-full border-collapse; }
+  .sentinel-table th {
+    @apply text-left text-[9px] tracking-widest uppercase font-mono px-3 py-2;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+  .sentinel-table td { @apply px-3 py-2.5 text-[11px]; border-bottom: 1px solid var(--border); }
+  .sentinel-table tr:last-child td { border-bottom: none; }
+  .sentinel-table tr:hover td { background: rgba(255,255,255,.015); }
+}
+
+/* Pulse animation for status dot */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.pulse { animation: pulse-dot 2s ease-in-out infinite; }
+
+/* Slide in */
+@keyframes slide-in {
+  from { transform: translateX(-8px); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+.slide-in { animation: slide-in 0.2s ease; }
+
+/* Fade in up */
+@keyframes fade-up {
+  from { transform: translateY(6px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+.fade-up { animation: fade-up 0.3s ease both; }
