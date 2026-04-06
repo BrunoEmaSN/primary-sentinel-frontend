@@ -1,70 +1,12 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-
-interface Notification {
-  id: string;
-  type: 'healed' | 'dead' | 'rule_created' | 'rule_pending' | 'info';
-  title: string;
-  body?: string;
-  created_at: string;
-  read: boolean;
-}
-
-const typeConfig = {
-  healed:       { icon: '✦', color: 'var(--accent)' },
-  dead:         { icon: '⚠', color: 'var(--red)' },
-  rule_created: { icon: '★', color: 'var(--teal)' },
-  rule_pending: { icon: '◎', color: 'var(--amber)' },
-  info:         { icon: '●', color: 'var(--blue)' },
-};
+import { useNotificationsContext } from '@/components/layout/NotificationsProvider';
+import { notificationTypeConfig } from '@/lib/notifications';
 
 export default function NotificationsPage() {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(true);
-  const supabase = useMemo(() => createClient(), []);
-
-  const load = useCallback(async () => {
-    // Fetch from Supabase notifications table
-    const { data, error } = await supabase
-      .from('notifications')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(50);
-
-    if (!error && data) {
-      setNotifications(data as Notification[]);
-    }
-    setLoading(false);
-  }, [supabase]);
-
-  useEffect(() => {
-    void load();
-
-    // Realtime subscription
-    const channel = supabase
-      .channel('notifications-realtime')
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'notifications',
-      }, (payload) => {
-        setNotifications(prev => [payload.new as Notification, ...prev]);
-      })
-      .subscribe();
-
-    return () => { supabase.removeChannel(channel); };
-  }, [load, supabase]);
-
-  async function markAllRead() {
-    await supabase.from('notifications').update({ read: true }).eq('read', false);
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-  }
-
-  const unread = notifications.filter(n => !n.read).length;
+  const { notifications, loading, markAllRead, unread } = useNotificationsContext();
 
   return (
     <div className="fade-up">
@@ -79,7 +21,7 @@ export default function NotificationsPage() {
             )}
           </div>
           {unread > 0 && (
-            <button className="btn-ghost" onClick={markAllRead} style={{ fontSize: '10px' }}>
+            <button className="btn-ghost" onClick={() => void markAllRead()} style={{ fontSize: '10px' }}>
               Marcar todas como leídas
             </button>
           )}
@@ -104,7 +46,7 @@ export default function NotificationsPage() {
       {!loading && notifications.length > 0 && (
         <div className="sentinel-card" style={{ padding: 0, overflow: 'hidden' }}>
           {notifications.map((notif, i) => {
-            const cfg = typeConfig[notif.type] ?? typeConfig.info;
+            const cfg = notificationTypeConfig[notif.type] ?? notificationTypeConfig.info;
             return (
               <div
                 key={notif.id}
@@ -115,7 +57,7 @@ export default function NotificationsPage() {
                 }}
               >
                 <div style={{
-                  width: '8px', height: '8px', borderRadius: '50',
+                  width: '8px', height: '8px', borderRadius: '50%',
                   background: cfg.color, flexShrink: 0, marginTop: '4px',
                 }} />
                 <div style={{ flex: 1 }}>
@@ -136,7 +78,6 @@ export default function NotificationsPage() {
         </div>
       )}
 
-      {/* Realtime indicator */}
       <div style={{ textAlign: 'center', marginTop: '16px', fontSize: '9px', color: 'var(--muted)', fontFamily: 'var(--font-mono)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
         <div className="pulse" style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--accent)' }} />
         TIEMPO REAL · Supabase Realtime

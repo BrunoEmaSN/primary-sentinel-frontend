@@ -1,8 +1,11 @@
 'use client';
 
+import Link from 'next/link';
+import { useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
+import TopbarNotifications from '@/components/layout/TopbarNotifications';
 
 const titles: Record<string, string> = {
   '/dashboard': 'DASHBOARD',
@@ -13,10 +16,14 @@ const titles: Record<string, string> = {
   '/dashboard/settings': 'CONFIGURACIÓN',
 };
 
+type Menu = 'none' | 'profile' | 'notifications';
+
 export default function Topbar({ user }: { user: User }) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
+  const [menu, setMenu] = useState<Menu>('none');
+  const profileWrapRef = useRef<HTMLDivElement>(null);
 
   const initials = user.email?.slice(0, 2).toUpperCase() ?? 'U';
 
@@ -24,6 +31,17 @@ export default function Topbar({ user }: { user: User }) {
     await supabase.auth.signOut();
     router.push('/auth');
   }
+
+  useEffect(() => {
+    if (menu !== 'profile') return;
+    function handlePointerDown(e: MouseEvent) {
+      if (profileWrapRef.current && !profileWrapRef.current.contains(e.target as Node)) {
+        setMenu('none');
+      }
+    }
+    document.addEventListener('mousedown', handlePointerDown);
+    return () => document.removeEventListener('mousedown', handlePointerDown);
+  }, [menu]);
 
   return (
     <div style={{
@@ -39,24 +57,99 @@ export default function Topbar({ user }: { user: User }) {
       <div style={{ fontFamily: 'var(--font-mono)', fontSize: '14px', fontWeight: 700 }}>
         {titles[pathname] ?? 'SENTINEL'}
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <div style={{ fontSize: '10px', color: 'var(--muted)', fontFamily: 'var(--font-mono)' }}>
-          {user.email}
-        </div>
-        <button
-          onClick={signOut}
-          className="btn-ghost"
-          style={{ fontSize: '10px', padding: '4px 10px' }}
-        >
-          Salir
-        </button>
-        <div style={{
-          width: '28px', height: '28px', borderRadius: '50%',
-          background: 'var(--border2)', display: 'flex',
-          alignItems: 'center', justifyContent: 'center',
-          fontSize: '10px', fontFamily: 'var(--font-mono)', color: 'var(--muted)',
-        }}>
-          {initials}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <TopbarNotifications
+          open={menu === 'notifications'}
+          onOpenChange={(open) => setMenu(open ? 'notifications' : 'none')}
+        />
+
+        <div ref={profileWrapRef} style={{ position: 'relative' }}>
+          <button
+            type="button"
+            aria-expanded={menu === 'profile'}
+            aria-haspopup="true"
+            onClick={() => setMenu((m) => (m === 'profile' ? 'none' : 'profile'))}
+            style={{
+              width: '32px',
+              height: '32px',
+              borderRadius: '50%',
+              background: 'var(--border2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '10px',
+              fontFamily: 'var(--font-mono)',
+              color: 'var(--muted)',
+              border: '1px solid var(--border)',
+              cursor: 'pointer',
+              padding: 0,
+            }}
+            title="Menú de cuenta"
+          >
+            {initials}
+          </button>
+
+          {menu === 'profile' && (
+            <div
+              style={{
+                position: 'absolute',
+                top: 'calc(100% + 8px)',
+                right: 0,
+                minWidth: '200px',
+                background: 'var(--bg2)',
+                border: '1px solid var(--border)',
+                borderRadius: '10px',
+                boxShadow: '0 12px 40px rgba(0,0,0,.45)',
+                zIndex: 100,
+                padding: '6px 0',
+              }}
+            >
+              <div
+                style={{
+                  padding: '8px 14px 10px',
+                  borderBottom: '1px solid var(--border)',
+                  fontSize: '10px',
+                  color: 'var(--muted)',
+                  fontFamily: 'var(--font-mono)',
+                  wordBreak: 'break-all',
+                }}
+              >
+                {user.email}
+              </div>
+              <Link
+                href="/dashboard/settings"
+                onClick={() => setMenu('none')}
+                style={{
+                  display: 'block',
+                  padding: '10px 14px',
+                  fontSize: '12px',
+                  color: 'var(--text)',
+                  textDecoration: 'none',
+                }}
+              >
+                Configuración
+              </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  setMenu('none');
+                  void signOut();
+                }}
+                className="btn-ghost"
+                style={{
+                  width: '100%',
+                  justifyContent: 'flex-start',
+                  borderRadius: 0,
+                  fontSize: '12px',
+                  padding: '10px 14px',
+                  borderTop: '1px solid var(--border)',
+                  marginTop: '4px',
+                }}
+              >
+                Cerrar sesión
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

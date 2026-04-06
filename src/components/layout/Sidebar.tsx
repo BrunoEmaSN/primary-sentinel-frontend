@@ -9,7 +9,6 @@ const navItems = [
   { label: 'Flujos',        href: '/dashboard/flows',          section: 'Monitor' },
   { label: 'Reglas IA',     href: '/dashboard/rules',          section: 'Monitor', badge: 'pending' },
   { label: 'Dead Letter',   href: '/dashboard/dlq',            section: 'Incidentes', badge: 'dlq' },
-  { label: 'Notificaciones',href: '/dashboard/notifications',  section: 'Incidentes' },
   { label: 'Configuración', href: '/dashboard/settings',       section: 'Config' },
 ];
 
