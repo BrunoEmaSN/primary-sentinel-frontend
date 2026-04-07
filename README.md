@@ -1,5 +1,5 @@
 <div align="center">
-  <img width="1888" height="544" alt="primary-sentinel-background" src="https://github.com/user-attachments/assets/8775ec60-358e-4740-b5db-0fd5500d780f" />
+  <img width="1888" height="544" alt="primary-sentinel-frontend" src="https://github.com/user-attachments/assets/48b968da-ca6e-424b-8729-181e047c585e" />
   <br />
   <div>
     <img src="https://img.shields.io/badge/-Nextjs-black?style=for-the-badge&logo=next.js&logoColor=white&color=000000" alt="next.js" />
