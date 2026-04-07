@@ -38,7 +38,7 @@ export default function NotificationsPage() {
         <div className="sentinel-card" style={{ textAlign: 'center', padding: '50px' }}>
           <div style={{ fontSize: '11px', color: 'var(--muted)' }}>Sin notificaciones aún</div>
           <div style={{ fontSize: '10px', color: 'var(--muted)', marginTop: '4px' }}>
-            Las alertas aparecerán aquí cuando el Sentinel detecte eventos
+            Las alertas aparecerán aquí cuando Primary Sentinel detecte eventos
           </div>
         </div>
       )}

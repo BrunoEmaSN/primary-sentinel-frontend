@@ -352,7 +352,7 @@ export default function FlowsPage() {
       <div className="sentinel-card">
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700, marginBottom: '10px' }}>PROBAR UN WEBHOOK</div>
         <div style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '8px' }}>
-          Enviá un POST a tu endpoint para ver al Sentinel en acción:
+          Enviá un POST a tu endpoint para ver Primary Sentinel en acción:
         </div>
         <pre style={{
           background: 'var(--bg2)', borderRadius: '6px', padding: '12px',

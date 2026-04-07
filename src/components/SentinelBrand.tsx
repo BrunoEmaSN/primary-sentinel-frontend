@@ -32,7 +32,7 @@ export default function SentinelBrand({ variant }: SentinelBrandProps) {
         unoptimized
       />
       <div>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: c.title, fontWeight: 700 }}>SENTINEL</div>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: c.title, fontWeight: 700 }}>PRIMARY SENTINEL</div>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: c.subtitle, color: 'var(--muted)', letterSpacing: c.letter }}>AI · SAAS</div>
       </div>
     </div>

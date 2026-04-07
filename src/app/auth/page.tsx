@@ -159,7 +159,7 @@ export default function AuthPage() {
         </div>
 
         <div style={{ textAlign: 'center', marginTop: '16px', fontSize: '10px', color: 'var(--muted)', fontFamily: 'var(--font-mono)' }}>
-          SENTINEL SAAS · AUTO-HEALING AI PIPELINE
+          PRIMARY SENTINEL · AUTO-HEALING AI PIPELINE
         </div>
       </div>
     </div>

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Sentinel — Self-Healing AI Pipeline',
+  title: 'Primary Sentinel — Self-Healing AI Pipeline',
   description: 'Monitor, auto-repair, and manage your data pipelines with AI.',
   icons: {
     icon: '/logo.svg',
