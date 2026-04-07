@@ -1,13 +1,28 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { isSupabasePublicEnvConfigured } from '@/lib/supabase/public-env';
 import { useRouter } from 'next/navigation';
 import SentinelBrand from '@/components/SentinelBrand';
 
+function networkErrorMessage(err: unknown): string {
+  if (err instanceof TypeError && /failed to fetch|networkerror|load failed/i.test(String(err.message))) {
+    return 'No se pudo conectar con Supabase. Revisá NEXT_PUBLIC_SUPABASE_URL en .env.local (URL del proyecto, sin placeholders), tu red y que el proyecto esté activo en supabase.com.';
+  }
+  if (err instanceof Error) {
+    return err.message;
+  }
+  return 'Error inesperado. Intentá de nuevo.';
+}
+
 export default function AuthPage() {
   const router = useRouter();
-  const supabase = createClient();
+  const configured = isSupabasePublicEnvConfigured();
+  const supabase = useMemo(
+    () => (configured ? createClient() : null),
+    [configured]
+  );
 
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [email, setEmail] = useState('');
@@ -20,18 +35,26 @@ export default function AuthPage() {
     e.preventDefault();
     setError('');
     setInfo('');
-    setLoading(true);
-
-    if (mode === 'login') {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) { setError(error.message); }
-      else { router.push('/dashboard'); }
-    } else {
-      const { error } = await supabase.auth.signUp({ email, password });
-      if (error) { setError(error.message); }
-      else { setInfo('Revisá tu email para confirmar la cuenta.'); }
+    if (!supabase) {
+      setError('Configurá Supabase en .env.local antes de continuar.');
+      return;
     }
-    setLoading(false);
+    setLoading(true);
+    try {
+      if (mode === 'login') {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) setError(error.message);
+        else router.push('/dashboard');
+      } else {
+        const { error } = await supabase.auth.signUp({ email, password });
+        if (error) setError(error.message);
+        else setInfo('Revisá tu email para confirmar la cuenta.');
+      }
+    } catch (err) {
+      setError(networkErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -65,6 +88,14 @@ export default function AuthPage() {
               {mode === 'login' ? 'Accedé a tu panel de control' : 'Comenzá a monitorear tus pipelines'}
             </p>
           </div>
+
+          {!configured && (
+            <div style={{ padding: '10px 12px', borderRadius: '6px', marginBottom: '16px', background: 'rgba(251,191,36,.08)', border: '1px solid rgba(251,191,36,.25)', fontSize: '11px', color: 'var(--muted)', lineHeight: 1.5 }}>
+              Falta configurar Supabase: en <span style={{ fontFamily: 'var(--font-mono)' }}>.env.local</span> copiá{' '}
+              <strong style={{ color: 'var(--fg)' }}>Project URL</strong> y la clave <strong style={{ color: 'var(--fg)' }}>anon public</strong> desde el panel (Settings → API). Reiniciá{' '}
+              <span style={{ fontFamily: 'var(--font-mono)' }}>next dev</span> después de guardar.
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div>
@@ -109,7 +140,7 @@ export default function AuthPage() {
             <button
               className="btn-primary"
               type="submit"
-              disabled={loading}
+              disabled={loading || !configured}
               style={{ justifyContent: 'center', marginTop: '4px', opacity: loading ? 0.7 : 1 }}
             >
               {loading ? 'Cargando...' : mode === 'login' ? 'Ingresar' : 'Crear cuenta'}

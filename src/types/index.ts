@@ -1,9 +1,11 @@
-// Mirrors backend domain models
+// Mirrors backend domain models + API normalization
+
+import type { Destination } from './destinations';
 
 export type EventStatus = 'loaded' | 'healed' | 'dead' | 'processing';
 export type RuleStatus = 'active' | 'pending' | 'quarantined' | 'inactive';
 export type RuleSource = 'ai' | 'human';
-export type DestinationType = 'supabase' | 'webhook' | 'bigquery';
+export type DestinationType = Destination['type'];
 
 export interface Endpoint {
   id: string;
@@ -11,11 +13,10 @@ export interface Endpoint {
   name: string;
   slug: string;
   schema: Record<string, unknown>;
-  destination: {
-    type: DestinationType;
-    tableName?: string;
-    url?: string;
-  };
+  /** Normalized from API `destinations` */
+  destinations: Destination[];
+  /** Convenience: single dest or array (same as API) */
+  destination?: Destination | Destination[];
   healingConfig: {
     enabled: boolean;
     maxAttempts: number;
@@ -71,11 +72,16 @@ export interface DLQEvent {
   created_at: string;
 }
 
-// API response shapes
 export interface ApiResponse<T> {
   data?: T;
   error?: string;
   message?: string;
+}
+
+export interface CreateEndpointResponse {
+  endpoint: Record<string, unknown>;
+  webhookUrl: string;
+  webhookSecret: string;
 }
 
 export interface EventsListResponse {
@@ -91,7 +97,6 @@ export interface WebhookReceiveResponse {
   message: string;
 }
 
-// Stats (derived client-side or from a future /stats endpoint)
 export interface DashboardStats {
   eventsToday: number;
   healedToday: number;

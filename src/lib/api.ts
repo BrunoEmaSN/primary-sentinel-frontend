@@ -3,6 +3,7 @@
  * All requests use the Supabase JWT as Bearer token.
  */
 
+import type { Destination } from '@/types/destinations';
 import type {
   Endpoint,
   RawEvent,
@@ -10,6 +11,7 @@ import type {
   DLQEvent,
   EventsListResponse,
   ApiResponse,
+  CreateEndpointResponse,
 } from '@/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8787';
@@ -105,20 +107,80 @@ async function apiFetch<T>(
 
 // ─── Endpoints ────────────────────────────────────────────────────────────────
 
+function pickDestinations(row: Record<string, unknown>): Destination[] {
+  if (Array.isArray(row.destinations) && row.destinations.length > 0) {
+    return row.destinations as Destination[];
+  }
+  const d = row.destination;
+  if (d == null) return [];
+  if (Array.isArray(d)) return d as Destination[];
+  if (typeof d === 'object') return [d as Destination];
+  return [];
+}
+
+function normalizeEndpoint(row: Record<string, unknown>): Endpoint {
+  const destinations = pickDestinations(row);
+  const hc = row.healingConfig ?? row.healing_config;
+  const healingObj =
+    hc !== null && typeof hc === 'object' && !Array.isArray(hc)
+      ? (hc as Record<string, unknown>)
+      : {};
+
+  const created =
+    (typeof row.created_at === 'string' && row.created_at) ||
+    (typeof row.createdAt === 'string' && row.createdAt) ||
+    new Date().toISOString();
+  const updated =
+    (typeof row.updated_at === 'string' && row.updated_at) ||
+    (typeof row.updatedAt === 'string' && row.updatedAt) ||
+    created;
+
+  return {
+    id: String(row.id ?? ''),
+    tenant_id: String(row.tenant_id ?? row.tenantId ?? ''),
+    name: String(row.name ?? ''),
+    slug: String(row.slug ?? ''),
+    schema:
+      row.schema !== null && typeof row.schema === 'object' && !Array.isArray(row.schema)
+        ? (row.schema as Record<string, unknown>)
+        : {},
+    destinations,
+    destination: destinations.length === 1 ? destinations[0] : destinations,
+    healingConfig: {
+      enabled: Boolean(healingObj.enabled ?? true),
+      maxAttempts: Number(healingObj.maxAttempts ?? healingObj.max_attempts ?? 3),
+      autoApplyRules: Boolean(healingObj.autoApplyRules ?? healingObj.auto_apply_rules ?? true),
+      notifyOnHealing: Boolean(healingObj.notifyOnHealing ?? healingObj.notify_on_healing ?? true),
+      notifyOnDead: Boolean(healingObj.notifyOnDead ?? healingObj.notify_on_dead ?? true),
+    },
+    webhook_secret: typeof row.webhook_secret === 'string' ? row.webhook_secret : undefined,
+    created_at: created,
+    updated_at: updated,
+  };
+}
+
 export async function listEndpoints(): Promise<Endpoint[]> {
-  const res = await apiFetch<Endpoint[] | { data: Endpoint[]; count?: number }>('/api/endpoints');
-  return unwrapListPayload<Endpoint>(res.data);
+  const res = await apiFetch<Endpoint[] | { data: Record<string, unknown>[]; count?: number }>(
+    '/api/endpoints'
+  );
+  const raw = unwrapListPayload<Record<string, unknown>>(res.data);
+  return raw.map(normalizeEndpoint);
 }
 
 export async function getEndpoint(id: string): Promise<Endpoint | null> {
-  const res = await apiFetch<Endpoint>(`/api/endpoints/${id}`);
-  return res.data ?? null;
+  const res = await apiFetch<Record<string, unknown>>(`/api/endpoints/${id}`);
+  const row = res.data;
+  if (!row) return null;
+  return normalizeEndpoint(row);
 }
 
 export async function createEndpoint(
-  body: Omit<Endpoint, 'id' | 'tenant_id' | 'slug' | 'created_at' | 'updated_at'>
-): Promise<ApiResponse<Endpoint>> {
-  return apiFetch<Endpoint>('/api/endpoints', {
+  body: Omit<Endpoint, 'id' | 'tenant_id' | 'slug' | 'created_at' | 'updated_at' | 'destinations' | 'destination'> & {
+    destination?: Destination | Destination[];
+    destinations?: Destination[];
+  }
+): Promise<ApiResponse<CreateEndpointResponse>> {
+  return apiFetch<CreateEndpointResponse>('/api/endpoints', {
     method: 'POST',
     body: JSON.stringify(body),
   });
