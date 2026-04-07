@@ -16,7 +16,7 @@ export default function AgentStatus({ rules }: { rules: TransformationRule[] }) 
   return (
     <div className="sentinel-card">
       <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700, marginBottom: '14px' }}>
-        IA SENTINEL · ESTADO
+        PRIMARY SENTINEL · ESTADO
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {agents.map(agent => (

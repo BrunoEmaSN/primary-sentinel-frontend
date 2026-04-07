@@ -80,7 +80,7 @@ export default function SettingsPage() {
         </Row>
       </Section>
 
-      <Section title="CONFIGURACIÓN DEL SENTINEL">
+      <Section title="CONFIGURACIÓN DE PRIMARY SENTINEL">
         <Row label="Umbral de auto-aprobación" sub="Reglas con confianza ≥ X se activan automáticamente">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <input type="range" min={50} max={100} defaultValue={95} style={{ width: '100px' }} />

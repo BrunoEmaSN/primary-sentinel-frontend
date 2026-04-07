@@ -55,7 +55,7 @@ export default function Topbar({ user }: { user: User }) {
       background: 'var(--bg)',
     }}>
       <div style={{ fontFamily: 'var(--font-mono)', fontSize: '14px', fontWeight: 700 }}>
-        {titles[pathname] ?? 'SENTINEL'}
+        {titles[pathname] ?? 'PRIMARY SENTINEL'}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         <TopbarNotifications
