@@ -14,7 +14,7 @@ import type {
   CreateEndpointResponse,
 } from '@/types';
 
-const API_URL = process.env.API_URL || 'http://localhost:8787';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8787';
 
 /** Backend list routes return `{ data: T[], ... }`; unwrap to `T[]`. */
 function unwrapListPayload<T>(body: unknown): T[] {

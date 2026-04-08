@@ -5,7 +5,7 @@ import type { ReactNode } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
 
-const API_URL = process.env.API_URL || 'http://localhost:8787';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8787';
 
 type SectionProps = {
   title: string;
