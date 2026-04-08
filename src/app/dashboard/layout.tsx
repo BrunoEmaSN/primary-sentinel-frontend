@@ -1,11 +1,14 @@
 import { redirect } from 'next/navigation';
-import { createClient } from '@/lib/supabase/server';
+import { createClientIfConfigured } from '@/lib/supabase/server';
 import Sidebar from '@/components/layout/Sidebar';
 import Topbar from '@/components/layout/Topbar';
 import { NotificationsProvider } from '@/components/layout/NotificationsProvider';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient();
+  const supabase = await createClientIfConfigured();
+  if (!supabase) {
+    redirect('/auth');
+  }
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) redirect('/auth');

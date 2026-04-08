@@ -3,12 +3,13 @@
 import Image from 'next/image';
 
 type SentinelBrandProps = {
-  variant: 'sidebar' | 'auth';
+  variant: 'sidebar' | 'auth' | 'landing';
 };
 
 const cfg = {
   sidebar: { size: 28, title: '13px', subtitle: '9px', gap: '8px', letter: '1.5px' as const },
   auth: { size: 36, title: '16px', subtitle: '9px', gap: '10px', letter: '2px' as const },
+  landing: { size: 32, title: '14px', subtitle: '9px', gap: '10px', letter: '2px' as const },
 };
 
 export default function SentinelBrand({ variant }: SentinelBrandProps) {
@@ -20,6 +21,7 @@ export default function SentinelBrand({ variant }: SentinelBrandProps) {
         alignItems: 'center',
         gap: c.gap,
         ...(variant === 'auth' ? { marginBottom: '40px', justifyContent: 'center' } : {}),
+        ...(variant === 'landing' ? { justifyContent: 'flex-start' } : {}),
       }}
     >
       <Image
@@ -27,7 +29,7 @@ export default function SentinelBrand({ variant }: SentinelBrandProps) {
         alt="logo"
         width={c.size}
         height={c.size}
-        priority={variant === 'auth'}
+        priority={variant === 'auth' || variant === 'landing'}
         className="dark:invert"
         unoptimized
       />

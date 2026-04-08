@@ -1,5 +1,13 @@
+import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { createClient } from '@/lib/supabase/server';
+import { createClientIfConfigured } from '@/lib/supabase/server';
+import LandingPage from '@/components/landing/LandingPage';
+
+export const metadata: Metadata = {
+  title: 'Primary Sentinel — Pipeline con IA auto-reparable',
+  description:
+    'Monitoreá, repará y gestioná tus pipelines de datos con IA. Observabilidad y recuperación automática en un solo panel.',
+};
 
 function firstParam(v: string | string[] | undefined): string | undefined {
   if (v == null) return undefined;
@@ -25,12 +33,15 @@ export default async function RootPage({ searchParams }: { searchParams: RootSea
     redirect(`/auth/callback?${qs.toString()}`);
   }
 
-  const supabase = await createClient();
+  const supabase = await createClientIfConfigured();
+  if (!supabase) {
+    return <LandingPage />;
+  }
   const { data: { user } } = await supabase.auth.getUser();
 
   if (user) {
     redirect('/dashboard');
-  } else {
-    redirect('/auth');
   }
+
+  return <LandingPage />;
 }

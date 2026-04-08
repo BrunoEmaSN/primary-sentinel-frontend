@@ -1,9 +1,16 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
-import { getSupabasePublicEnvOrThrow } from '@/lib/supabase/public-env'
+import {
+  getSupabasePublicEnvOrThrow,
+  isSupabasePublicEnvConfigured,
+} from '@/lib/supabase/public-env'
 
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
+
+  if (!isSupabasePublicEnvConfigured()) {
+    return supabaseResponse
+  }
 
   const { url, anonKey } = getSupabasePublicEnvOrThrow()
   const supabase = createServerClient(

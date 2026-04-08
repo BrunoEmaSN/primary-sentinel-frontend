@@ -22,9 +22,11 @@ function jwtRole(claims: string): string | undefined {
   }
 }
 
-function validatePublicSupabaseEnv():
+export type SupabasePublicEnvResult =
   | { ok: true; url: string; anonKey: string }
-  | { ok: false } {
+  | { ok: false };
+
+function validatePublicSupabaseEnv(): SupabasePublicEnvResult {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
   if (!url || !anonKey) {
@@ -45,6 +47,11 @@ function validatePublicSupabaseEnv():
     return { ok: false };
   }
   return { ok: true, url, anonKey };
+}
+
+/** Una sola lectura de env + reglas; usala cuando necesites url/anonKey sin desincronizar con `createClient`. */
+export function getSupabasePublicEnv(): SupabasePublicEnvResult {
+  return validatePublicSupabaseEnv();
 }
 
 export function isSupabasePublicEnvConfigured(): boolean {
