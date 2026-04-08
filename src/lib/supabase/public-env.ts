@@ -8,12 +8,29 @@ const PLACEHOLDER_PATTERNS = [
   /REPLACE_ME/i,
 ];
 
+/** Reject service_role JWTs — they must never ship to the browser (NEXT_PUBLIC_*). */
+function jwtRole(claims: string): string | undefined {
+  try {
+    const part = claims.split('.')[1];
+    if (!part) return undefined;
+    const json = JSON.parse(
+      atob(part.replace(/-/g, '+').replace(/_/g, '/'))
+    ) as { role?: string };
+    return typeof json.role === 'string' ? json.role : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 function validatePublicSupabaseEnv():
   | { ok: true; url: string; anonKey: string }
   | { ok: false } {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
   if (!url || !anonKey) {
+    return { ok: false };
+  }
+  if (jwtRole(anonKey) === 'service_role') {
     return { ok: false };
   }
   if (PLACEHOLDER_PATTERNS.some((p) => p.test(url) || p.test(anonKey))) {
@@ -37,8 +54,16 @@ export function isSupabasePublicEnvConfigured(): boolean {
 export function getSupabasePublicEnvOrThrow(): { url: string; anonKey: string } {
   const result = validatePublicSupabaseEnv();
   if (!result.ok) {
+    const role = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      ? jwtRole(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.trim())
+      : undefined;
+    if (role === 'service_role') {
+      throw new Error(
+        'NEXT_PUBLIC_SUPABASE_ANON_KEY no puede ser la clave service_role. En Supabase → Settings → API usá la clave anon (public) en el cliente. Rotá la service_role si la expusiste.'
+      );
+    }
     throw new Error(
-      'Supabase no está configurado: en .env.local definí NEXT_PUBLIC_NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY con los valores del panel de Supabase (Settings → API), sin placeholders.'
+      'Supabase no está configurado: en .env.local definí NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY con los valores del panel de Supabase (Settings → API), sin placeholders.'
     );
   }
   return { url: result.url, anonKey: result.anonKey };

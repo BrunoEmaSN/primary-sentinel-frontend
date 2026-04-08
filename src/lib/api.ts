@@ -1,6 +1,6 @@
 /**
  * API client for the Sentinel backend (Cloudflare Worker).
- * All requests use the Supabase JWT as Bearer token.
+ * Uses the Supabase access JWT as Bearer. On 401, calls refreshSession once and retries.
  */
 
 import type { Destination } from '@/types/destinations';
@@ -70,31 +70,58 @@ function normalizeDlqRow(row: Record<string, unknown>): DLQEvent {
   };
 }
 
-async function getToken(): Promise<string | null> {
-  // Dynamic import so this works in both client and server contexts
+async function getAccessToken(): Promise<string | null> {
   if (typeof window !== 'undefined') {
     const { createClient } = await import('@/lib/supabase/client');
     const supabase = createClient();
     const { data } = await supabase.auth.getSession();
     return data.session?.access_token ?? null;
   }
-  return null;
+  const { createClient } = await import('@/lib/supabase/server');
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getSession();
+  return data.session?.access_token ?? null;
+}
+
+/** One refresh attempt; returns new access token or null. */
+async function refreshAccessToken(): Promise<string | null> {
+  if (typeof window !== 'undefined') {
+    const { createClient } = await import('@/lib/supabase/client');
+    const supabase = createClient();
+    const { data } = await supabase.auth.refreshSession();
+    return data.session?.access_token ?? null;
+  }
+  const { createClient } = await import('@/lib/supabase/server');
+  const supabase = await createClient();
+  const { data } = await supabase.auth.refreshSession();
+  return data.session?.access_token ?? null;
 }
 
 async function apiFetch<T>(
   path: string,
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> {
-  const token = await getToken();
+  const url = `${API_URL}${path}`;
+  const token = await getAccessToken();
 
-  const res = await fetch(`${API_URL}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options.headers,
-    },
-  });
+  const doFetch = (accessToken: string | null) =>
+    fetch(url, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+        ...options.headers,
+      },
+    });
+
+  let res = await doFetch(token);
+
+  if (res.status === 401) {
+    const newToken = await refreshAccessToken();
+    if (newToken) {
+      res = await doFetch(newToken);
+    }
+  }
 
   if (!res.ok) {
     const text = await res.text().catch(() => 'Unknown error');
