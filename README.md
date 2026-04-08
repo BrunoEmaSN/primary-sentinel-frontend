@@ -53,8 +53,8 @@ Editá `.env.local`:
 
 ```env
 # De tu proyecto Supabase (Settings → API)
-SUPABASE_URL=https://XXXX.supabase.co
-UPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+NEXT_PUBLIC_SUPABASE_URL=https://XXXX.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 # Tu Cloudflare Worker (local o deployed)
 API_URL=http://localhost:8787

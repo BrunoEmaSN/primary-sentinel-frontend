@@ -11,8 +11,8 @@ const PLACEHOLDER_PATTERNS = [
 function validatePublicSupabaseEnv():
   | { ok: true; url: string; anonKey: string }
   | { ok: false } {
-  const url = process.env.SUPABASE_URL?.trim();
-  const anonKey = process.env.SUPABASE_ANON_KEY?.trim();
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
   if (!url || !anonKey) {
     return { ok: false };
   }
@@ -38,7 +38,7 @@ export function getSupabasePublicEnvOrThrow(): { url: string; anonKey: string } 
   const result = validatePublicSupabaseEnv();
   if (!result.ok) {
     throw new Error(
-      'Supabase no está configurado: en .env.local definí NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY con los valores del panel de Supabase (Settings → API), sin placeholders.'
+      'Supabase no está configurado: en .env.local definí NEXT_PUBLIC_NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY con los valores del panel de Supabase (Settings → API), sin placeholders.'
     );
   }
   return { url: result.url, anonKey: result.anonKey };
