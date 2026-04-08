@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { getOAuthCallbackUrl } from '@/lib/app-url';
 import { isSupabasePublicEnvConfigured } from '@/lib/supabase/public-env';
 import { useRouter } from 'next/navigation';
 import SentinelBrand from '@/components/SentinelBrand';
@@ -83,7 +84,7 @@ export default function AuthPage() {
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: getOAuthCallbackUrl(),
         },
       });
       if (oauthError) {
@@ -111,7 +112,11 @@ export default function AuthPage() {
         if (error) setError(error.message);
         else router.push('/dashboard');
       } else {
-        const { error } = await supabase.auth.signUp({ email, password });
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { emailRedirectTo: getOAuthCallbackUrl() },
+        });
         if (error) setError(error.message);
         else setInfo('Revisá tu email para confirmar la cuenta.');
       }
