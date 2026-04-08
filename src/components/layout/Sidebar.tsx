@@ -10,6 +10,7 @@ const navItems = [
   { label: 'Reglas IA',     href: '/dashboard/rules',          section: 'Monitor', badge: 'pending' },
   { label: 'Dead Letter',   href: '/dashboard/dlq',            section: 'Incidentes', badge: 'dlq' },
   { label: 'Configuración', href: '/dashboard/settings',       section: 'Config' },
+  { label: 'Documentación', href: '/docs',                     section: 'Ayuda' },
 ];
 
 export default function Sidebar() {

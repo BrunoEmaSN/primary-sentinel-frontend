@@ -54,8 +54,22 @@ export default function Topbar({ user }: { user: User }) {
       flexShrink: 0,
       background: 'var(--bg)',
     }}>
-      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '14px', fontWeight: 700 }}>
-        {titles[pathname] ?? 'PRIMARY SENTINEL'}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 0 }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '14px', fontWeight: 700 }}>
+          {titles[pathname] ?? 'PRIMARY SENTINEL'}
+        </div>
+        <Link
+          href="/docs"
+          style={{
+            fontSize: '11px',
+            fontFamily: 'var(--font-mono)',
+            color: 'var(--muted)',
+            textDecoration: 'none',
+            flexShrink: 0,
+          }}
+        >
+          Docs
+        </Link>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         <TopbarNotifications
