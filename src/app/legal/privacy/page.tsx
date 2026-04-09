@@ -39,18 +39,15 @@ export default async function PrivacyPage() {
   const lp = dict.legal.privacy;
 
   return (
-    <div style={{ maxWidth: '720px', margin: '0 auto', padding: '48px 20px', lineHeight: 1.65 }}>
-      <Link
-        href="/"
-        style={{ fontSize: '12px', color: 'var(--accent)', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-      >
+    <div className="legal-doc">
+      <Link href="/" className="legal-doc__back">
         <IconArrowLeft size={14} />
         {lp.navBack}
       </Link>
       <h1>{lp.title}</h1>
-      <p>{lp.lastUpdated}</p>
-      <p>{lp.intro1}</p>
-      <p>
+      <p className="legal-doc__meta">{lp.lastUpdated}</p>
+      <p className="legal-doc__intro">{lp.intro1}</p>
+      <p className="legal-doc__intro">
         {lp.intro2a}
         <a href={lp.generatorHref} target="_blank" rel="noreferrer">
           {lp.intro2Link}

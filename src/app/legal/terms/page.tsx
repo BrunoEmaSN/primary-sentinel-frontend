@@ -36,17 +36,14 @@ export default async function TermsPage() {
   const lt = dict.legal.terms;
 
   return (
-    <div style={{ maxWidth: '720px', margin: '0 auto', padding: '48px 20px', lineHeight: 1.65 }}>
-      <Link
-        href="/"
-        style={{ fontSize: '12px', color: 'var(--accent)', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-      >
+    <div className="legal-doc">
+      <Link href="/" className="legal-doc__back">
         <IconArrowLeft size={14} />
         {lt.navBack}
       </Link>
       <h1>{lt.title}</h1>
-      <p>{lt.lastUpdated}</p>
-      <p>{lt.intro}</p>
+      <p className="legal-doc__meta">{lt.lastUpdated}</p>
+      <p className="legal-doc__intro">{lt.intro}</p>
 
       <h2>{lt.hInterpretationDefs}</h2>
       <h3>{lt.hInterpretation}</h3>
