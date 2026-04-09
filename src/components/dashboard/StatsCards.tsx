@@ -1,5 +1,7 @@
 'use client';
 
+import { useI18n } from '@/lib/i18n/I18nProvider';
+
 interface Props {
   eventsToday: number;
   healedToday: number;
@@ -30,33 +32,36 @@ function MetricCard({
 }
 
 export default function StatsCards({ eventsToday, healedToday, activeRules, pendingRules, dlqCount, healingRate, loading }: Props) {
+  const { dict } = useI18n();
+  const s = dict.dashboard.stats;
+
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '20px' }}>
       <MetricCard
-        label="Eventos hoy"
+        label={s.eventsToday}
         value={eventsToday.toLocaleString()}
-        sub={`${healingRate}% procesados OK`}
+        sub={s.subEventsOk.replace('{rate}', String(healingRate))}
         accent="var(--accent)"
         loading={loading}
       />
       <MetricCard
-        label="Auto-reparados"
+        label={s.healedToday}
         value={healedToday}
-        sub={`Tasa éxito ${healingRate}%`}
+        sub={s.subHealRate.replace('{rate}', String(healingRate))}
         accent="var(--blue)"
         loading={loading}
       />
       <MetricCard
-        label="Reglas activas"
+        label={s.activeRules}
         value={activeRules}
-        sub={pendingRules > 0 ? `${pendingRules} pendientes aprobación` : 'Todo aprobado'}
+        sub={pendingRules > 0 ? s.subPending.replace('{n}', String(pendingRules)) : s.subAllApproved}
         accent="var(--amber)"
         loading={loading}
       />
       <MetricCard
-        label="Cola DLQ"
+        label={s.dlq}
         value={dlqCount}
-        sub={dlqCount > 0 ? 'Requieren revisión' : 'Sin eventos críticos'}
+        sub={dlqCount > 0 ? s.subDlqReview : s.subDlqClean}
         accent={dlqCount > 0 ? 'var(--red)' : 'var(--teal)'}
         loading={loading}
       />

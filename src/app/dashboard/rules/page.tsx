@@ -5,8 +5,10 @@ import { listEndpoints, listRules, updateRule, deleteRule } from '@/lib/api';
 import type { TransformationRule, Endpoint } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { useI18n } from '@/lib/i18n/I18nProvider';
 
 export default function RulesPage() {
+  const { dict } = useI18n();
   const [rules, setRules] = useState<TransformationRule[]>([]);
   const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
   const [loading, setLoading] = useState(true);
@@ -93,7 +95,7 @@ export default function RulesPage() {
           </div>
         </div>
 
-        {loading && <div style={{ textAlign: 'center', padding: '30px', color: 'var(--muted)', fontSize: '11px' }}>Cargando reglas…</div>}
+        {loading && <div style={{ textAlign: 'center', padding: '30px', color: 'var(--muted)', fontSize: '11px' }}>{dict.dashboard.loading.rules}</div>}
 
         {!loading && filtered.length === 0 && (
           <div style={{ textAlign: 'center', padding: '40px', color: 'var(--muted)' }}>

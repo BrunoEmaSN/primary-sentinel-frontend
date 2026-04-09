@@ -4,8 +4,10 @@ import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useNotificationsContext } from '@/components/layout/NotificationsProvider';
 import { notificationTypeConfig } from '@/lib/notifications';
+import { useI18n } from '@/lib/i18n/I18nProvider';
 
 export default function NotificationsPage() {
+  const { dict } = useI18n();
   const { notifications, loading, markAllRead, unread } = useNotificationsContext();
 
   return (
@@ -30,7 +32,7 @@ export default function NotificationsPage() {
 
       {loading && (
         <div style={{ textAlign: 'center', padding: '40px', color: 'var(--muted)', fontSize: '11px' }}>
-          Cargando notificaciones…
+          {dict.dashboard.loading.notifications}
         </div>
       )}
 

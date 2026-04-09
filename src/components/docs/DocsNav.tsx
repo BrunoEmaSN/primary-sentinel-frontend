@@ -2,36 +2,10 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import SentinelBrand from '@/components/SentinelBrand';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
-
-const NAV = [
-  {
-    section: 'Intro',
-    items: [
-      { href: '/docs', label: 'Introducción' },
-      { href: '/docs/empezar', label: 'Primeros pasos' },
-    ],
-  },
-  {
-    section: 'App',
-    items: [
-      { href: '/docs/dashboard', label: 'Dashboard' },
-      { href: '/docs/flujos', label: 'Flujos' },
-      { href: '/docs/operaciones', label: 'Operaciones' },
-      { href: '/docs/reglas', label: 'Reglas IA' },
-      { href: '/docs/dlq', label: 'Dead Letter' },
-      { href: '/docs/notificaciones', label: 'Notificaciones' },
-      { href: '/docs/configuracion', label: 'Configuración' },
-      { href: '/docs/facturacion', label: 'Facturación' },
-    ],
-  },
-  {
-    section: 'Integración',
-    items: [{ href: '/docs/api', label: 'API y webhooks' }],
-  },
-] as const;
+import { useI18n } from '@/lib/i18n/I18nProvider';
 
 function navLinkStyle(active: boolean) {
   return {
@@ -53,6 +27,39 @@ function navLinkStyle(active: boolean) {
 export default function DocsNav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const { dict } = useI18n();
+  const n = dict.docs.nav;
+
+  const NAV = useMemo(
+    () =>
+      [
+        {
+          section: n.intro,
+          items: [
+            { href: '/docs', label: n.linkIntro },
+            { href: '/docs/empezar', label: n.linkEmpezar },
+          ],
+        },
+        {
+          section: n.app,
+          items: [
+            { href: '/docs/dashboard', label: n.linkDashboard },
+            { href: '/docs/flujos', label: n.linkFlujos },
+            { href: '/docs/operaciones', label: n.linkOperaciones },
+            { href: '/docs/reglas', label: n.linkReglas },
+            { href: '/docs/dlq', label: n.linkDlq },
+            { href: '/docs/notificaciones', label: n.linkNotif },
+            { href: '/docs/configuracion', label: n.linkConfig },
+            { href: '/docs/facturacion', label: n.linkBilling },
+          ],
+        },
+        {
+          section: n.integration,
+          items: [{ href: '/docs/api', label: n.linkApi }],
+        },
+      ] as const,
+    [n]
+  );
 
   useEffect(() => {
     setOpen(false);
@@ -120,10 +127,10 @@ export default function DocsNav() {
 
       <div style={{ padding: '12px 16px', borderTop: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
         <Link href="/" className="btn-ghost" style={{ justifyContent: 'center', textDecoration: 'none', fontSize: '11px' }} onClick={() => setOpen(false)}>
-          Volver al inicio
+          {n.backHome}
         </Link>
         <Link href="/dashboard" className="btn-primary" style={{ justifyContent: 'center', textDecoration: 'none', fontSize: '11px' }} onClick={() => setOpen(false)}>
-          Ir al panel
+          {n.goDashboard}
         </Link>
       </div>
     </>
@@ -131,27 +138,25 @@ export default function DocsNav() {
 
   return (
     <>
-      {/* Mobile top bar */}
       <header className="docs-mobile-header md:hidden">
         <Link href="/docs" style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700, color: 'var(--text)', textDecoration: 'none' }}>
-          DOCS
+          {n.docsBadge}
         </Link>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <LanguageSwitcher variant="compact" />
           <button
             type="button"
             aria-expanded={open}
-            aria-label={open ? 'Cerrar menú' : 'Abrir menú de documentación'}
+            aria-label={open ? n.closeMenu : n.openMenu}
             onClick={() => setOpen((o) => !o)}
             className="btn-ghost"
             style={{ padding: '6px 10px', fontSize: '11px' }}
           >
-            {open ? 'Cerrar' : 'Menú'}
+            {open ? n.close : n.menu}
           </button>
         </div>
       </header>
 
-      {/* Mobile overlay + drawer */}
       {open && (
         <div
           className="docs-mobile-drawer-below-header md:hidden"
@@ -188,7 +193,6 @@ export default function DocsNav() {
         {sidebarInner}
       </aside>
 
-      {/* Desktop sidebar */}
       <nav
         className="hidden md:flex"
         style={{

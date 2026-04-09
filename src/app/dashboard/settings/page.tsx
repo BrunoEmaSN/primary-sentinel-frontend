@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
 import { getTenantSettings, putTenantSettings, type TenantSettingsApi } from '@/lib/api';
+import { useI18n } from '@/lib/i18n/I18nProvider';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8787';
 
@@ -53,6 +54,8 @@ const defaultSettings: TenantSettingsApi = {
 };
 
 export default function SettingsPage() {
+  const { dict } = useI18n();
+  const st = dict.dashboard.settings;
   const [user, setUser] = useState<User | null>(null);
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -81,7 +84,7 @@ export default function SettingsPage() {
       alert_webhook_secret: s.alert_webhook_secret || null,
     });
     if (res.error) {
-      alert('Error al guardar: ' + res.error);
+      alert(st.saveError.replace('{msg}', String(res.error)));
       return;
     }
     setSaved(true);
@@ -122,7 +125,7 @@ export default function SettingsPage() {
 
       <Section title="NOTIFICACIONES (Resend + Slack + webhook firmado)">
         {loading ? (
-          <div style={{ fontSize: '11px', color: 'var(--muted)' }}>Cargando preferencias…</div>
+          <div style={{ fontSize: '11px', color: 'var(--muted)' }}>{dict.dashboard.loading.preferences}</div>
         ) : (
           <>
             <Row label="Email en reparaciones" sub="Mismo resumen JSON/HTML que Slack y webhook">
@@ -208,7 +211,7 @@ export default function SettingsPage() {
 
       <div style={{ display: 'flex', gap: '8px' }}>
         <button className="btn-primary" onClick={() => void handleSave()} disabled={loading}>
-          {saved ? '✔ Guardado' : 'Guardar cambios'}
+          {saved ? st.saved : st.saveButton}
         </button>
       </div>
     </div>

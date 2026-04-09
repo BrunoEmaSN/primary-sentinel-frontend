@@ -1,74 +1,40 @@
-import type { Metadata } from 'next';
+import { DocHtml } from '@/components/docs/DocHtml';
+import { docsPageMetadata } from '@/lib/i18n/docsMeta';
+import { getDictionary } from '@/lib/i18n/messages';
+import { getLocaleFromCookie } from '@/lib/i18n/getLocale';
 
-export const metadata: Metadata = {
-  title: 'Introducción',
-  description:
-    'Primary Sentinel como SaaS: multi-tenant, observabilidad de pipelines y auto-reparación asistida por IA.',
-};
+export async function generateMetadata() {
+  return docsPageMetadata('intro');
+}
 
-export default function DocsIntroPage() {
+export default async function DocsIntroPage() {
+  const p = getDictionary(await getLocaleFromCookie()).docs.pages.intro;
+
   return (
     <>
-      <h1>Introducción</h1>
-      <p>
-        <strong>Primary Sentinel</strong> es un <strong>SaaS</strong> para equipos que necesitan{' '}
-        <strong>observabilidad y gobierno</strong> sobre pipelines de datos: ingesta por webhooks, reglas de reparación
-        asistidas por IA, colas de incidentes y alertas. Cada cliente trabaja en su propio <strong>tenant</strong>{' '}
-        (aislamiento lógico de datos y configuración); el panel y la API usan la sesión de Supabase para aplicar esos
-        límites.
-      </p>
+      <h1>{p.title}</h1>
+      <DocHtml html={p.p1} />
 
-      <h2>Qué resuelve el producto</h2>
+      <h2>{p.hWhat}</h2>
       <ul>
-        <li>
-          <strong>Visibilidad</strong> — Métricas, diagrama de flujo y operaciones sin montar tu propio stack de
-          monitorización genérico.
-        </li>
-        <li>
-          <strong>Acción</strong> — Reglas que corrigen o enrutan eventos problemáticos; lo que no se puede sanar va a{' '}
-          <strong>Dead Letter</strong> para revisión humana.
-        </li>
-        <li>
-          <strong>Integración</strong> — API REST y webhooks de ingesta documentados; el backend desplegado (p. ej.
-          Cloudflare Worker) escala con el servicio.
-        </li>
+        {p.liWhat.map((html, i) => (
+          <li key={i}>
+            <DocHtml html={html} as="span" />
+          </li>
+        ))}
       </ul>
 
-      <h2>Flujo general en el panel</h2>
+      <h2>{p.hFlow}</h2>
       <ol>
-        <li>
-          <strong>Monitor</strong> — En el <strong>Dashboard</strong> ves métricas, el diagrama de flujo y eventos
-          recientes.
-        </li>
-        <li>
-          <strong>Conectar datos</strong> — En <strong>Flujos</strong> definís endpoints y la URL de webhook por tenant.
-        </li>
-        <li>
-          <strong>Operaciones</strong> — En <strong>Operaciones</strong> revisás dependencias, historial IA y métricas de
-          pipeline.
-        </li>
-        <li>
-          <strong>Reglas IA</strong> — Gestionás reglas de reparación (aprobar, editar o eliminar).
-        </li>
-        <li>
-          <strong>Incidentes</strong> — Lo que no se sanó automáticamente aparece en <strong>Dead Letter</strong> para
-          reintento o descarte.
-        </li>
-        <li>
-          <strong>Alertas</strong> — <strong>Notificaciones</strong> en el panel (Realtime) y canales configurables en{' '}
-          <strong>Configuración</strong> (email, Slack, webhook firmado).
-        </li>
-        <li>
-          <strong>Plan</strong> — <strong>Facturación</strong> resume tu plan SaaS y el roadmap de pagos.
-        </li>
+        {p.liFlow.map((html, i) => (
+          <li key={i}>
+            <DocHtml html={html} as="span" />
+          </li>
+        ))}
       </ol>
 
-      <h2>Stack resumido</h2>
-      <p>
-        El frontend (Next.js) usa autenticación <strong>Supabase</strong> y llama al <strong>API del producto</strong> con
-        JWT. Las variables públicas (<code>NEXT_PUBLIC_*</code>) y la URL del API se configuran por entorno (local o
-        Vercel). Guía paso a paso en <a href="/docs/empezar">Primeros pasos</a>.
-      </p>
+      <h2>{p.hStack}</h2>
+      <DocHtml html={p.pStack} />
     </>
   );
 }

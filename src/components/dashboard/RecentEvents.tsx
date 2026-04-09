@@ -2,22 +2,29 @@
 
 import type { RawEvent } from '@/types';
 import { formatDistanceToNow, isValid } from 'date-fns';
-import { es } from 'date-fns/locale';
-
-const statusConfig = {
-  loaded:     { icon: '●', color: 'var(--blue)',   bg: 'rgba(59,130,246,.12)',  label: 'Procesado' },
-  healed:     { icon: '✦', color: 'var(--accent)', bg: 'rgba(200,245,80,.12)', label: 'Reparado' },
-  dead:       { icon: '⚠', color: 'var(--red)',    bg: 'rgba(239,68,68,.12)',  label: 'DLQ' },
-  processing: { icon: '◎', color: 'var(--amber)',  bg: 'rgba(245,158,11,.12)', label: 'Procesando' },
-};
+import { es as esLocale } from 'date-fns/locale';
+import { enUS } from 'date-fns/locale';
+import { useI18n } from '@/lib/i18n/I18nProvider';
 
 export default function RecentEvents({ events, loading }: { events: RawEvent[]; loading: boolean }) {
+  const { locale, dict } = useI18n();
+  const dfLocale = locale === 'en' ? enUS : esLocale;
+  const ev = dict.dashboard.eventStatus;
+  const re = dict.dashboard.recentEvents;
+
+  const statusConfig = {
+    loaded:     { icon: '●', color: 'var(--blue)',   bg: 'rgba(59,130,246,.12)',  label: ev.loaded },
+    healed:     { icon: '✦', color: 'var(--accent)', bg: 'rgba(200,245,80,.12)', label: ev.healed },
+    dead:       { icon: '⚠', color: 'var(--red)',    bg: 'rgba(239,68,68,.12)',  label: ev.dead },
+    processing: { icon: '◎', color: 'var(--amber)',  bg: 'rgba(245,158,11,.12)', label: ev.processing },
+  };
+
   return (
     <div className="sentinel-card">
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
         <div>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700 }}>ACTIVIDAD</div>
-          <div style={{ fontSize: '10px', color: 'var(--muted)', marginTop: '2px' }}>Últimos eventos</div>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700 }}>{re.title}</div>
+          <div style={{ fontSize: '10px', color: 'var(--muted)', marginTop: '2px' }}>{re.subtitle}</div>
         </div>
       </div>
 
@@ -29,14 +36,14 @@ export default function RecentEvents({ events, loading }: { events: RawEvent[]; 
         )}
         {!loading && events.length === 0 && (
           <div style={{ textAlign: 'center', padding: '20px', color: 'var(--muted)', fontSize: '11px' }}>
-            Sin eventos aún
+            {re.empty}
           </div>
         )}
         {!loading && events.map(event => {
           const cfg = statusConfig[event.status] ?? statusConfig.processing;
           const at = new Date(event.created_at);
           const timeLabel = isValid(at)
-            ? formatDistanceToNow(at, { addSuffix: true, locale: es })
+            ? formatDistanceToNow(at, { addSuffix: true, locale: dfLocale })
             : '—';
           return (
             <div

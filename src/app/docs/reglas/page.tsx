@@ -1,37 +1,28 @@
-import type { Metadata } from 'next';
+import { DocHtml } from '@/components/docs/DocHtml';
+import { docsPageMetadata } from '@/lib/i18n/docsMeta';
+import { getDictionary } from '@/lib/i18n/messages';
+import { getLocaleFromCookie } from '@/lib/i18n/getLocale';
 
-export const metadata: Metadata = {
-  title: 'Reglas IA',
-  description: 'Reglas de reparación por tenant en Primary Sentinel SaaS.',
-};
+export async function generateMetadata() {
+  return docsPageMetadata('reglas');
+}
 
-export default function DocsReglasPage() {
+export default async function DocsReglasPage() {
+  const p = getDictionary(await getLocaleFromCookie()).docs.pages.reglas;
+
   return (
     <>
-      <h1>Reglas IA</h1>
-      <p>
-        En <code>/dashboard/rules</code> gestionás las <strong>reglas de transformación / reparación</strong> del producto.
-        El motor puede proponer reglas a partir del análisis de eventos; vos las revisás en el contexto de tu{' '}
-        <strong>tenant</strong> antes de activarlas en producción.
-      </p>
+      <h1>{p.title}</h1>
+      <DocHtml html={p.p1} />
 
-      <h2>Estados</h2>
-      <p>
-        Las reglas pueden mostrarse como pendientes de aprobación, activas u otros estados según el backend. El panel usa
-        píldoras de color coherentes con el resto del SaaS para identificar el estado de un vistazo.
-      </p>
+      <h2>{p.hState}</h2>
+      <DocHtml html={p.pState} />
 
-      <h2>Aprobar y editar</h2>
-      <p>
-        Podés revisar el contenido sugerido, aprobar para que entre en vigor o ajustar condiciones y acciones antes de
-        activar. Todo queda acotado a tu organización en el modelo multi-tenant.
-      </p>
+      <h2>{p.hApprove}</h2>
+      <DocHtml html={p.pApprove} />
 
-      <h2>Eliminar</h2>
-      <p>
-        Las reglas obsoletas o erróneas se pueden eliminar desde el gestor; suelen pedirse confirmaciones para evitar
-        borrados accidentales.
-      </p>
+      <h2>{p.hDelete}</h2>
+      <DocHtml html={p.pDelete} />
     </>
   );
 }

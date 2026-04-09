@@ -1,4 +1,8 @@
 /** Textos UI — español (por defecto) */
+import { dashboardEs } from './bundles/dashboard.es';
+import { docsEs } from './bundles/docs.es';
+import { landingEs } from './bundles/landing.es';
+
 export const es = {
   common: {
     language: 'Idioma',
@@ -96,5 +100,8 @@ export const es = {
     footerPanel: 'Panel',
     footerTerms: 'Términos',
     footerPrivacy: 'Privacidad',
+    ...landingEs,
   },
+  dashboard: dashboardEs,
+  docs: docsEs,
 } as const;

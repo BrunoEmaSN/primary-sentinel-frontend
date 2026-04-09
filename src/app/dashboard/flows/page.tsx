@@ -8,6 +8,7 @@ import { DESTINATION_CONFIGS, type Destination, type DestinationType } from '@/t
 import { DestinationSelector } from '@/components/dashboard/DestinationSelector';
 import { DestinationConfigForm } from '@/components/dashboard/DestinationConfigForm';
 import { IconArrowRight } from '@/components/icons/Arrows';
+import { useI18n } from '@/lib/i18n/I18nProvider';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8787';
 
@@ -99,6 +100,7 @@ function EndpointDestSummary({ ep }: { ep: Endpoint }) {
 }
 
 export default function FlowsPage() {
+  const { dict } = useI18n();
   const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
   const [eventCounts, setEventCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
@@ -315,7 +317,7 @@ export default function FlowsPage() {
           <button className="btn-primary" onClick={openModal}>+ Nuevo endpoint</button>
         </div>
 
-        {loading && <div style={{ textAlign: 'center', padding: '30px', color: 'var(--muted)', fontSize: '11px' }}>Cargando…</div>}
+        {loading && <div style={{ textAlign: 'center', padding: '30px', color: 'var(--muted)', fontSize: '11px' }}>{dict.dashboard.loading.default}</div>}
 
         {!loading && endpoints.length === 0 && (
           <div style={{ textAlign: 'center', padding: '40px', color: 'var(--muted)' }}>

@@ -1,4 +1,8 @@
 /** UI copy — English */
+import { dashboardEn } from './bundles/dashboard.en';
+import { docsEn } from './bundles/docs.en';
+import { landingEn } from './bundles/landing.en';
+
 export const en = {
   common: {
     language: 'Language',
@@ -96,5 +100,8 @@ export const en = {
     footerPanel: 'Dashboard',
     footerTerms: 'Terms',
     footerPrivacy: 'Privacy',
+    ...landingEn,
   },
+  dashboard: dashboardEn,
+  docs: docsEn,
 } as const;

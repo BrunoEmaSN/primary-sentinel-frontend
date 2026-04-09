@@ -1,10 +1,14 @@
 'use client';
 
 import { useMemo } from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import type { RawEvent } from '@/types';
+import { useI18n } from '@/lib/i18n/I18nProvider';
 
 export default function ActivityChart({ events }: { events: RawEvent[] }) {
+  const { dict } = useI18n();
+  const ac = dict.dashboard.activityChart;
+
   const data = useMemo(() => {
     const hours: Record<number, { loaded: number; healed: number; dead: number }> = {};
     for (let i = 23; i >= 0; i--) {
@@ -29,7 +33,7 @@ export default function ActivityChart({ events }: { events: RawEvent[] }) {
   return (
     <div className="sentinel-card">
       <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700, marginBottom: '14px' }}>
-        EVENTOS / HORA (24h)
+        {ac.title}
       </div>
       <div style={{ height: '80px' }}>
         <ResponsiveContainer width="100%" height="100%">
@@ -55,9 +59,9 @@ export default function ActivityChart({ events }: { events: RawEvent[] }) {
       </div>
       <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
         {[
-          { color: 'var(--blue)',   label: 'Procesados' },
-          { color: 'var(--accent)', label: 'Reparados' },
-          { color: 'var(--red)',    label: 'DLQ' },
+          { color: 'var(--blue)',   label: ac.legendLoaded },
+          { color: 'var(--accent)', label: ac.legendHealed },
+          { color: 'var(--red)',    label: ac.legendDead },
         ].map(({ color, label }) => (
           <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '9px', color: 'var(--muted)' }}>
             <div style={{ width: '8px', height: '8px', borderRadius: '2px', background: color }} />

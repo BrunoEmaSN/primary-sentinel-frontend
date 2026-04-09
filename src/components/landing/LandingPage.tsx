@@ -51,12 +51,9 @@ const sectionTitle = (kicker: string, title: string, subtitle?: string) => (
 );
 
 function HeroDashboardMock() {
-  const rows = [
-    { name: 'endpoint-ejemplo-a', status: 'ok', last: 'hace 2m', heal: '—' },
-    { name: 'endpoint-ejemplo-b', status: 'warn', last: 'hace 14m', heal: 'retry #2' },
-    { name: 'endpoint-ejemplo-c', status: 'ok', last: 'en vivo', heal: '—' },
-    { name: 'endpoint-ejemplo-d', status: 'healed', last: 'hace 1h', heal: 'regla #7' },
-  ];
+  const { dict } = useI18n();
+  const hm = dict.landing.heroMock;
+  const rows = hm.rows;
   return (
     <div
       className="sentinel-card"
@@ -85,17 +82,17 @@ function HeroDashboardMock() {
         <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#f59e0b' }} />
         <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent)' }} />
         <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--muted)', marginLeft: '8px' }}>
-          primary-sentinel · pipelines
+          {hm.windowTitle}
         </span>
       </div>
       <div style={{ overflow: 'auto' }}>
         <table className="sentinel-table" style={{ margin: 0 }}>
           <thead>
             <tr>
-              <th>Pipeline</th>
-              <th>Estado</th>
-              <th>Última corrida</th>
-              <th>IA / acción</th>
+              <th>{hm.colPipeline}</th>
+              <th>{hm.colState}</th>
+              <th>{hm.colLast}</th>
+              <th>{hm.colHeal}</th>
             </tr>
           </thead>
           <tbody>
@@ -114,7 +111,7 @@ function HeroDashboardMock() {
                           : { background: 'rgba(200,245,80,.1)', color: 'var(--accent)', border: '1px solid rgba(200,245,80,.25)' }),
                     }}
                   >
-                    {r.status === 'ok' ? 'OK' : r.status === 'warn' ? 'DEGRADED' : 'REPARADO'}
+                    {r.status === 'ok' ? hm.statusOk : r.status === 'warn' ? hm.statusWarn : hm.statusHealed}
                   </span>
                 </td>
                 <td style={{ color: 'var(--muted)', fontSize: '11px' }}>{r.last}</td>
@@ -124,42 +121,16 @@ function HeroDashboardMock() {
           </tbody>
         </table>
         <p style={{ fontSize: '9px', color: 'var(--muted)', padding: '8px 14px 12px', margin: 0, fontFamily: 'var(--font-mono)' }}>
-          Vista ilustrativa · En el panel autenticado verás tus endpoints y eventos reales.
+          {hm.footerNote}
         </p>
       </div>
     </div>
   );
 }
 
-const faqItems: { q: string; a: string }[] = [
-  {
-    q: '¿Qué es un “pipeline” en Primary Sentinel?',
-    a: 'Es un flujo de datos configurable (origen, transformaciones y destino) que el sistema observa de punta a punta y puede intentar reparar cuando falla.',
-  },
-  {
-    q: '¿La IA aplica cambios sin mi aprobación?',
-    a: 'Podés empezar en modo sugerencias y pasar a acciones automáticas por pipeline o por tipo de error, con reglas y umbrales de confianza.',
-  },
-  {
-    q: '¿Se integra con mi stack actual?',
-    a: 'Soportamos conectores habituales (bases, colas, APIs) y añadimos nuevos según plan. En Empresa evaluamos integraciones a medida.',
-  },
-  {
-    q: '¿Dónde se alojan los datos?',
-    a: 'El panel y la metadata operativa viven en nuestra infraestructura; los datos sensibles pueden quedar en tu nube según configuración y plan.',
-  },
-  {
-    q: '¿Hay período de prueba?',
-    a: 'El plan Básico es gratuito con límites para validar el flujo. Profesional y Empresa incluyen onboarding según contratación.',
-  },
-  {
-    q: '¿Cómo cancelo o cambio de plan?',
-    a: 'Desde facturación en el panel o escribiendo a soporte. Los cambios de plan se prorratean según condiciones del momento.',
-  },
-];
-
 export default function LandingPage() {
-  const { t } = useI18n();
+  const { t, dict } = useI18n();
+  const L = dict.landing;
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', position: 'relative' }}>
@@ -296,11 +267,7 @@ export default function LandingPage() {
               textAlign: 'center',
             }}
           >
-            {[
-              { v: '99.95%', l: 'objetivo de disponibilidad del panel' },
-              { v: '< 2 min', l: 'tiempo medio a primera alerta útil' },
-              { v: 'IA + reglas', l: 'reparación guiada o automática' },
-            ].map((m) => (
+            {L.metricsRows.map((m) => (
               <div key={m.l}>
                 <div style={{ fontFamily: 'var(--font-sans)', fontSize: '1.5rem', fontWeight: 700, color: 'var(--text)' }}>
                   {m.v}
@@ -310,17 +277,13 @@ export default function LandingPage() {
             ))}
           </div>
           <p style={{ textAlign: 'center', fontSize: '10px', color: 'var(--muted)', marginTop: '12px', fontFamily: 'var(--font-mono)' }}>
-            Cifras como objetivo de producto (beta) hasta publicar SLO medidos — ver <code style={{ fontSize: '10px' }}>/api/public/slo</code>.
+            {L.metricsCaption}
           </p>
         </section>
 
         {/* Logo cloud */}
         <section style={{ maxWidth: '1040px', margin: '0 auto', padding: '0 20px 56px' }}>
-          {sectionTitle(
-            'CONFIANZA',
-            'Equipos que necesitan datos en producción, sin apagar el teléfono',
-            'Logística, fintech, retail y SaaS B2B usan patrones similares: muchos orígenes, poco margen de error.',
-          )}
+          {sectionTitle(L.trustKicker, L.trustTitle, L.trustSubtitle)}
           <div
             style={{
               display: 'flex',
@@ -330,7 +293,7 @@ export default function LandingPage() {
               opacity: 0.85,
             }}
           >
-            {['Ejemplo sector A', 'Ejemplo sector B', 'Ejemplo sector C'].map((name) => (
+            {L.trustBrands.map((name) => (
               <div
                 key={name}
                 style={{
@@ -348,7 +311,7 @@ export default function LandingPage() {
             ))}
           </div>
           <p style={{ textAlign: 'center', fontSize: '10px', color: 'var(--muted)', marginTop: '14px', fontFamily: 'var(--font-mono)' }}>
-            Marcas de ejemplo — sustituir por logos con acuerdo comercial (Fase 10 roadmap).
+            {L.trustFootnote}
           </p>
         </section>
 
@@ -361,31 +324,23 @@ export default function LandingPage() {
             padding: '0 20px 64px',
           }}
         >
-          {sectionTitle(
-            'CUATRO PASOS',
-            'Del incidente a la recuperación, en orden',
-            'No son conceptos sueltos: es la secuencia que seguís cuando algo se rompe o tenés que tocar el esquema — registrar, coordinar, avisar y volver a ejecutar con control.',
-          )}
+          {sectionTitle(L.featuresKicker, L.featuresTitle, L.featuresSubtitle)}
           <div className="grid grid-cols-1 gap-[14px] md:grid-cols-2">
             {/* 1 — Contexto humano */}
             <div className="sentinel-card" style={{ padding: '22px', minHeight: '220px', display: 'flex', flexDirection: 'column' }}>
               <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', marginBottom: '8px' }}>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--accent)', fontWeight: 700 }}>PASO 1</span>
-                <span style={{ fontSize: '10px', color: 'var(--muted)' }}>Para el próximo turno</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--accent)', fontWeight: 700 }}>{L.step1Badge}</span>
+                <span style={{ fontSize: '10px', color: 'var(--muted)' }}>{L.step1Side}</span>
               </div>
               <h3 style={{ fontFamily: 'var(--font-sans)', fontSize: '15px', fontWeight: 600, marginBottom: '8px', color: 'var(--text)' }}>
-                Registrá qué pasó en el incidente
+                {L.step1Title}
               </h3>
               <p style={{ fontSize: '12px', lineHeight: 1.55, color: 'var(--muted)', marginBottom: '14px', flex: 1 }}>
-                Cada fallo queda con notas: qué probaste, qué quedó pendiente y quién decidió. Así la persona que entra después no repite los mismos intentos.
+                {L.step1Body}
               </p>
-              <div style={{ fontSize: '10px', color: 'var(--muted)', marginBottom: '8px' }}>Tipos de problema que podés etiquetar:</div>
+              <div style={{ fontSize: '10px', color: 'var(--muted)', marginBottom: '8px' }}>{L.step1TagsTitle}</div>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                {[
-                  { t: 'Cola muerta', hint: 'mensajes atascados' },
-                  { t: 'Reintentos', hint: 'backoff / reproceso' },
-                  { t: 'Esquema', hint: 'columnas / tipos' },
-                ].map((item, i) => (
+                {L.step1Tags.map((item, i) => (
                   <div
                     key={item.t}
                     title={item.hint}
@@ -409,22 +364,22 @@ export default function LandingPage() {
             {/* 2 — Ventanas */}
             <div className="sentinel-card" style={{ padding: '22px', minHeight: '220px', display: 'flex', flexDirection: 'column' }}>
               <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', marginBottom: '8px' }}>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--accent)', fontWeight: 700 }}>PASO 2</span>
-                <span style={{ fontSize: '10px', color: 'var(--muted)' }}>Antes de tocar producción</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--accent)', fontWeight: 700 }}>{L.step2Badge}</span>
+                <span style={{ fontSize: '10px', color: 'var(--muted)' }}>{L.step2Side}</span>
               </div>
               <h3 style={{ fontFamily: 'var(--font-sans)', fontSize: '15px', fontWeight: 600, marginBottom: '8px', color: 'var(--text)' }}>
-                Coordiná cambios con una ventana clara
+                {L.step2Title}
               </h3>
               <p style={{ fontSize: '12px', lineHeight: 1.55, color: 'var(--muted)', marginBottom: '14px', flex: 1 }}>
-                Los “contratos de datos” acá significan: acordás cuándo y cómo cambia una tabla o una API. Definís{' '}
-                <strong style={{ color: 'var(--text)', fontWeight: 600 }}>ventana de mantenimiento</strong> y avisos, para que los jobs no choquen con un despliegue sorpresa.
+                {L.step2BodyLead}{' '}
+                <strong style={{ color: 'var(--text)', fontWeight: 600 }}>{L.step2BodyStrong}</strong> {L.step2BodyTail}
               </p>
               <div style={{ background: 'var(--bg2)', borderRadius: '8px', padding: '12px', border: '1px solid var(--border)' }}>
                 <div style={{ fontSize: '9px', color: 'var(--muted)', fontFamily: 'var(--font-mono)', marginBottom: '8px' }}>
-                  EJEMPLO · VENTANA APROBADA
+                  {L.step2ExampleLabel}
                 </div>
                 <div style={{ fontSize: '11px', color: 'var(--text)', marginBottom: '10px', fontFamily: 'var(--font-mono)' }}>
-                  Sáb 02:00–04:00 · cambio de esquema + verificación
+                  {L.step2ExampleWindow}
                 </div>
                 <div style={{ height: '6px', borderRadius: '3px', background: 'var(--border2)', marginBottom: '8px', position: 'relative', overflow: 'hidden' }}>
                   <div
@@ -439,7 +394,7 @@ export default function LandingPage() {
                   />
                 </div>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <div style={{ flex: 1, fontSize: '10px', color: 'var(--muted)' }}>Solicitud</div>
+                  <div style={{ flex: 1, fontSize: '10px', color: 'var(--muted)' }}>{L.step2Request}</div>
                   <div
                     style={{
                       padding: '6px 12px',
@@ -451,7 +406,7 @@ export default function LandingPage() {
                       color: 'var(--accent)',
                     }}
                   >
-                    Aprobado
+                    {L.step2Approved}
                   </div>
                 </div>
               </div>
@@ -460,14 +415,15 @@ export default function LandingPage() {
             {/* 3 — Mismo informe a todos */}
             <div className="sentinel-card" style={{ padding: '22px', minHeight: '220px', display: 'flex', flexDirection: 'column' }}>
               <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', marginBottom: '8px' }}>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--accent)', fontWeight: 700 }}>PASO 3</span>
-                <span style={{ fontSize: '10px', color: 'var(--muted)' }}>Un solo número para todos</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--accent)', fontWeight: 700 }}>{L.step3Badge}</span>
+                <span style={{ fontSize: '10px', color: 'var(--muted)' }}>{L.step3Side}</span>
               </div>
               <h3 style={{ fontFamily: 'var(--font-sans)', fontSize: '15px', fontWeight: 600, marginBottom: '8px', color: 'var(--text)' }}>
-                Enviá el mismo resumen a cada canal
+                {L.step3Title}
               </h3>
               <p style={{ fontSize: '12px', lineHeight: 1.55, color: 'var(--muted)', marginBottom: '14px', flex: 1 }}>
-                Generás <strong style={{ color: 'var(--text)', fontWeight: 600 }}>un informe del incidente</strong> y lo reenviás a Slack, correo o webhook. Finanzas y producto miran la misma cifra; no hay siglas que adivinar.
+                {L.step3BodyLead} <strong style={{ color: 'var(--text)', fontWeight: 600 }}>{L.step3BodyStrong}</strong>
+                {L.step3BodyTail}
               </p>
               <div
                 style={{
@@ -492,11 +448,11 @@ export default function LandingPage() {
                     color: 'var(--text)',
                   }}
                 >
-                  1 informe
+                  {L.step3OneReport}
                 </div>
                 <IconArrowRight size={14} style={{ color: 'var(--muted)' }} />
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {['Slack', 'Correo', 'Webhook'].map((name) => (
+                  {L.step3Channels.map((name) => (
                     <div
                       key={name}
                       style={{
@@ -518,15 +474,16 @@ export default function LandingPage() {
             {/* 4 — Recuperación */}
             <div className="sentinel-card" style={{ padding: '22px', minHeight: '220px', display: 'flex', flexDirection: 'column' }}>
               <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', marginBottom: '8px' }}>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--accent)', fontWeight: 700 }}>PASO 4</span>
-                <span style={{ fontSize: '10px', color: 'var(--muted)' }}>Sabés en qué estado estás</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--accent)', fontWeight: 700 }}>{L.step4Badge}</span>
+                <span style={{ fontSize: '10px', color: 'var(--muted)' }}>{L.step4Side}</span>
               </div>
               <h3 style={{ fontFamily: 'var(--font-sans)', fontSize: '15px', fontWeight: 600, marginBottom: '8px', color: 'var(--text)' }}>
-                Recuperá con instantánea y trazabilidad
+                {L.step4Title}
               </h3>
               <p style={{ fontSize: '12px', lineHeight: 1.55, color: 'var(--muted)', marginBottom: '14px', flex: 1 }}>
-                Volvés a un punto guardado del pipeline, comparás qué cambió respecto al intento fallido y disparás una nueva corrida solo de lo necesario — sin mezclar términos en inglés: es{' '}
-                <strong style={{ color: 'var(--text)', fontWeight: 600 }}>copia de seguridad, comparación y re-ejecución</strong>.
+                {L.step4BodyLead}{' '}
+                <strong style={{ color: 'var(--text)', fontWeight: 600 }}>{L.step4BodyStrong}</strong>
+                {L.step4BodyTail}
               </p>
               <div style={{ marginBottom: '8px' }}>
                 <div
@@ -538,13 +495,13 @@ export default function LandingPage() {
                   }}
                 />
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px', fontSize: '9px', color: 'var(--muted)', fontFamily: 'var(--font-mono)' }}>
-                  <span>Fallo</span>
-                  <span>En curso</span>
-                  <span>Listo</span>
+                  <span>{L.step4BarLeft}</span>
+                  <span>{L.step4BarMid}</span>
+                  <span>{L.step4BarRight}</span>
                 </div>
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
-                {['Instantánea', 'Comparación', 'Nueva corrida'].map((label) => (
+                {L.step4Chips.map((label) => (
                   <span
                     key={label}
                     style={{
@@ -587,7 +544,7 @@ export default function LandingPage() {
                   marginBottom: '12px',
                 }}
               >
-                OPERACIONES
+                {L.operationsKicker}
               </h2>
               <h3
                 style={{
@@ -599,15 +556,10 @@ export default function LandingPage() {
                   color: 'var(--text)',
                 }}
               >
-                Menos contexto perdido entre herramientas
+                {L.operationsTitle}
               </h3>
               <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                {[
-                  'Mapa de dependencias entre fuentes y destinos.',
-                  'Políticas por entorno (dev / staging / prod).',
-                  'Historial de decisiones de la IA y overrides humanos.',
-                  'Cuellos de botella visibles antes del ticket de NOC.',
-                ].map((line) => (
+                {L.operationsBullets.map((line) => (
                   <li key={line} style={{ display: 'flex', gap: '10px', fontSize: '13px', lineHeight: 1.55, color: 'var(--muted)' }}>
                     <span style={{ color: 'var(--accent)', fontFamily: 'var(--font-mono)', flexShrink: 0 }}>—</span>
                     {line}
@@ -617,15 +569,10 @@ export default function LandingPage() {
             </div>
             <div className="sentinel-card" style={{ padding: '20px', minHeight: '280px' }}>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--muted)', marginBottom: '16px' }}>
-                VISTA SIMPLIFICADA · FLUJO
+                {L.operationsMockTitle}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {[
-                  { label: 'API / CDC', w: '100%' },
-                  { label: 'Cola · buffer', w: '85%' },
-                  { label: 'Transform', w: '70%' },
-                  { label: 'Warehouse', w: '95%' },
-                ].map((step) => (
+                {L.operationsMockSteps.map((step) => (
                   <div key={step.label} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <div style={{ width: '72px', fontSize: '10px', color: 'var(--muted)', fontFamily: 'var(--font-mono)' }}>
                       {step.label}
@@ -658,9 +605,9 @@ export default function LandingPage() {
                   lineHeight: 1.5,
                 }}
               >
-                <span style={{ color: 'var(--accent)', fontFamily: 'var(--font-mono)' }}>SUGERENCIA IA</span>
+                <span style={{ color: 'var(--accent)', fontFamily: 'var(--font-mono)' }}>{L.operationsMockSuggestion}</span>
                 {' · '}
-                Aumentar timeout en paso Transform durante ventana de batch nocturna.
+                {L.operationsMockHint}
               </div>
             </div>
           </div>
@@ -680,8 +627,7 @@ export default function LandingPage() {
           >
             <div>
               <p style={{ fontSize: 'clamp(1.05rem, 2vw, 1.25rem)', lineHeight: 1.55, color: 'var(--text)', fontWeight: 500 }}>
-                “En minutos pasamos de alertas genéricas a una cola priorizada y acciones concretas. El equipo de datos dejó de
-                adivinar.”
+                {L.testimonialQuote}
               </p>
             </div>
             <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
@@ -696,8 +642,8 @@ export default function LandingPage() {
                 }}
               />
               <div>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--text)' }}>Marina Ibarra</div>
-                <div style={{ fontSize: '11px', color: 'var(--muted)' }}>Head of Data · fintech regional</div>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--text)' }}>{L.testimonialName}</div>
+                <div style={{ fontSize: '11px', color: 'var(--muted)' }}>{L.testimonialRole}</div>
               </div>
             </div>
           </div>
@@ -705,11 +651,7 @@ export default function LandingPage() {
 
         {/* Pricing */}
         <section id="pricing" style={{ maxWidth: '1040px', margin: '0 auto', padding: '0 20px 64px' }}>
-          {sectionTitle(
-            'PRECIOS',
-            'Elegí el plan que encaje con tu etapa',
-            'Empezá gratis y escalá cuando el tráfico y las integraciones lo pidan.',
-          )}
+          {sectionTitle(L.pricingKicker, L.pricingTitle, L.pricingSubtitle)}
           <LandingPricing />
         </section>
 
@@ -727,14 +669,14 @@ export default function LandingPage() {
                   marginBottom: '8px',
                 }}
               >
-                Preguntas frecuentes
+                {L.faqTitle}
               </h2>
               <p style={{ fontSize: '13px', color: 'var(--muted)', lineHeight: 1.55 }}>
-                Si tu caso es Enterprise (SSO, VPC, compliance), coordinamos una llamada corta desde el plan correspondiente.
+                {L.faqSubtitle}
               </p>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {faqItems.map((item) => (
+              {L.faqItems.map((item) => (
                 <details
                   key={item.q}
                   className="sentinel-card"
@@ -788,10 +730,10 @@ export default function LandingPage() {
                 color: 'var(--text)',
               }}
             >
-              ¿Listo para dejar de apagar incendios a mano?
+              {L.ctaTitle}
             </h2>
             <Link href="/auth" className="btn-primary justify-center" style={{ textDecoration: 'none', padding: '14px 28px', fontSize: '12px' }}>
-              Empezar ahora
+              {L.ctaButton}
             </Link>
           </div>
         </section>
@@ -879,7 +821,7 @@ export default function LandingPage() {
           </div>
         </div>
         <p style={{ fontSize: '10px', fontFamily: 'var(--font-mono)', color: 'var(--muted)', textAlign: 'center', paddingTop: '16px', borderTop: '1px solid var(--border)' }}>
-          © {new Date().getFullYear()} Primary Sentinel · AI · SaaS
+          {L.footerCopyright.replace('{year}', String(new Date().getFullYear()))}
         </p>
       </footer>
 

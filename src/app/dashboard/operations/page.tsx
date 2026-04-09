@@ -8,8 +8,10 @@ import {
   getHeuristicSuggestions,
 } from '@/lib/api';
 import { IconArrowRight } from '@/components/icons/Arrows';
+import { useI18n } from '@/lib/i18n/I18nProvider';
 
 export default function OperationsPage() {
+  const { dict } = useI18n();
   const [graph, setGraph] = useState<{ nodes: unknown[]; edges: { from: string; to: string; label: string }[] } | null>(
     null
   );
@@ -58,7 +60,7 @@ export default function OperationsPage() {
       </div>
 
       {loading && (
-        <div style={{ textAlign: 'center', padding: '32px', color: 'var(--muted)', fontSize: '11px' }}>Cargando…</div>
+        <div style={{ textAlign: 'center', padding: '32px', color: 'var(--muted)', fontSize: '11px' }}>{dict.dashboard.loading.operations}</div>
       )}
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>

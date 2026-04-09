@@ -1,25 +1,28 @@
 import type { Metadata } from 'next';
 import DocsNav from '@/components/docs/DocsNav';
+import { getDictionary } from '@/lib/i18n/messages';
+import { getLocaleFromCookie } from '@/lib/i18n/getLocale';
 
-export const metadata: Metadata = {
-  title: {
-    default: 'Documentación',
-    template: '%s — Primary Sentinel',
-  },
-  description:
-    'Guía del producto SaaS Primary Sentinel: cuenta multi-tenant, panel, operaciones, DLQ, planes e integración API.',
-  openGraph: {
-    title: 'Documentación — Primary Sentinel',
-    description:
-      'SaaS de observabilidad y auto-reparación de pipelines: documentación para equipos y administradores de tenant.',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Documentación — Primary Sentinel',
-    description:
-      'SaaS de observabilidad y auto-reparación de pipelines: documentación para equipos y administradores de tenant.',
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const dict = getDictionary(await getLocaleFromCookie());
+  const d = dict.docs;
+  return {
+    title: {
+      default: d.layoutTitle,
+      template: '%s — Primary Sentinel',
+    },
+    description: d.layoutDescription,
+    openGraph: {
+      title: d.layoutOgTitle,
+      description: d.layoutOgDescription,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: d.layoutOgTitle,
+      description: d.layoutOgDescription,
+    },
+  };
+}
 
 export default function DocsLayout({ children }: { children: React.ReactNode }) {
   return (

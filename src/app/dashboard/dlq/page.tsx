@@ -15,8 +15,10 @@ import type { DLQEvent } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { IconArrowRight } from '@/components/icons/Arrows';
+import { useI18n } from '@/lib/i18n/I18nProvider';
 
 export default function DLQPage() {
+  const { dict } = useI18n();
   const [events, setEvents] = useState<DLQEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<DLQEvent | null>(null);
@@ -106,7 +108,7 @@ export default function DLQPage() {
         </div>
       </div>
 
-      {loading && <div style={{ textAlign: 'center', padding: '40px', color: 'var(--muted)', fontSize: '11px' }}>Cargando DLQ…</div>}
+      {loading && <div style={{ textAlign: 'center', padding: '40px', color: 'var(--muted)', fontSize: '11px' }}>{dict.dashboard.loading.dlq}</div>}
 
       {!loading && events.length === 0 && (
         <div className="sentinel-card" style={{ textAlign: 'center', padding: '50px' }}>
