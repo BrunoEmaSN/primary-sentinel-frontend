@@ -8,6 +8,8 @@ interface Props {
 }
 
 export default function FlowDiagram({ endpoints, events }: Props) {
+  const epA = endpoints[0]?.name ?? 'endpoint-a';
+  const epB = endpoints[1]?.name ?? 'endpoint-b';
   const recentStatuses = events.slice(0, 5).map(e => e.status);
   const hasHealed = recentStatuses.includes('healed');
   const hasDead = recentStatuses.includes('dead');
@@ -52,19 +54,17 @@ export default function FlowDiagram({ endpoints, events }: Props) {
           {/* process_order */}
           <g>
             <rect x="10" y="44" width="90" height="42" rx="6" fill="#14171c" stroke="#2a3444" strokeWidth="1"/>
-            <text x="18" y="60" fill="#e8eaed" fontSize="8" fontFamily="Space Mono, monospace" fontWeight="700">process</text>
-            <text x="18" y="70" fill="#e8eaed" fontSize="8" fontFamily="Space Mono, monospace" fontWeight="700">_order</text>
+            <text x="18" y="62" fill="#e8eaed" fontSize="7" fontFamily="Space Mono, monospace" fontWeight="700">{epA.slice(0, 14)}</text>
             <rect x="18" y="76" width="56" height="7" rx="1.5" fill="rgba(200,245,80,.1)"/>
-            <text x="21" y="81" fill="#c8f550" fontSize="6" fontFamily="Space Mono, monospace" fontWeight="700">order_event</text>
+            <text x="21" y="81" fill="#c8f550" fontSize="6" fontFamily="Space Mono, monospace" fontWeight="700">event</text>
           </g>
 
           {/* betaCalculator */}
           <g>
             <rect x="10" y="144" width="90" height="42" rx="6" fill="#14171c" stroke="#2a3444" strokeWidth="1"/>
-            <text x="18" y="160" fill="#e8eaed" fontSize="8" fontFamily="Space Mono, monospace" fontWeight="700">betaCalc</text>
-            <text x="18" y="170" fill="#e8eaed" fontSize="8" fontFamily="Space Mono, monospace" fontWeight="700">ulator</text>
+            <text x="18" y="162" fill="#e8eaed" fontSize="7" fontFamily="Space Mono, monospace" fontWeight="700">{epB.slice(0, 14)}</text>
             <rect x="18" y="176" width="48" height="7" rx="1.5" fill="rgba(245,158,11,.1)"/>
-            <text x="21" y="181" fill="#f59e0b" fontSize="6" fontFamily="Space Mono, monospace" fontWeight="700">TAX_PIPE</text>
+            <text x="21" y="181" fill="#f59e0b" fontSize="6" fontFamily="Space Mono, monospace" fontWeight="700">schema</text>
           </g>
 
           {/* RoutingAgent */}

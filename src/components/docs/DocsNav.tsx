@@ -129,23 +129,7 @@ export default function DocsNav() {
   return (
     <>
       {/* Mobile top bar */}
-      <header
-        className="md:hidden"
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 60,
-          height: '52px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 14px',
-          background: 'var(--bg2)',
-          borderBottom: '1px solid var(--border)',
-        }}
-      >
+      <header className="docs-mobile-header md:hidden">
         <Link href="/docs" style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700, color: 'var(--text)', textDecoration: 'none' }}>
           DOCS
         </Link>
@@ -164,12 +148,13 @@ export default function DocsNav() {
       {/* Mobile overlay + drawer */}
       {open && (
         <div
-          className="md:hidden"
+          className="docs-mobile-drawer-below-header md:hidden"
           style={{
             position: 'fixed',
-            inset: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
             zIndex: 55,
-            top: '52px',
             background: 'rgba(0,0,0,.55)',
           }}
           aria-hidden
@@ -177,10 +162,9 @@ export default function DocsNav() {
         />
       )}
       <aside
-        className="md:hidden"
+        className="docs-mobile-drawer-below-header md:hidden"
         style={{
           position: 'fixed',
-          top: '52px',
           left: 0,
           bottom: 0,
           width: 'min(300px, 92vw)',

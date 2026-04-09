@@ -71,28 +71,18 @@ function normalizeDlqRow(row: Record<string, unknown>): DLQEvent {
 }
 
 async function getAccessToken(): Promise<string | null> {
-  if (typeof window !== 'undefined') {
-    const { createClient } = await import('@/lib/supabase/client');
-    const supabase = createClient();
-    const { data } = await supabase.auth.getSession();
-    return data.session?.access_token ?? null;
-  }
-  const { createClient } = await import('@/lib/supabase/server');
-  const supabase = await createClient();
+  if (typeof window === 'undefined') return null;
+  const { createClient } = await import('@/lib/supabase/client');
+  const supabase = createClient();
   const { data } = await supabase.auth.getSession();
   return data.session?.access_token ?? null;
 }
 
 /** One refresh attempt; returns new access token or null. */
 async function refreshAccessToken(): Promise<string | null> {
-  if (typeof window !== 'undefined') {
-    const { createClient } = await import('@/lib/supabase/client');
-    const supabase = createClient();
-    const { data } = await supabase.auth.refreshSession();
-    return data.session?.access_token ?? null;
-  }
-  const { createClient } = await import('@/lib/supabase/server');
-  const supabase = await createClient();
+  if (typeof window === 'undefined') return null;
+  const { createClient } = await import('@/lib/supabase/client');
+  const supabase = createClient();
   const { data } = await supabase.auth.refreshSession();
   return data.session?.access_token ?? null;
 }
@@ -351,16 +341,157 @@ export async function listDLQ(): Promise<DLQEvent[]> {
 
 export async function reinjectDLQEvent(
   dlqId: string,
-  correctedPayload?: Record<string, unknown>
-): Promise<ApiResponse<{ status: string }>> {
-  return apiFetch<{ status: string }>(`/api/dlq/${dlqId}/reinject`, {
-    method: 'POST',
-    body: JSON.stringify({ correctedPayload }),
-  });
+  correctedPayload?: Record<string, unknown>,
+  options?: { snapshotName?: string }
+): Promise<ApiResponse<{ status: string; message?: string; newEventId?: string }>> {
+  return apiFetch<{ status: string; message?: string; newEventId?: string }>(
+    `/api/dlq/${dlqId}/reinject`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        correctedPayload,
+        ...(options?.snapshotName ? { snapshotName: options.snapshotName } : {}),
+      }),
+    }
+  );
 }
 
 export async function discardDLQEvent(dlqId: string): Promise<ApiResponse<void>> {
   return apiFetch<void>(`/api/dlq/${dlqId}`, { method: 'DELETE' });
+}
+
+export async function listDlqSnapshots(eventId: string): Promise<ApiResponse<{ data: unknown[] }>> {
+  return apiFetch<{ data: unknown[] }>(`/api/dlq/${eventId}/snapshots`);
+}
+
+export async function getDlqDiff(
+  eventId: string,
+  snapshotId: string
+): Promise<ApiResponse<{ left: unknown; right: unknown; sameJson: boolean }>> {
+  return apiFetch<{ left: unknown; right: unknown; sameJson: boolean }>(
+    `/api/dlq/${eventId}/diff?snapshotId=${encodeURIComponent(snapshotId)}`
+  );
+}
+
+// ─── Settings & billing ───────────────────────────────────────────────────────
+
+export type TenantSettingsApi = {
+  notify_email_healing: boolean;
+  notify_email_dead: boolean;
+  notify_email_pending_rules: boolean;
+  slack_on_incidents: boolean;
+  slack_incoming_webhook_url: string | null;
+  alert_webhook_url: string | null;
+  alert_webhook_secret: string | null;
+  billing_plan: string;
+};
+
+export async function getTenantSettings(): Promise<ApiResponse<TenantSettingsApi>> {
+  return apiFetch<TenantSettingsApi>('/api/settings');
+}
+
+export async function putTenantSettings(
+  body: Partial<TenantSettingsApi>
+): Promise<ApiResponse<{ saved: boolean }>> {
+  return apiFetch<{ saved: boolean }>('/api/settings', {
+    method: 'PUT',
+    body: JSON.stringify(body),
+  });
+}
+
+export async function updateEndpoint(
+  id: string,
+  body: Record<string, unknown>
+): Promise<ApiResponse<Record<string, unknown>>> {
+  return apiFetch<Record<string, unknown>>(`/api/endpoints/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(body),
+  });
+}
+
+export async function getBillingStatus(): Promise<
+  ApiResponse<{ plan: string; stripeCustomerId: string | null; portalUrl: string | null; note?: string }>
+> {
+  return apiFetch('/api/billing/status');
+}
+
+// ─── Operations & métricas ────────────────────────────────────────────────────
+
+export async function getDependencyGraph(): Promise<
+  ApiResponse<{ nodes: unknown[]; edges: { from: string; to: string; label: string }[] }>
+> {
+  return apiFetch('/api/operations/dependency-graph');
+}
+
+export async function getAiHistory(limit = 40): Promise<ApiResponse<{ data: unknown[] }>> {
+  return apiFetch<{ data: unknown[] }>(`/api/operations/ai-history?limit=${limit}`);
+}
+
+export async function getPipelineMetrics(hours = 24): Promise<ApiResponse<{ data: unknown[]; hours: number }>> {
+  return apiFetch<{ data: unknown[]; hours: number }>(`/api/metrics/pipeline?hours=${hours}`);
+}
+
+export async function getHeuristicSuggestions(): Promise<
+  ApiResponse<{ suggestions: { id: string; text: string; severity: string }[]; basedOnSamples: number }>
+> {
+  return apiFetch('/api/suggestions/heuristics');
+}
+
+export async function listEventNotes(eventId: string): Promise<ApiResponse<{ data: unknown[] }>> {
+  return apiFetch<{ data: unknown[] }>(`/api/events/${eventId}/notes`);
+}
+
+export async function addEventNote(
+  eventId: string,
+  body: string
+): Promise<ApiResponse<{ created: boolean }>> {
+  return apiFetch<{ created: boolean }>(`/api/events/${eventId}/notes`, {
+    method: 'POST',
+    body: JSON.stringify({ body }),
+  });
+}
+
+export async function addEventTag(
+  eventId: string,
+  tag: string
+): Promise<ApiResponse<{ saved: boolean }>> {
+  return apiFetch<{ saved: boolean }>(`/api/events/${eventId}/tags`, {
+    method: 'POST',
+    body: JSON.stringify({ tag }),
+  });
+}
+
+export async function listMaintenanceWindows(): Promise<ApiResponse<{ data: unknown[] }>> {
+  return apiFetch<{ data: unknown[] }>('/api/maintenance-windows');
+}
+
+export async function createMaintenanceWindow(body: Record<string, unknown>): Promise<ApiResponse<unknown>> {
+  return apiFetch('/api/maintenance-windows', { method: 'POST', body: JSON.stringify(body) });
+}
+
+export async function approveMaintenanceWindow(id: string): Promise<ApiResponse<{ approved: boolean }>> {
+  return apiFetch<{ approved: boolean }>(`/api/maintenance-windows/${id}/approve`, { method: 'POST' });
+}
+
+/** Público: sin JWT (SLO declarado por el backend). */
+export async function getPublicSlo(): Promise<{
+  availabilityTargetPercent: number;
+  firstUsefulAlertGoalMinutes: number;
+  note: string;
+  measured: boolean;
+} | null> {
+  try {
+    const res = await fetch(`${API_URL}/api/public/slo`);
+    if (!res.ok) return null;
+    return (await res.json()) as {
+      availabilityTargetPercent: number;
+      firstUsefulAlertGoalMinutes: number;
+      note: string;
+      measured: boolean;
+    };
+  } catch {
+    return null;
+  }
 }
 
 // ─── Webhook test ─────────────────────────────────────────────────────────────

@@ -10,10 +10,12 @@ import TopbarNotifications from '@/components/layout/TopbarNotifications';
 const titles: Record<string, string> = {
   '/dashboard': 'DASHBOARD',
   '/dashboard/flows': 'FLUJOS ACTIVOS',
+  '/dashboard/operations': 'OPERACIONES',
   '/dashboard/rules': 'GESTOR DE REGLAS',
   '/dashboard/dlq': 'DEAD LETTER QUEUE',
   '/dashboard/notifications': 'NOTIFICACIONES',
   '/dashboard/settings': 'CONFIGURACIÓN',
+  '/dashboard/billing': 'FACTURACIÓN',
 };
 
 type Menu = 'none' | 'profile' | 'notifications';

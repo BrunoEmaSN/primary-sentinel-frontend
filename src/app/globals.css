@@ -134,11 +134,20 @@ html, body {
 }
 .fade-up { animation: fade-up 0.3s ease both; }
 
+/* Docs section — mobile top bar height (must match .docs-mobile-header) */
+:root {
+  --docs-mobile-header-h: 52px;
+}
+
 /* Docs section */
 .docs-root {
+  /* Una sola columna de scroll: el main, no el body; si no, el header fijo tapa el texto al hacer scroll */
   min-height: 100vh;
+  height: 100vh;
+  max-height: 100dvh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
   background: var(--bg);
   color: var(--text);
 }
@@ -150,16 +159,38 @@ html, body {
   }
 }
 
+.docs-mobile-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  padding-top: env(safe-area-inset-top, 0px);
+  box-sizing: border-box;
+  height: calc(var(--docs-mobile-header-h) + env(safe-area-inset-top, 0px));
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+}
+
+.docs-mobile-drawer-below-header {
+  top: calc(var(--docs-mobile-header-h) + env(safe-area-inset-top, 0px));
+}
+
 .docs-main {
   flex: 1;
   min-width: 0;
+  min-height: 0;
   overflow-y: auto;
-  max-height: 100vh;
+  -webkit-overflow-scrolling: touch;
 }
 
 @media (max-width: 767px) {
   .docs-main {
-    padding-top: 52px;
+    padding-top: calc(var(--docs-mobile-header-h) + env(safe-area-inset-top, 0px));
   }
 }
 
@@ -181,6 +212,7 @@ html, body {
   margin-bottom: 0.6em;
   letter-spacing: -0.02em;
   line-height: 1.25;
+  scroll-margin-top: 1rem;
 }
 
 .docs-prose h2 {
@@ -191,6 +223,7 @@ html, body {
   font-family: var(--font-mono);
   color: var(--accent);
   letter-spacing: 0.02em;
+  scroll-margin-top: calc(var(--docs-mobile-header-h) + env(safe-area-inset-top, 0px) + 0.75rem);
 }
 
 .docs-prose h3 {
@@ -199,6 +232,14 @@ html, body {
   margin-top: 1.25rem;
   margin-bottom: 0.4rem;
   color: var(--text);
+  scroll-margin-top: calc(var(--docs-mobile-header-h) + env(safe-area-inset-top, 0px) + 0.5rem);
+}
+
+@media (min-width: 768px) {
+  .docs-prose h2,
+  .docs-prose h3 {
+    scroll-margin-top: 1rem;
+  }
 }
 
 .docs-prose p {

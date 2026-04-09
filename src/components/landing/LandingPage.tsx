@@ -47,10 +47,10 @@ const sectionTitle = (kicker: string, title: string, subtitle?: string) => (
 
 function HeroDashboardMock() {
   const rows = [
-    { name: 'ingest-salesforce', status: 'ok', last: 'hace 2m', heal: '—' },
-    { name: 'warehouse-daily', status: 'warn', last: 'hace 14m', heal: 'retry #2' },
-    { name: 'events-stream', status: 'ok', last: 'en vivo', heal: '—' },
-    { name: 'payments-dlq', status: 'healed', last: 'hace 1h', heal: 'regla #7' },
+    { name: 'endpoint-ejemplo-a', status: 'ok', last: 'hace 2m', heal: '—' },
+    { name: 'endpoint-ejemplo-b', status: 'warn', last: 'hace 14m', heal: 'retry #2' },
+    { name: 'endpoint-ejemplo-c', status: 'ok', last: 'en vivo', heal: '—' },
+    { name: 'endpoint-ejemplo-d', status: 'healed', last: 'hace 1h', heal: 'regla #7' },
   ];
   return (
     <div
@@ -118,6 +118,9 @@ function HeroDashboardMock() {
             ))}
           </tbody>
         </table>
+        <p style={{ fontSize: '9px', color: 'var(--muted)', padding: '8px 14px 12px', margin: 0, fontFamily: 'var(--font-mono)' }}>
+          Vista ilustrativa · En el panel autenticado verás tus endpoints y eventos reales.
+        </p>
       </div>
     </div>
   );
@@ -299,6 +302,9 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
+          <p style={{ textAlign: 'center', fontSize: '10px', color: 'var(--muted)', marginTop: '12px', fontFamily: 'var(--font-mono)' }}>
+            Cifras como objetivo de producto (beta) hasta publicar SLO medidos — ver <code style={{ fontSize: '10px' }}>/api/public/slo</code>.
+          </p>
         </section>
 
         {/* Logo cloud */}
@@ -317,7 +323,7 @@ export default function LandingPage() {
               opacity: 0.85,
             }}
           >
-            {['Northwind Labs', 'Río Analytics', 'Casa Orbit', 'FleteOS', 'LedgerTree', 'Pulse Retail'].map((name) => (
+            {['Ejemplo sector A', 'Ejemplo sector B', 'Ejemplo sector C'].map((name) => (
               <div
                 key={name}
                 style={{
@@ -334,6 +340,9 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
+          <p style={{ textAlign: 'center', fontSize: '10px', color: 'var(--muted)', marginTop: '14px', fontFamily: 'var(--font-mono)' }}>
+            Marcas de ejemplo — sustituir por logos con acuerdo comercial (Fase 10 roadmap).
+          </p>
         </section>
 
         {/* Capacidades: flujo 1→4 (antes “pilares” demasiado abstractos) */}
@@ -761,21 +770,23 @@ export default function LandingPage() {
             backgroundSize: '24px 24px',
           }}
         >
-          <h2
-            style={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: 'clamp(1.35rem, 3vw, 1.85rem)',
-              fontWeight: 600,
-              letterSpacing: '-0.02em',
-              marginBottom: '20px',
-              color: 'var(--text)',
-            }}
-          >
-            ¿Listo para dejar de apagar incendios a mano?
-          </h2>
-          <Link href="/auth" className="btn-primary" style={{ textDecoration: 'none', padding: '14px 28px', fontSize: '12px' }}>
-            Empezar ahora
-          </Link>
+          <div className="max-w-2xl mx-auto">
+            <h2
+              style={{
+                fontFamily: 'var(--font-sans)',
+                fontSize: 'clamp(1.35rem, 3vw, 1.85rem)',
+                fontWeight: 600,
+                letterSpacing: '-0.02em',
+                marginBottom: '20px',
+                color: 'var(--text)',
+              }}
+            >
+              ¿Listo para dejar de apagar incendios a mano?
+            </h2>
+            <Link href="/auth" className="btn-primary justify-center" style={{ textDecoration: 'none', padding: '14px 28px', fontSize: '12px' }}>
+              Empezar ahora
+            </Link>
+          </div>
         </section>
       </main>
 
@@ -848,14 +859,14 @@ export default function LandingPage() {
             </div>
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <li>
-                <a href="#" style={{ fontSize: '12px', color: 'var(--text)', textDecoration: 'none' }}>
+                <Link href="/legal/terms" style={{ fontSize: '12px', color: 'var(--text)', textDecoration: 'none' }}>
                   Términos
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" style={{ fontSize: '12px', color: 'var(--text)', textDecoration: 'none' }}>
+                <Link href="/legal/privacy" style={{ fontSize: '12px', color: 'var(--text)', textDecoration: 'none' }}>
                   Privacidad
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

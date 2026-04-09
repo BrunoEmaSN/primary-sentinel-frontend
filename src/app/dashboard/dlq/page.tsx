@@ -1,7 +1,16 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { listDLQ, reinjectDLQEvent, discardDLQEvent } from '@/lib/api';
+import {
+  listDLQ,
+  reinjectDLQEvent,
+  discardDLQEvent,
+  listEventNotes,
+  addEventNote,
+  addEventTag,
+  getDlqDiff,
+  listDlqSnapshots,
+} from '@/lib/api';
 import type { DLQEvent } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -11,6 +20,11 @@ export default function DLQPage() {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<DLQEvent | null>(null);
   const [correctedPayload, setCorrectedPayload] = useState('');
+  const [snapshotName, setSnapshotName] = useState('antes-reintento');
+  const [notes, setNotes] = useState<unknown[]>([]);
+  const [newNote, setNewNote] = useState('');
+  const [newTag, setNewTag] = useState('');
+  const [diffText, setDiffText] = useState('');
   const [actionLoading, setActionLoading] = useState('');
   const [toast, setToast] = useState('');
 
@@ -31,11 +45,23 @@ export default function DLQPage() {
 
   async function handleReinject(ev: DLQEvent, corrected?: Record<string, unknown>) {
     setActionLoading(ev.id);
-    const res = await reinjectDLQEvent(ev.id, corrected);
+    const res = await reinjectDLQEvent(ev.id, corrected, {
+      snapshotName: snapshotName.trim() || undefined,
+    });
     if (res.error) { showToast('Error: ' + res.error); }
     else { showToast('✦ Evento reinyectado exitosamente'); setSelected(null); void load(); }
     setActionLoading('');
   }
+
+  async function loadNotes(eventId: string) {
+    const r = await listEventNotes(eventId);
+    if (r.data?.data) setNotes(r.data.data);
+    else setNotes([]);
+  }
+
+  useEffect(() => {
+    if (selected) void loadNotes(selected.id);
+  }, [selected]);
 
   async function handleDiscard(ev: DLQEvent) {
     if (!confirm('¿Descartar este evento? Esta acción no se puede deshacer.')) return;
@@ -52,8 +78,10 @@ export default function DLQPage() {
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700, marginBottom: '4px' }}>
           DEAD LETTER QUEUE
         </div>
-        <div style={{ fontSize: '10px', color: 'var(--muted)' }}>
-          Eventos irrecuperables · Todos los payloads están guardados · Requieren intervención humana
+        <div style={{ fontSize: '10px', color: 'var(--muted)', lineHeight: 1.5 }}>
+          Flujo: webhook → validación → healing opcional → fan-out. Si todo falla, estado <code>dead</code>, copia en R2
+          bajo <code>dlq/&#123;tenant&#125;/&#123;event&#125;.json</code> y alertas multi-canal según ajustes.
+          Reinyección crea un evento nuevo y elimina este registro muerto.
         </div>
       </div>
 
@@ -104,7 +132,28 @@ export default function DLQPage() {
               {ev.attempts} intentos de reparación · IA no pudo corregir con suficiente confianza · Payload guardado completo
             </div>
 
-            <div style={{ display: 'flex', gap: '6px' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+              <button
+                onClick={async () => {
+                  const snaps = await listDlqSnapshots(ev.id);
+                  const root = snaps.data as { data?: { id?: string }[] } | undefined;
+                  const rows = root?.data;
+                  const last = Array.isArray(rows) ? rows[0] : undefined;
+                  if (last?.id) {
+                    const d = await getDlqDiff(ev.id, last.id);
+                    if (d.data) {
+                      setDiffText(
+                        d.data.sameJson
+                          ? 'Sin cambios vs último snapshot'
+                          : `Snapshot vs actual: mismo JSON=${String(d.data.sameJson)}`
+                      );
+                    }
+                  } else setDiffText('Sin snapshots aún — guardá uno al reinyectar con nombre.');
+                }}
+                style={{ padding: '5px 12px', borderRadius: '5px', fontSize: '10px', fontFamily: 'var(--font-mono)', cursor: 'pointer', background: 'rgba(148,163,184,.1)', color: 'var(--muted)', border: '1px solid rgba(148,163,184,.25)', fontWeight: 700 }}
+              >
+                Diff último snapshot
+              </button>
               <button
                 onClick={() => { setSelected(ev); setCorrectedPayload(JSON.stringify(ev.payload, null, 2)); }}
                 style={{ padding: '5px 12px', borderRadius: '5px', fontSize: '10px', fontFamily: 'var(--font-mono)', cursor: 'pointer', background: 'rgba(59,130,246,.1)', color: 'var(--blue)', border: '1px solid rgba(59,130,246,.3)', fontWeight: 700 }}
@@ -126,6 +175,9 @@ export default function DLQPage() {
                 ✕ Descartar
               </button>
             </div>
+            {diffText && (
+              <div style={{ fontSize: '10px', color: 'var(--muted)', marginTop: '6px' }}>{diffText}</div>
+            )}
           </div>
         ))}
       </div>
@@ -141,8 +193,15 @@ export default function DLQPage() {
               ✎ CORREGIR PAYLOAD
             </div>
             <div style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '12px' }}>
-              Editá el JSON del evento y reinyectalo al flujo para que sea procesado de nuevo:
+              Opcional: nombre del snapshot antes de reintentar (auditoría). Editá el JSON y reinyectá al flujo:
             </div>
+            <input
+              className="sentinel-input"
+              style={{ marginBottom: '10px', width: '100%' }}
+              value={snapshotName}
+              onChange={(e) => setSnapshotName(e.target.value)}
+              placeholder="Nombre del snapshot"
+            />
             <textarea
               className="sentinel-input"
               style={{ height: '200px', resize: 'vertical', marginBottom: '12px' }}
@@ -164,6 +223,58 @@ export default function DLQPage() {
               >
                 ▶ Reinyectar corregido
               </button>
+            </div>
+            <div style={{ marginTop: '18px', borderTop: '1px solid var(--border)', paddingTop: '14px' }}>
+              <div style={{ fontSize: '11px', fontWeight: 600, marginBottom: '8px' }}>Notas del equipo</div>
+              <div style={{ fontSize: '10px', color: 'var(--muted)', maxHeight: '100px', overflow: 'auto' }}>
+                {notes.length === 0 ? 'Sin notas.' : notes.map((n, i) => (
+                  <div key={i} style={{ marginBottom: '6px' }}>
+                    {(n as { body?: string }).body}
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
+                <input
+                  className="sentinel-input"
+                  style={{ flex: 1 }}
+                  value={newNote}
+                  onChange={(e) => setNewNote(e.target.value)}
+                  placeholder="Añadir nota…"
+                />
+                <button
+                  type="button"
+                  className="btn-ghost"
+                  onClick={async () => {
+                    if (!selected || !newNote.trim()) return;
+                    await addEventNote(selected.id, newNote.trim());
+                    setNewNote('');
+                    void loadNotes(selected.id);
+                  }}
+                >
+                  Añadir
+                </button>
+              </div>
+              <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
+                <input
+                  className="sentinel-input"
+                  style={{ flex: 1 }}
+                  value={newTag}
+                  onChange={(e) => setNewTag(e.target.value)}
+                  placeholder="Etiqueta (ej. cola_muerta)"
+                />
+                <button
+                  type="button"
+                  className="btn-ghost"
+                  onClick={async () => {
+                    if (!selected || !newTag.trim()) return;
+                    await addEventTag(selected.id, newTag.trim());
+                    setNewTag('');
+                    showToast('Etiqueta guardada');
+                  }}
+                >
+                  Tag
+                </button>
+              </div>
             </div>
           </div>
         </div>

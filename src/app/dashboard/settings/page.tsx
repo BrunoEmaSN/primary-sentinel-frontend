@@ -2,21 +2,15 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
+import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
+import { getTenantSettings, putTenantSettings, type TenantSettingsApi } from '@/lib/api';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8787';
 
-type SectionProps = {
-  title: string;
-  children: ReactNode;
-};
-
-type RowProps = {
-  label: string;
-  sub?: string;
-  children: ReactNode;
-};
+type SectionProps = { title: string; children: ReactNode };
+type RowProps = { label: string; sub?: string; children: ReactNode };
 
 function Section({ title, children }: SectionProps) {
   return (
@@ -29,7 +23,15 @@ function Section({ title, children }: SectionProps) {
 
 function Row({ label, sub, children }: RowProps) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--border)' }}>
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '10px 0',
+        borderBottom: '1px solid var(--border)',
+      }}
+    >
       <div>
         <div style={{ fontSize: '12px', fontWeight: 500 }}>{label}</div>
         {sub && <div style={{ fontSize: '10px', color: 'var(--muted)', marginTop: '2px' }}>{sub}</div>}
@@ -39,20 +41,52 @@ function Row({ label, sub, children }: RowProps) {
   );
 }
 
+const defaultSettings: TenantSettingsApi = {
+  notify_email_healing: true,
+  notify_email_dead: true,
+  notify_email_pending_rules: true,
+  slack_on_incidents: true,
+  slack_incoming_webhook_url: null,
+  alert_webhook_url: null,
+  alert_webhook_secret: null,
+  billing_plan: 'free',
+};
+
 export default function SettingsPage() {
   const [user, setUser] = useState<User | null>(null);
   const [saved, setSaved] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [s, setS] = useState<TenantSettingsApi>(defaultSettings);
   const supabase = useMemo(() => createClient(), []);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
   }, [supabase]);
 
-  function handleSave() {
+  useEffect(() => {
+    void getTenantSettings().then((r) => {
+      if (r.data) setS({ ...defaultSettings, ...r.data });
+      setLoading(false);
+    });
+  }, []);
+
+  async function handleSave() {
+    const res = await putTenantSettings({
+      notify_email_healing: s.notify_email_healing,
+      notify_email_dead: s.notify_email_dead,
+      notify_email_pending_rules: s.notify_email_pending_rules,
+      slack_on_incidents: s.slack_on_incidents,
+      slack_incoming_webhook_url: s.slack_incoming_webhook_url || null,
+      alert_webhook_url: s.alert_webhook_url || null,
+      alert_webhook_secret: s.alert_webhook_secret || null,
+    });
+    if (res.error) {
+      alert('Error al guardar: ' + res.error);
+      return;
+    }
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   }
-
 
   return (
     <div className="fade-up">
@@ -69,55 +103,87 @@ export default function SettingsPage() {
             </span>
             <button
               onClick={() => user && navigator.clipboard.writeText(user.id)}
-              className="btn-ghost" style={{ fontSize: '9px', padding: '3px 8px' }}
+              className="btn-ghost"
+              style={{ fontSize: '9px', padding: '3px 8px' }}
             >
               Copiar
             </button>
           </div>
         </Row>
-        <Row label="Plan" sub="Plan actual">
-          <span className="pill pill-active">FREE</span>
-        </Row>
-      </Section>
-
-      <Section title="CONFIGURACIÓN DE PRIMARY SENTINEL">
-        <Row label="Umbral de auto-aprobación" sub="Reglas con confianza ≥ X se activan automáticamente">
+        <Row label="Plan" sub="Límite free: 1 pipeline activo (API)">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <input type="range" min={50} max={100} defaultValue={95} style={{ width: '100px' }} />
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', minWidth: '32px' }}>95%</span>
+            <span className="pill pill-active">{s.billing_plan.toUpperCase()}</span>
+            <Link href="/dashboard/billing" style={{ fontSize: '10px', color: 'var(--accent)' }}>
+              Facturación
+            </Link>
           </div>
         </Row>
-        <Row label="Máx. reintentos antes de DLQ" sub="Por evento">
-          <select className="sentinel-input" style={{ width: '80px' }} defaultValue="3">
-            {[1,2,3,5,10].map(n => <option key={n}>{n}</option>)}
-          </select>
-        </Row>
-        <Row label="Auto-aplicar reglas IA" sub="Sin esperar aprobación humana (requiere confianza ≥ umbral)">
-          <input type="checkbox" defaultChecked />
-        </Row>
-        <Row label="Cuarentena automática" sub="Desactivar reglas con tasa de éxito < 30%">
-          <input type="checkbox" defaultChecked />
-        </Row>
-        <div style={{ paddingTop: '10px' }}>
-          <Row label="Modelo IA" sub="Modelo de Claude usado para generar reglas de transformación">
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--teal)' }}>claude-sonnet-4</span>
-          </Row>
-        </div>
       </Section>
 
-      <Section title="NOTIFICACIONES">
-        <Row label="Email en reparaciones" sub="Recibir email cuando la IA repara automáticamente un evento">
-          <input type="checkbox" defaultChecked />
-        </Row>
-        <Row label="Email en eventos DLQ" sub="Recibir email cuando un evento es irrecuperable">
-          <input type="checkbox" defaultChecked />
-        </Row>
-        <Row label="Email en reglas pendientes" sub="Cuando la IA genera una regla que necesita aprobación">
-          <input type="checkbox" defaultChecked />
-        </Row>
-        <Row label="Webhook de Slack" sub="URL del webhook de Slack para alertas">
-          <input className="sentinel-input" style={{ width: '280px' }} placeholder="https://hooks.slack.com/services/..." />
-        </Row>
+      <Section title="NOTIFICACIONES (Resend + Slack + webhook firmado)">
+        {loading ? (
+          <div style={{ fontSize: '11px', color: 'var(--muted)' }}>Cargando preferencias…</div>
+        ) : (
+          <>
+            <Row label="Email en reparaciones" sub="Mismo resumen JSON/HTML que Slack y webhook">
+              <input
+                type="checkbox"
+                checked={s.notify_email_healing}
+                onChange={(e) => setS((x) => ({ ...x, notify_email_healing: e.target.checked }))}
+              />
+            </Row>
+            <Row label="Email en DLQ" sub="Incidente crítico">
+              <input
+                type="checkbox"
+                checked={s.notify_email_dead}
+                onChange={(e) => setS((x) => ({ ...x, notify_email_dead: e.target.checked }))}
+              />
+            </Row>
+            <Row label="Email en reglas pendientes" sub="Reservado para flujos de aprobación">
+              <input
+                type="checkbox"
+                checked={s.notify_email_pending_rules}
+                onChange={(e) => setS((x) => ({ ...x, notify_email_pending_rules: e.target.checked }))}
+              />
+            </Row>
+            <Row label="Slack (Incoming Webhook)" sub="Mensaje de texto con el resumen">
+              <input
+                type="checkbox"
+                checked={s.slack_on_incidents}
+                onChange={(e) => setS((x) => ({ ...x, slack_on_incidents: e.target.checked }))}
+              />
+            </Row>
+            <Row label="URL Slack" sub="https://hooks.slack.com/services/...">
+              <input
+                className="sentinel-input"
+                style={{ width: '280px' }}
+                placeholder="Webhook de Slack"
+                value={s.slack_incoming_webhook_url ?? ''}
+                onChange={(e) => setS((x) => ({ ...x, slack_incoming_webhook_url: e.target.value || null }))}
+              />
+            </Row>
+            <Row label="Webhook de alertas (cliente)" sub="POST JSON firmado (HMAC-SHA256), distinto del webhook de ingesta">
+              <input
+                className="sentinel-input"
+                style={{ width: '240px' }}
+                placeholder="https://tu-api.com/sentinel/alerts"
+                value={s.alert_webhook_url ?? ''}
+                onChange={(e) => setS((x) => ({ ...x, alert_webhook_url: e.target.value || null }))}
+              />
+            </Row>
+            <Row label="Secreto HMAC" sub="Cabecera X-Sentinel-Signature: sha256=...">
+              <input
+                className="sentinel-input"
+                style={{ width: '200px' }}
+                type="password"
+                autoComplete="off"
+                placeholder="secreto compartido"
+                value={s.alert_webhook_secret ?? ''}
+                onChange={(e) => setS((x) => ({ ...x, alert_webhook_secret: e.target.value || null }))}
+              />
+            </Row>
+          </>
+        )}
       </Section>
 
       <Section title="INFRAESTRUCTURA">
@@ -141,10 +207,9 @@ export default function SettingsPage() {
       </Section>
 
       <div style={{ display: 'flex', gap: '8px' }}>
-        <button className="btn-primary" onClick={handleSave}>
+        <button className="btn-primary" onClick={() => void handleSave()} disabled={loading}>
           {saved ? '✔ Guardado' : 'Guardar cambios'}
         </button>
-        <button className="btn-ghost">Cancelar</button>
       </div>
     </div>
   );

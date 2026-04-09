@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { getOAuthCallbackUrl } from '@/lib/app-url';
-import { isSupabasePublicEnvConfigured } from '@/lib/supabase/public-env';
+import { getSupabasePublicEnv } from '@/lib/supabase/public-env';
 import { useRouter } from 'next/navigation';
 import SentinelBrand from '@/components/SentinelBrand';
 
@@ -42,7 +42,8 @@ function networkErrorMessage(err: unknown): string {
 
 export default function AuthPage() {
   const router = useRouter();
-  const configured = isSupabasePublicEnvConfigured();
+  const supabaseEnv = getSupabasePublicEnv();
+  const configured = supabaseEnv.ok;
   const supabase = useMemo(
     () => (configured ? createClient() : null),
     [configured]
@@ -161,9 +162,20 @@ export default function AuthPage() {
 
           {!configured && (
             <div style={{ padding: '10px 12px', borderRadius: '6px', marginBottom: '16px', background: 'rgba(251,191,36,.08)', border: '1px solid rgba(251,191,36,.25)', fontSize: '11px', color: 'var(--muted)', lineHeight: 1.5 }}>
-              Falta configurar Supabase: en <span style={{ fontFamily: 'var(--font-mono)' }}>.env.local</span> copiá{' '}
-              <strong style={{ color: 'var(--fg)' }}>Project URL</strong> y la clave <strong style={{ color: 'var(--fg)' }}>anon public</strong> desde el panel (Settings → API). Reiniciá{' '}
-              <span style={{ fontFamily: 'var(--font-mono)' }}>next dev</span> después de guardar.
+              {!supabaseEnv.ok && supabaseEnv.reason === 'service_role' ? (
+                <>
+                  <strong style={{ color: 'var(--fg)' }}>Clave incorrecta:</strong> <span style={{ fontFamily: 'var(--font-mono)' }}>NEXT_PUBLIC_SUPABASE_ANON_KEY</span> tiene la clave{' '}
+                  <strong style={{ color: 'var(--fg)' }}>service_role</strong> (solo servidor). En Supabase → Settings → API copiá la clave{' '}
+                  <strong style={{ color: 'var(--fg)' }}>anon</strong> / <strong style={{ color: 'var(--fg)' }}>public</strong>. Si esta service_role estuvo en el front, rotala en el panel. Reiniciá{' '}
+                  <span style={{ fontFamily: 'var(--font-mono)' }}>next dev</span> tras guardar <span style={{ fontFamily: 'var(--font-mono)' }}>.env.local</span>.
+                </>
+              ) : (
+                <>
+                  Falta configurar Supabase: en <span style={{ fontFamily: 'var(--font-mono)' }}>.env.local</span> copiá{' '}
+                  <strong style={{ color: 'var(--fg)' }}>Project URL</strong> y la clave <strong style={{ color: 'var(--fg)' }}>anon public</strong> desde el panel (Settings → API). Reiniciá{' '}
+                  <span style={{ fontFamily: 'var(--font-mono)' }}>next dev</span> después de guardar.
+                </>
+              )}
             </div>
           )}
 

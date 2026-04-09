@@ -7,6 +7,7 @@ import SentinelBrand from '@/components/SentinelBrand';
 const navItems = [
   { label: 'Dashboard',     href: '/dashboard',               section: 'Monitor' },
   { label: 'Flujos',        href: '/dashboard/flows',          section: 'Monitor' },
+  { label: 'Operaciones',   href: '/dashboard/operations',     section: 'Monitor' },
   { label: 'Reglas IA',     href: '/dashboard/rules',          section: 'Monitor', badge: 'pending' },
   { label: 'Dead Letter',   href: '/dashboard/dlq',            section: 'Incidentes', badge: 'dlq' },
   { label: 'Configuración', href: '/dashboard/settings',       section: 'Config' },

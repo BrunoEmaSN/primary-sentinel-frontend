@@ -22,29 +22,35 @@ function jwtRole(claims: string): string | undefined {
   }
 }
 
+export type SupabasePublicEnvFailureReason =
+  | 'missing'
+  | 'service_role'
+  | 'placeholder'
+  | 'invalid_url';
+
 export type SupabasePublicEnvResult =
   | { ok: true; url: string; anonKey: string }
-  | { ok: false };
+  | { ok: false; reason: SupabasePublicEnvFailureReason };
 
 function validatePublicSupabaseEnv(): SupabasePublicEnvResult {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
   if (!url || !anonKey) {
-    return { ok: false };
+    return { ok: false, reason: 'missing' };
   }
   if (jwtRole(anonKey) === 'service_role') {
-    return { ok: false };
+    return { ok: false, reason: 'service_role' };
   }
   if (PLACEHOLDER_PATTERNS.some((p) => p.test(url) || p.test(anonKey))) {
-    return { ok: false };
+    return { ok: false, reason: 'placeholder' };
   }
   try {
     const parsed = new URL(url);
     if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
-      return { ok: false };
+      return { ok: false, reason: 'invalid_url' };
     }
   } catch {
-    return { ok: false };
+    return { ok: false, reason: 'invalid_url' };
   }
   return { ok: true, url, anonKey };
 }
@@ -61,10 +67,7 @@ export function isSupabasePublicEnvConfigured(): boolean {
 export function getSupabasePublicEnvOrThrow(): { url: string; anonKey: string } {
   const result = validatePublicSupabaseEnv();
   if (!result.ok) {
-    const role = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-      ? jwtRole(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.trim())
-      : undefined;
-    if (role === 'service_role') {
+    if (result.reason === 'service_role') {
       throw new Error(
         'NEXT_PUBLIC_SUPABASE_ANON_KEY no puede ser la clave service_role. En Supabase → Settings → API usá la clave anon (public) en el cliente. Rotá la service_role si la expusiste.'
       );
