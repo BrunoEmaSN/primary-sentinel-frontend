@@ -18,10 +18,12 @@ const NAV = [
     items: [
       { href: '/docs/dashboard', label: 'Dashboard' },
       { href: '/docs/flujos', label: 'Flujos' },
+      { href: '/docs/operaciones', label: 'Operaciones' },
       { href: '/docs/reglas', label: 'Reglas IA' },
       { href: '/docs/dlq', label: 'Dead Letter' },
       { href: '/docs/notificaciones', label: 'Notificaciones' },
       { href: '/docs/configuracion', label: 'Configuración' },
+      { href: '/docs/facturacion', label: 'Facturación' },
     ],
   },
   {

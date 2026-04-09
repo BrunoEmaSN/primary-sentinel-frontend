@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Configuración',
-  description: 'Ajustes del Sentinel y estado de infraestructura en el panel.',
+  description: 'Cuenta SaaS, tenant, notificaciones e infraestructura en Primary Sentinel.',
 };
 
 export default function DocsConfiguracionPage() {
@@ -10,22 +10,37 @@ export default function DocsConfiguracionPage() {
     <>
       <h1>Configuración</h1>
       <p>
-        En <code>/dashboard/settings</code> centralizás parámetros del producto y podés ver el <strong>estado de la
-        infraestructura</strong> conectada (por ejemplo disponibilidad del backend o metadatos útiles para soporte).
+        <code>/dashboard/settings</code> agrupa la <strong>cuenta del tenant</strong>, preferencias de notificación e
+        información de infraestructura del servicio. Los cambios sensibles se guardan vía API autenticada (
+        <code>PUT /api/settings</code>).
       </p>
 
-      <h2>Destinos y ajustes</h2>
+      <h2>Cuenta y plan</h2>
       <p>
-        Según la versión del panel, aquí podés definir preferencias del Sentinel, revisar selectores de destino o
-        configuraciones que afectan cómo se comportan los flujos y las integraciones. Los campos concretos dependen de tu
-        despliegue del backend.
+        Ves tu email, el <strong>Tenant ID</strong> (útil para componer URLs de webhook de ingesta) y el{' '}
+        <strong>plan</strong> actual del SaaS. El plan free incluye límites en API (p. ej. pipelines activos); más
+        detalle en <a href="/docs/facturacion">Facturación</a>.
       </p>
 
-      <h2>Variables de entorno</h2>
+      <h2>Notificaciones: Resend, Slack y webhook firmado</h2>
       <p>
-        Recordá que las claves públicas (<code>NEXT_PUBLIC_*</code>) se definen en el entorno de build o en Vercel; no se
-        editan desde esta pantalla. Para desarrollo local usá <code>.env.local</code> como se describe en{' '}
-        <a href="/docs/empezar">Primeros pasos</a>.
+        Podés activar envío por <strong>email</strong> (reparaciones, DLQ, reglas pendientes), un{' '}
+        <strong>Incoming Webhook de Slack</strong> para resúmenes de incidente, y un <strong>webhook HTTPS propio</strong>{' '}
+        con firma <code>HMAC-SHA256</code> en la cabecera <code>X-Sentinel-Signature</code> (secreto compartido
+        configurable). Son canales paralelos al centro de notificaciones en el panel.
+      </p>
+
+      <h2>Infraestructura (referencia)</h2>
+      <p>
+        La pantalla resume el origen del <strong>API</strong> (URL del Worker), y el stack típico del producto: Supabase
+        (Postgres), cache (p. ej. Redis/Upstash), almacenamiento para DLQ (p. ej. R2) y email (Resend). Es informativo
+        para soporte y transparencia operativa; no sustituye el panel del proveedor cloud.
+      </p>
+
+      <h2>Variables de entorno del frontend</h2>
+      <p>
+        Las claves públicas (<code>NEXT_PUBLIC_*</code>) se definen en build o en Vercel; no se editan desde esta
+        pantalla. Para desarrollo local usá <code>.env.local</code> como en <a href="/docs/empezar">Primeros pasos</a>.
       </p>
     </>
   );

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Flujos',
-  description: 'Gestión de endpoints, webhooks y pruebas de ingesta en Primary Sentinel.',
+  description: 'Endpoints, webhooks de ingesta por tenant y pruebas en Primary Sentinel.',
 };
 
 export default function DocsFlujosPage() {
@@ -10,28 +10,29 @@ export default function DocsFlujosPage() {
     <>
       <h1>Flujos</h1>
       <p>
-        En <code>/dashboard/flows</code> configurás los <strong>endpoints</strong> que el Sentinel debe vigilar. Cada
-        endpoint tiene metadatos propios y una <strong>URL de webhook</strong> que tus sistemas pueden invocar para
-        simular o enviar eventos reales.
+        En <code>/dashboard/flows</code> administrás los <strong>endpoints</strong> del SaaS: cada uno pertenece a tu{' '}
+        <strong>tenant</strong> y tiene metadatos, esquema, destinos y una <strong>URL de webhook</strong> que tus
+        sistemas invocan para enviar eventos (prueba o producción).
       </p>
 
       <h2>Crear y editar endpoints</h2>
       <p>
-        Desde el formulario podés dar de alta nuevos destinos y ajustar la configuración de los existentes. Los cambios
-        quedan asociados a tu usuario (tenant) en el backend.
+        Los cambios quedan persistidos en el backend multi-tenant; el panel usa el JWT de sesión para que solo veas y
+        modifiques recursos de tu cuenta.
       </p>
 
-      <h2>Webhook de prueba</h2>
+      <h2>Webhook de ingesta</h2>
       <p>
-        El backend expone un endpoint de tipo <code>POST /webhook/:tenantId/:slug</code> para enviar cargas de prueba. La
-        interfaz muestra la URL concreta que debés usar; las peticiones autenticadas al API REST usan el JWT de Supabase
-        en la cabecera <code>Authorization</code> (ver <a href="/docs/api">API y webhooks</a>).
+        El backend expone <code>POST /webhook/:tenantId/:slug</code>. El <code>tenantId</code> coincide con el
+        identificador de usuario/tenant que mostramos en <a href="/docs/configuracion">Configuración</a>. Las llamadas al
+        API REST autenticado usan <code>Authorization: Bearer &lt;JWT&gt;</code> (ver{' '}
+        <a href="/docs/api">API y webhooks</a>).
       </p>
 
       <h2>Eventos por endpoint</h2>
       <p>
-        Podés inspeccionar eventos asociados a un endpoint concreto para depurar integraciones o entender qué está
-        llegando al pipeline antes de que las reglas IA actúen.
+        Podés listar y revisar eventos asociados a un endpoint para depurar integraciones antes de que actúen las reglas
+        IA o terminen en DLQ.
       </p>
     </>
   );

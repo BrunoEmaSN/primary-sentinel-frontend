@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Dead Letter',
-  description: 'Cola de eventos irrecuperables y reinyección manual en Primary Sentinel.',
+  description: 'Cola DLQ por tenant, reinyección, snapshots y descarte en Primary Sentinel.',
 };
 
 export default function DocsDlqPage() {
@@ -10,22 +10,28 @@ export default function DocsDlqPage() {
     <>
       <h1>Dead Letter Queue</h1>
       <p>
-        La ruta <code>/dashboard/dlq</code> muestra los eventos que el sistema <strong>no pudo sanar</strong> de forma
-        automática. Actúa como cola de revisión humana: podés inspeccionar el payload, entender el motivo del fallo y,
-        cuando el backend lo permita, lanzar una <strong>reinyección manual</strong> hacia el flujo.
+        <code>/dashboard/dlq</code> lista los eventos que el sistema <strong>no pudo sanar</strong> de forma automática.
+        Es la cola de revisión humana del SaaS: inspeccionás el payload, el motivo del fallo y, cuando el backend lo
+        permite, podés <strong>reinyectar</strong> el evento o <strong>descartarlo</strong>. Solo ves ítems de tu tenant.
       </p>
 
       <h2>Cuándo aparece un ítem</h2>
       <p>
-        Los registros suelen corresponder a errores recurrentes, datos fuera de esquema o situaciones que las reglas IA
-        existentes no cubren. Es el lugar donde priorizar mejoras de reglas o correcciones upstream en tus productores de
-        datos.
+        Suelen ser errores recurrentes, datos fuera de esquema o situaciones no cubiertas por las reglas actuales. Es el
+        lugar para priorizar mejoras de reglas o correcciones en los productores upstream.
       </p>
 
-      <h2>Reinyección</h2>
+      <h2>Reinyección y snapshots</h2>
       <p>
-        Desde la interfaz podés solicitar que un evento vuelva a procesarse tras corregir la causa raíz o actualizar las
-        reglas. El comportamiento exacto depende de tu implementación en el Worker/backend.
+        La API expone reinyección con payload corregido opcional (<code>POST /api/dlq/:id/reinject</code>), listado de
+        snapshots por evento y comparación entre versiones para auditoría. El comportamiento exacto depende de la versión
+        desplegada del Worker.
+      </p>
+
+      <h2>Descarte</h2>
+      <p>
+        Podés eliminar un registro DLQ cuando decidís no reprocesarlo (<code>DELETE /api/dlq/:id</code>), de acuerdo con
+        las políticas de retención del backend.
       </p>
     </>
   );

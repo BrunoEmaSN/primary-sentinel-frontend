@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Dashboard',
-  description: 'Métricas del día, diagrama de flujo, eventos recientes y estado del agente en Primary Sentinel.',
+  description: 'Vista principal del tenant en Primary Sentinel: métricas, flujo y actividad.',
 };
 
 export default function DocsDashboardPage() {
@@ -10,33 +10,30 @@ export default function DocsDashboardPage() {
     <>
       <h1>Dashboard</h1>
       <p>
-        La ruta <code>/dashboard</code> es la vista principal después de iniciar sesión. Resume el estado del sistema y
-        te da contexto rápido antes de profundizar en flujos, reglas o DLQ.
+        <code>/dashboard</code> es la entrada al producto tras iniciar sesión. Resume el estado de <strong>tu</strong>{' '}
+        cuenta SaaS (métricas del día, DLQ, reglas y actividad) antes de profundizar en flujos, operaciones o incidentes.
       </p>
 
       <h2>Tarjetas de métricas</h2>
       <p>
-        Las tarjetas superiores muestran indicadores como eventos del día, reglas sanadas, reglas activas o pendientes,
-        cantidad en Dead Letter y una tasa de sanación aproximada. Son útiles para detectar de un vistazo si el tráfico
-        o los fallos están dentro de lo esperado.
+        Indicadores como eventos del día, reglas sanadas o pendientes, volumen en Dead Letter y una tasa de sanación
+        aproximada. Sirven para un control rápido de salud del tenant.
       </p>
 
       <h2>Diagrama de flujo</h2>
       <p>
-        El diagrama relaciona tus <strong>endpoints</strong> con el flujo de eventos. Ayuda a ver qué nodos están
-        activos y cómo se conecta la ingesta con el resto del sistema.
+        Relaciona tus <strong>endpoints</strong> con el flujo de eventos y el estado de los nodos. Es la vista “mapa”
+        antes de abrir <a href="/docs/flujos">Flujos</a> o <a href="/docs/operaciones">Operaciones</a>.
       </p>
 
       <h2>Eventos recientes</h2>
       <p>
-        Un listado compacto de los últimos eventos permite ver actividad reciente sin salir del dashboard. Para el detalle
-        por endpoint y webhooks, usá la sección <a href="/docs/flujos">Flujos</a>.
+        Listado compacto de última actividad. Para inspección por endpoint o pruebas de webhook, usá la sección Flujos.
       </p>
 
       <h2>Gráfico de actividad y agente</h2>
       <p>
-        El gráfico de actividad muestra la evolución temporal de los eventos. El bloque de estado del agente resume el
-        comportamiento de las reglas IA asociadas a tus flujos.
+        Evolución temporal de eventos y un bloque de estado del agente de reglas IA asociado a tus pipelines.
       </p>
     </>
   );

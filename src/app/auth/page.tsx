@@ -1,11 +1,26 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { getOAuthCallbackUrl } from '@/lib/app-url';
 import { getSupabasePublicEnv } from '@/lib/supabase/public-env';
 import { useRouter } from 'next/navigation';
 import SentinelBrand from '@/components/SentinelBrand';
+
+function CloseIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M18 6L6 18M6 6l12 12"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 
 function GoogleIcon() {
   return (
@@ -146,18 +161,43 @@ export default function AuthPage() {
       }} />
 
       <div className="fade-up" style={{ width: '100%', maxWidth: '400px' }}>
-        {/* Logo */}
         <SentinelBrand variant="auth" />
 
-        {/* Card */}
         <div className="sentinel-card" style={{ padding: '28px' }}>
-          <div style={{ marginBottom: '20px' }}>
-            <h1 style={{ fontFamily: 'var(--font-mono)', fontSize: '14px', fontWeight: 700, marginBottom: '4px' }}>
-              {mode === 'login' ? 'INICIAR SESIÓN' : 'CREAR CUENTA'}
-            </h1>
-            <p style={{ fontSize: '11px', color: 'var(--muted)' }}>
-              {mode === 'login' ? 'Accedé a tu panel de control' : 'Comenzá a monitorear tus pipelines'}
-            </p>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '38px 1fr 38px',
+              alignItems: 'start',
+              marginBottom: '20px',
+            }}
+          >
+            <span aria-hidden style={{ width: 38, height: 38 }} />
+            <div style={{ textAlign: 'center', minWidth: 0, paddingTop: '2px' }}>
+              <h1
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '14px',
+                  fontWeight: 700,
+                  marginBottom: '4px',
+                  textAlign: 'center',
+                }}
+              >
+                {mode === 'login' ? 'INICIAR SESIÓN' : 'CREAR CUENTA'}
+              </h1>
+              <p style={{ fontSize: '11px', color: 'var(--muted)', lineHeight: 1.45, textAlign: 'center' }}>
+                {mode === 'login' ? 'Accedé a tu panel de control' : 'Comenzá a monitorear tus pipelines'}
+              </p>
+            </div>
+            <Link
+              href="/"
+              className="auth-close-round"
+              aria-label="Cerrar y volver al inicio"
+              title="Cerrar"
+              style={{ justifySelf: 'end' }}
+            >
+              <CloseIcon />
+            </Link>
           </div>
 
           {!configured && (

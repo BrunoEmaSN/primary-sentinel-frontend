@@ -134,6 +134,34 @@ html, body {
 }
 .fade-up { animation: fade-up 0.3s ease both; }
 
+/* Auth — cerrar / volver a landing */
+.auth-close-round {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  border: 1px solid var(--border2);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--muted);
+  text-decoration: none;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease;
+}
+.auth-close-round:hover {
+  border-color: rgba(200, 245, 80, 0.35);
+  background: rgba(200, 245, 80, 0.07);
+  color: var(--accent);
+}
+.auth-close-round:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 /* Docs section — mobile top bar height (must match .docs-mobile-header) */
 :root {
   --docs-mobile-header-h: 52px;

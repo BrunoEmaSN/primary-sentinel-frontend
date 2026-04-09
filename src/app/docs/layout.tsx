@@ -7,17 +7,17 @@ export const metadata: Metadata = {
     template: '%s — Primary Sentinel',
   },
   description:
-    'Guía de uso de Primary Sentinel: dashboard, flujos, reglas IA, Dead Letter, notificaciones, configuración e integración con la API.',
+    'Guía del producto SaaS Primary Sentinel: cuenta multi-tenant, panel, operaciones, DLQ, planes e integración API.',
   openGraph: {
     title: 'Documentación — Primary Sentinel',
     description:
-      'Guía de uso de Primary Sentinel: monitorización, auto-reparación con IA e integración con tu backend.',
+      'SaaS de observabilidad y auto-reparación de pipelines: documentación para equipos y administradores de tenant.',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Documentación — Primary Sentinel',
     description:
-      'Guía de uso de Primary Sentinel: monitorización, auto-reparación con IA e integración con tu backend.',
+      'SaaS de observabilidad y auto-reparación de pipelines: documentación para equipos y administradores de tenant.',
   },
 };
 

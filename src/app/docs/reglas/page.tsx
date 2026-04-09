@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Reglas IA',
-  description: 'Aprobar, editar y eliminar reglas de reparación generadas o sugeridas por IA.',
+  description: 'Reglas de reparación por tenant en Primary Sentinel SaaS.',
 };
 
 export default function DocsReglasPage() {
@@ -10,29 +10,27 @@ export default function DocsReglasPage() {
     <>
       <h1>Reglas IA</h1>
       <p>
-        La sección <code>/dashboard/rules</code> concentra las <strong>reglas de reparación</strong> que el sistema
-        propone o genera a partir del análisis de eventos. Las reglas definen cómo corregir o enrutar situaciones
-        anómalas en tus pipelines.
+        En <code>/dashboard/rules</code> gestionás las <strong>reglas de transformación / reparación</strong> del producto.
+        El motor puede proponer reglas a partir del análisis de eventos; vos las revisás en el contexto de tu{' '}
+        <strong>tenant</strong> antes de activarlas en producción.
       </p>
 
       <h2>Estados</h2>
       <p>
-        Las reglas pueden aparecer como <strong>pendientes de aprobación</strong>, <strong>activas</strong> u otros
-        estados según la implementación del backend. El panel usa etiquetas visuales (píldoras) coherentes con el resto
-        de la UI para que identifiques el estado de un vistazo.
+        Las reglas pueden mostrarse como pendientes de aprobación, activas u otros estados según el backend. El panel usa
+        píldoras de color coherentes con el resto del SaaS para identificar el estado de un vistazo.
       </p>
 
       <h2>Aprobar y editar</h2>
       <p>
-        Podés revisar el contenido de una regla sugerida, aprobarla para que pase a producción o ajustarla antes de
-        activarla. La edición fina permite adaptar condiciones o acciones a tu entorno sin abandonar el flujo del
-        producto.
+        Podés revisar el contenido sugerido, aprobar para que entre en vigor o ajustar condiciones y acciones antes de
+        activar. Todo queda acotado a tu organización en el modelo multi-tenant.
       </p>
 
       <h2>Eliminar</h2>
       <p>
-        Si una regla ya no aplica o fue creada por error, podés eliminarla desde el gestor. Las operaciones destructivas
-        suelen requerir confirmación para evitar borrados accidentales.
+        Las reglas obsoletas o erróneas se pueden eliminar desde el gestor; suelen pedirse confirmaciones para evitar
+        borrados accidentales.
       </p>
     </>
   );
