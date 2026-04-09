@@ -6,17 +6,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
 import TopbarNotifications from '@/components/layout/TopbarNotifications';
-
-const titles: Record<string, string> = {
-  '/dashboard': 'DASHBOARD',
-  '/dashboard/flows': 'FLUJOS ACTIVOS',
-  '/dashboard/operations': 'OPERACIONES',
-  '/dashboard/rules': 'GESTOR DE REGLAS',
-  '/dashboard/dlq': 'DEAD LETTER QUEUE',
-  '/dashboard/notifications': 'NOTIFICACIONES',
-  '/dashboard/settings': 'CONFIGURACIÓN',
-  '/dashboard/billing': 'FACTURACIÓN',
-};
+import { useI18n } from '@/lib/i18n/I18nProvider';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 type Menu = 'none' | 'profile' | 'notifications';
 
@@ -24,6 +15,14 @@ export default function Topbar({ user }: { user: User }) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
+  const { t } = useI18n();
+
+  const pageTitle = (() => {
+    const key = `topbar.titles.${pathname}`;
+    const resolved = t(key);
+    if (resolved !== key) return resolved;
+    return t('topbar.defaultTitle');
+  })();
   const [menu, setMenu] = useState<Menu>('none');
   const profileWrapRef = useRef<HTMLDivElement>(null);
 
@@ -58,7 +57,7 @@ export default function Topbar({ user }: { user: User }) {
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 0 }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '14px', fontWeight: 700 }}>
-          {titles[pathname] ?? 'PRIMARY SENTINEL'}
+          {pageTitle}
         </div>
         <Link
           href="/docs"
@@ -70,10 +69,11 @@ export default function Topbar({ user }: { user: User }) {
             flexShrink: 0,
           }}
         >
-          Docs
+          {t('common.docs')}
         </Link>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <LanguageSwitcher variant="compact" />
         <TopbarNotifications
           open={menu === 'notifications'}
           onOpenChange={(open) => setMenu(open ? 'notifications' : 'none')}
@@ -100,7 +100,7 @@ export default function Topbar({ user }: { user: User }) {
               cursor: 'pointer',
               padding: 0,
             }}
-            title="Menú de cuenta"
+            title={t('topbar.accountMenu')}
           >
             {initials}
           </button>
@@ -143,7 +143,7 @@ export default function Topbar({ user }: { user: User }) {
                   textDecoration: 'none',
                 }}
               >
-                Configuración
+                {t('topbar.settings')}
               </Link>
               <button
                 type="button"
@@ -162,7 +162,7 @@ export default function Topbar({ user }: { user: User }) {
                   marginTop: '4px',
                 }}
               >
-                Cerrar sesión
+                {t('topbar.signOut')}
               </button>
             </div>
           )}

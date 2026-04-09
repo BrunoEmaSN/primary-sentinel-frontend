@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
-import { Analytics } from "@vercel/analytics/next"
+import { Analytics } from '@vercel/analytics/next';
 import './globals.css';
+import { I18nProvider } from '@/lib/i18n/I18nProvider';
+import { getDictionary } from '@/lib/i18n/messages';
+import { getLocaleFromCookie } from '@/lib/i18n/getLocale';
 
 export const metadata: Metadata = {
   title: 'Primary Sentinel — Self-Healing AI Pipeline',
@@ -10,11 +13,16 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getLocaleFromCookie();
+  const dictionary = getDictionary(locale);
+
   return (
-    <html lang="es">
+    <html lang={locale}>
       <body>
-        {children}
+        <I18nProvider initialLocale={locale} dictionary={dictionary}>
+          {children}
+        </I18nProvider>
         <Analytics />
       </body>
     </html>

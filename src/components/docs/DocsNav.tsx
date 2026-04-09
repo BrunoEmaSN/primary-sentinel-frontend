@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import SentinelBrand from '@/components/SentinelBrand';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 const NAV = [
   {
@@ -135,16 +136,19 @@ export default function DocsNav() {
         <Link href="/docs" style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700, color: 'var(--text)', textDecoration: 'none' }}>
           DOCS
         </Link>
-        <button
-          type="button"
-          aria-expanded={open}
-          aria-label={open ? 'Cerrar menú' : 'Abrir menú de documentación'}
-          onClick={() => setOpen((o) => !o)}
-          className="btn-ghost"
-          style={{ padding: '6px 10px', fontSize: '11px' }}
-        >
-          {open ? 'Cerrar' : 'Menú'}
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <LanguageSwitcher variant="compact" />
+          <button
+            type="button"
+            aria-expanded={open}
+            aria-label={open ? 'Cerrar menú' : 'Abrir menú de documentación'}
+            onClick={() => setOpen((o) => !o)}
+            className="btn-ghost"
+            style={{ padding: '6px 10px', fontSize: '11px' }}
+          >
+            {open ? 'Cerrar' : 'Menú'}
+          </button>
+        </div>
       </header>
 
       {/* Mobile overlay + drawer */}

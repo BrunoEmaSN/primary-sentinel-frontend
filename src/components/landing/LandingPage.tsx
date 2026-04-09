@@ -1,7 +1,11 @@
+'use client';
+
 import Link from 'next/link';
 import SentinelBrand from '@/components/SentinelBrand';
 import { IconArrowRight } from '@/components/icons/Arrows';
 import LandingPricing from '@/components/landing/LandingPricing';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { useI18n } from '@/lib/i18n/I18nProvider';
 
 const gridBg = {
   position: 'fixed' as const,
@@ -155,6 +159,8 @@ const faqItems: { q: string; a: string }[] = [
 ];
 
 export default function LandingPage() {
+  const { t } = useI18n();
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', position: 'relative' }}>
       <div style={gridBg} aria-hidden />
@@ -192,10 +198,10 @@ export default function LandingPage() {
             }}
           >
             {[
-              ['#producto', 'Producto'],
-              ['#features', 'Capacidades'],
-              ['#pricing', 'Precios'],
-              ['#faq', 'FAQ'],
+              ['#producto', t('landing.navProduct')],
+              ['#features', t('landing.navFeatures')],
+              ['#pricing', t('landing.navPricing')],
+              ['#faq', t('landing.navFaq')],
             ].map(([href, label]) => (
               <a
                 key={href}
@@ -211,8 +217,9 @@ export default function LandingPage() {
                 {label}
               </a>
             ))}
+            <LanguageSwitcher variant="compact" />
             <Link href="/auth" className="btn-ghost" style={{ textDecoration: 'none', fontSize: '11px' }}>
-              Iniciar sesión
+              {t('landing.signIn')}
             </Link>
           </nav>
         </div>
@@ -230,7 +237,7 @@ export default function LandingPage() {
         >
           <div style={{ marginBottom: '20px' }}>
             <span className="pill pill-active" style={{ fontSize: '9px' }}>
-              AUTO-HEALING AI PIPELINE
+              {t('landing.kicker')}
             </span>
           </div>
           <h1
@@ -247,7 +254,7 @@ export default function LandingPage() {
               marginRight: 'auto',
             }}
           >
-            Monitoreá y repará tus pipelines con IA
+            {t('landing.heroTitle')}
           </h1>
           <p
             style={{
@@ -260,19 +267,18 @@ export default function LandingPage() {
               marginRight: 'auto',
             }}
           >
-            Primary Sentinel detecta fallos, propone correcciones y mantiene tus datos en marcha. Un solo panel para
-            observabilidad y recuperación automática.
+            {t('landing.heroSubtitle')}
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'center' }}>
             <Link href="/auth" className="btn-primary" style={{ textDecoration: 'none', padding: '12px 22px' }}>
-              Comenzar
+              {t('landing.ctaStart')}
             </Link>
             <a
               href="#features"
               className="btn-ghost"
               style={{ textDecoration: 'none', padding: '12px 22px', fontSize: '11px' }}
             >
-              Ver capacidades
+              {t('landing.ctaSecondary')}
             </a>
           </div>
           <HeroDashboardMock />
@@ -812,61 +818,61 @@ export default function LandingPage() {
           <div>
             <SentinelBrand variant="landing" />
             <p style={{ fontSize: '11px', color: 'var(--muted)', lineHeight: 1.55, marginTop: '12px', maxWidth: '240px' }}>
-              Observabilidad y recuperación para pipelines de datos, con IA supervisada.
+              {t('landing.footerTagline')}
             </p>
           </div>
           <div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--muted)', marginBottom: '10px', letterSpacing: '0.1em' }}>
-              PRODUCTO
+              {t('landing.footerProduct')}
             </div>
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <li>
                 <a href="#features" style={{ fontSize: '12px', color: 'var(--text)', textDecoration: 'none' }}>
-                  Capacidades
+                  {t('landing.footerCapabilities')}
                 </a>
               </li>
               <li>
                 <a href="#pricing" style={{ fontSize: '12px', color: 'var(--text)', textDecoration: 'none' }}>
-                  Precios
+                  {t('landing.footerPricing')}
                 </a>
               </li>
               <li>
                 <a href="#faq" style={{ fontSize: '12px', color: 'var(--text)', textDecoration: 'none' }}>
-                  FAQ
+                  {t('landing.footerFaq')}
                 </a>
               </li>
             </ul>
           </div>
           <div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--muted)', marginBottom: '10px', letterSpacing: '0.1em' }}>
-              CUENTA
+              {t('landing.footerAccount')}
             </div>
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <li>
                 <Link href="/auth" style={{ fontSize: '12px', color: 'var(--text)', textDecoration: 'none' }}>
-                  Iniciar sesión
+                  {t('landing.footerSignIn')}
                 </Link>
               </li>
               <li>
                 <Link href="/dashboard" style={{ fontSize: '12px', color: 'var(--text)', textDecoration: 'none' }}>
-                  Panel
+                  {t('landing.footerPanel')}
                 </Link>
               </li>
             </ul>
           </div>
           <div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--muted)', marginBottom: '10px', letterSpacing: '0.1em' }}>
-              LEGAL
+              {t('landing.footerLegal')}
             </div>
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <li>
                 <Link href="/legal/terms" style={{ fontSize: '12px', color: 'var(--text)', textDecoration: 'none' }}>
-                  Términos
+                  {t('landing.footerTerms')}
                 </Link>
               </li>
               <li>
                 <Link href="/legal/privacy" style={{ fontSize: '12px', color: 'var(--text)', textDecoration: 'none' }}>
-                  Privacidad
+                  {t('landing.footerPrivacy')}
                 </Link>
               </li>
             </ul>

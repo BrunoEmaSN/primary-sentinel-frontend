@@ -7,7 +7,8 @@ import { getOAuthCallbackUrl } from '@/lib/app-url';
 import { getSupabasePublicEnv } from '@/lib/supabase/public-env';
 import { useRouter } from 'next/navigation';
 import SentinelBrand from '@/components/SentinelBrand';
-import { IconArrowRight } from '@/components/icons/Arrows';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { useI18n } from '@/lib/i18n/I18nProvider';
 
 function CloseIcon() {
   return (
@@ -46,19 +47,20 @@ function GoogleIcon() {
   );
 }
 
-function networkErrorMessage(err: unknown): string {
-  if (err instanceof TypeError && /failed to fetch|networkerror|load failed/i.test(String(err.message))) {
-    return 'No se pudo conectar con Supabase. Revisá NEXT_PUBLIC_SUPABASE_URL en .env.local (URL del proyecto, sin placeholders), tu red y que el proyecto esté activo en supabase.com.';
-  }
-  if (err instanceof Error) {
-    return err.message;
-  }
-  return 'Error inesperado. Intentá de nuevo.';
-}
-
 export default function AuthPage() {
   const router = useRouter();
+  const { t } = useI18n();
   const supabaseEnv = getSupabasePublicEnv();
+
+  function networkErrorMessage(err: unknown): string {
+    if (err instanceof TypeError && /failed to fetch|networkerror|load failed/i.test(String(err.message))) {
+      return t('auth.errorNetwork');
+    }
+    if (err instanceof Error) {
+      return err.message;
+    }
+    return t('auth.errorUnexpected');
+  }
   const configured = supabaseEnv.ok;
   const supabase = useMemo(
     () => (configured ? createClient() : null),
@@ -77,23 +79,19 @@ export default function AuthPage() {
     const params = new URLSearchParams(window.location.search);
     if (params.get('error') === 'oauth') {
       const details = params.get('details');
-      setError(
-        details
-          ? `Google: ${decodeURIComponent(details)}`
-          : 'No se pudo completar el inicio de sesión con Google. Intentá de nuevo.'
-      );
+      setError(details ? `Google: ${decodeURIComponent(details)}` : t('auth.oauthFailed'));
       const url = new URL(window.location.href);
       url.searchParams.delete('error');
       url.searchParams.delete('details');
       window.history.replaceState({}, '', url.pathname + url.search);
     }
-  }, []);
+  }, [t]);
 
   async function signInWithGoogle() {
     setError('');
     setInfo('');
     if (!supabase) {
-      setError('Configurá Supabase en .env.local antes de continuar.');
+      setError(t('auth.configureSupabase'));
       return;
     }
     setGoogleLoading(true);
@@ -119,7 +117,7 @@ export default function AuthPage() {
     setError('');
     setInfo('');
     if (!supabase) {
-      setError('Configurá Supabase en .env.local antes de continuar.');
+      setError(t('auth.configureSupabase'));
       return;
     }
     setLoading(true);
@@ -135,7 +133,7 @@ export default function AuthPage() {
           options: { emailRedirectTo: getOAuthCallbackUrl() },
         });
         if (error) setError(error.message);
-        else setInfo('Revisá tu email para confirmar la cuenta.');
+        else setInfo(t('auth.confirmEmail'));
       }
     } catch (err) {
       setError(networkErrorMessage(err));
@@ -152,7 +150,18 @@ export default function AuthPage() {
       alignItems: 'center',
       justifyContent: 'center',
       padding: '20px',
+      position: 'relative',
     }}>
+      <div
+        style={{
+          position: 'fixed',
+          top: '16px',
+          right: '16px',
+          zIndex: 10,
+        }}
+      >
+        <LanguageSwitcher variant="compact" />
+      </div>
       {/* Background grid pattern */}
       <div style={{
         position: 'fixed', inset: 0, opacity: 0.03,
@@ -184,17 +193,17 @@ export default function AuthPage() {
                   textAlign: 'center',
                 }}
               >
-                {mode === 'login' ? 'INICIAR SESIÓN' : 'CREAR CUENTA'}
+                {mode === 'login' ? t('auth.loginTitle') : t('auth.signupTitle')}
               </h1>
               <p style={{ fontSize: '11px', color: 'var(--muted)', lineHeight: 1.45, textAlign: 'center' }}>
-                {mode === 'login' ? 'Accedé a tu panel de control' : 'Comenzá a monitorear tus pipelines'}
+                {mode === 'login' ? t('auth.loginSubtitle') : t('auth.signupSubtitle')}
               </p>
             </div>
             <Link
               href="/"
               className="auth-close-round"
-              aria-label="Cerrar y volver al inicio"
-              title="Cerrar"
+              aria-label={t('auth.closeAria')}
+              title={t('auth.closeTitle')}
               style={{ justifySelf: 'end' }}
             >
               <CloseIcon />
@@ -203,23 +212,9 @@ export default function AuthPage() {
 
           {!configured && (
             <div style={{ padding: '10px 12px', borderRadius: '6px', marginBottom: '16px', background: 'rgba(251,191,36,.08)', border: '1px solid rgba(251,191,36,.25)', fontSize: '11px', color: 'var(--muted)', lineHeight: 1.5 }}>
-              {!supabaseEnv.ok && supabaseEnv.reason === 'service_role' ? (
-                <>
-                  <strong style={{ color: 'var(--fg)' }}>Clave incorrecta:</strong> <span style={{ fontFamily: 'var(--font-mono)' }}>NEXT_PUBLIC_SUPABASE_ANON_KEY</span> tiene la clave{' '}
-                  <strong style={{ color: 'var(--fg)' }}>service_role</strong> (solo servidor). En Supabase{' '}
-                  <IconArrowRight size={10} style={{ verticalAlign: 'middle', margin: '0 2px' }} /> Settings{' '}
-                  <IconArrowRight size={10} style={{ verticalAlign: 'middle', margin: '0 2px' }} /> API copiá la clave{' '}
-                  <strong style={{ color: 'var(--fg)' }}>anon</strong> / <strong style={{ color: 'var(--fg)' }}>public</strong>. Si esta service_role estuvo en el front, rotala en el panel. Reiniciá{' '}
-                  <span style={{ fontFamily: 'var(--font-mono)' }}>next dev</span> tras guardar <span style={{ fontFamily: 'var(--font-mono)' }}>.env.local</span>.
-                </>
-              ) : (
-                <>
-                  Falta configurar Supabase: en <span style={{ fontFamily: 'var(--font-mono)' }}>.env.local</span> copiá{' '}
-                  <strong style={{ color: 'var(--fg)' }}>Project URL</strong> y la clave                   <strong style={{ color: 'var(--fg)' }}>anon public</strong> desde el panel (Settings{' '}
-                  <IconArrowRight size={10} style={{ verticalAlign: 'middle', margin: '0 2px' }} /> API). Reiniciá{' '}
-                  <span style={{ fontFamily: 'var(--font-mono)' }}>next dev</span> después de guardar.
-                </>
-              )}
+              {!supabaseEnv.ok && supabaseEnv.reason === 'service_role'
+                ? t('auth.errorServiceRole')
+                : t('auth.errorMissingEnv')}
             </div>
           )}
 
@@ -243,11 +238,11 @@ export default function AuthPage() {
               }}
             >
               <GoogleIcon />
-              {googleLoading ? 'Redirigiendo…' : 'Continuar con Google'}
+              {googleLoading ? t('auth.googleRedirect') : t('auth.googleContinue')}
             </button>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--muted)', fontSize: '10px', fontFamily: 'var(--font-mono)' }}>
               <span style={{ flex: 1, height: '1px', background: 'var(--border2)' }} />
-              o con email
+              {t('auth.orEmail')}
               <span style={{ flex: 1, height: '1px', background: 'var(--border2)' }} />
             </div>
           </div>
@@ -255,12 +250,12 @@ export default function AuthPage() {
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div>
               <label style={{ display: 'block', fontSize: '9px', fontFamily: 'var(--font-mono)', letterSpacing: '1px', color: 'var(--muted)', marginBottom: '5px' }}>
-                EMAIL
+                {t('auth.emailLabel')}
               </label>
               <input
                 className="sentinel-input"
                 type="email"
-                placeholder="tu@email.com"
+                placeholder={t('auth.emailPlaceholder')}
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
@@ -268,7 +263,7 @@ export default function AuthPage() {
             </div>
             <div>
               <label style={{ display: 'block', fontSize: '9px', fontFamily: 'var(--font-mono)', letterSpacing: '1px', color: 'var(--muted)', marginBottom: '5px' }}>
-                CONTRASEÑA
+                {t('auth.passwordLabel')}
               </label>
               <input
                 className="sentinel-input"
@@ -298,23 +293,23 @@ export default function AuthPage() {
               disabled={loading || googleLoading || !configured}
               style={{ justifyContent: 'center', marginTop: '4px', opacity: loading ? 0.7 : 1 }}
             >
-              {loading ? 'Cargando...' : mode === 'login' ? 'Ingresar' : 'Crear cuenta'}
+              {loading ? t('auth.loading') : mode === 'login' ? t('auth.submitLogin') : t('auth.submitSignup')}
             </button>
           </form>
 
           <div style={{ marginTop: '16px', textAlign: 'center', fontSize: '11px', color: 'var(--muted)' }}>
-            {mode === 'login' ? '¿No tenés cuenta?' : '¿Ya tenés cuenta?'}{' '}
+            {mode === 'login' ? t('auth.toggleSignup') : t('auth.toggleLogin')}{' '}
             <button
               onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
               style={{ color: 'var(--accent)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: '11px' }}
             >
-              {mode === 'login' ? 'Registrate' : 'Iniciá sesión'}
+              {mode === 'login' ? t('auth.register') : t('auth.loginLink')}
             </button>
           </div>
         </div>
 
         <div style={{ textAlign: 'center', marginTop: '16px', fontSize: '10px', color: 'var(--muted)', fontFamily: 'var(--font-mono)' }}>
-          PRIMARY SENTINEL · AUTO-HEALING AI PIPELINE
+          {t('auth.footerTag')}
         </div>
       </div>
     </div>

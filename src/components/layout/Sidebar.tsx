@@ -3,21 +3,24 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import SentinelBrand from '@/components/SentinelBrand';
+import { useI18n } from '@/lib/i18n/I18nProvider';
+import { SIDEBAR_HREF_TO_ITEM_KEY } from '@/lib/i18n/sidebarNav';
 
 const navItems = [
-  { label: 'Dashboard',     href: '/dashboard',               section: 'Monitor' },
-  { label: 'Flujos',        href: '/dashboard/flows',          section: 'Monitor' },
-  { label: 'Operaciones',   href: '/dashboard/operations',     section: 'Monitor' },
-  { label: 'Reglas IA',     href: '/dashboard/rules',          section: 'Monitor', badge: 'pending' },
-  { label: 'Dead Letter',   href: '/dashboard/dlq',            section: 'Incidentes', badge: 'dlq' },
-  { label: 'Configuración', href: '/dashboard/settings',       section: 'Config' },
-  { label: 'Documentación', href: '/docs',                     section: 'Ayuda' },
-];
+  { href: '/dashboard', section: 'monitor' as const },
+  { href: '/dashboard/flows', section: 'monitor' },
+  { href: '/dashboard/operations', section: 'monitor' },
+  { href: '/dashboard/rules', section: 'monitor', badge: 'pending' as const },
+  { href: '/dashboard/dlq', section: 'incidents', badge: 'dlq' as const },
+  { href: '/dashboard/settings', section: 'config' },
+  { href: '/docs', section: 'help' },
+] as const;
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { t } = useI18n();
 
-  const sections = [...new Set(navItems.map(n => n.section))];
+  const sections = [...new Set(navItems.map((n) => n.section))];
 
   return (
     <nav style={{
@@ -29,20 +32,20 @@ export default function Sidebar() {
       flexShrink: 0,
       height: '100vh',
     }}>
-      {/* Logo */}
       <div style={{ padding: '18px 16px', borderBottom: '1px solid var(--border)' }}>
         <SentinelBrand variant="sidebar" />
       </div>
 
-      {/* Nav */}
       <div style={{ flex: 1, padding: '8px', overflowY: 'auto' }}>
-        {sections.map(section => (
+        {sections.map((section) => (
           <div key={section} style={{ marginBottom: '16px' }}>
             <div style={{ fontSize: '9px', letterSpacing: '2px', color: 'var(--muted)', fontFamily: 'var(--font-mono)', padding: '8px 8px 4px', textTransform: 'uppercase' }}>
-              {section}
+              {t(`sidebar.sections.${section}`)}
             </div>
-            {navItems.filter(n => n.section === section).map(item => {
+            {navItems.filter((n) => n.section === section).map((item) => {
               const isActive = pathname === item.href;
+              const itemKey = SIDEBAR_HREF_TO_ITEM_KEY[item.href];
+              const label = itemKey ? t(`sidebar.items.${itemKey}`) : item.href;
               return (
                 <Link key={item.href} href={item.href} style={{ textDecoration: 'none' }}>
                   <div style={{
@@ -55,7 +58,7 @@ export default function Sidebar() {
                     transition: 'all .15s',
                   }}>
                     <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'currentColor', flexShrink: 0 }} />
-                    <span style={{ flex: 1 }}>{item.label}</span>
+                    <span style={{ flex: 1 }}>{label}</span>
                   </div>
                 </Link>
               );
@@ -64,10 +67,9 @@ export default function Sidebar() {
         ))}
       </div>
 
-      {/* Status */}
       <div style={{ padding: '12px 16px', borderTop: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '8px' }}>
         <div className="pulse" style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--accent)', flexShrink: 0 }} />
-        <div style={{ fontSize: '10px', color: 'var(--muted)', fontFamily: 'var(--font-mono)' }}>SISTEMA OPERATIVO</div>
+        <div style={{ fontSize: '10px', color: 'var(--muted)', fontFamily: 'var(--font-mono)' }}>{t('sidebar.status')}</div>
       </div>
     </nav>
   );
