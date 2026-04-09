@@ -104,4 +104,22 @@ export const es = {
   },
   dashboard: dashboardEs,
   docs: docsEs,
+  arsiChat: {
+    titleDefault: 'Arsi',
+    greetingDefault: '¡Hola! Soy Arsi. ¿En qué te puedo ayudar con Primary Sentinel?',
+    statusTyping: 'Escribiendo…',
+    statusOnline: 'En línea',
+    closeChatAria: 'Cerrar chat',
+    inputPlaceholder: 'Escribí tu consulta…',
+    inputAria: 'Mensaje',
+    sendAria: 'Enviar',
+    footerTag: 'Arsi · Primary Sentinel',
+    openVerb: 'Abrir',
+    closeVerb: 'Cerrar',
+    noReplyFromServer: 'Sin respuesta del servidor.',
+    connectionError: 'No pude conectarme. Intentá de nuevo en un momento.',
+    providerOverloaded:
+      'El asistente está saturado por un límite del proveedor. Probá de nuevo en unos minutos.',
+    timePending: '–:–',
+  },
 } as const;

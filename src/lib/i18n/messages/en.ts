@@ -104,4 +104,22 @@ export const en = {
   },
   dashboard: dashboardEn,
   docs: docsEn,
+  arsiChat: {
+    titleDefault: 'Arsi',
+    greetingDefault: "Hi! I'm Arsi. How can I help you with Primary Sentinel today?",
+    statusTyping: 'Typing…',
+    statusOnline: 'Online',
+    closeChatAria: 'Close chat',
+    inputPlaceholder: 'Type your question…',
+    inputAria: 'Message',
+    sendAria: 'Send',
+    footerTag: 'Arsi · Primary Sentinel',
+    openVerb: 'Open',
+    closeVerb: 'Close',
+    noReplyFromServer: 'No reply from the server.',
+    connectionError: "Couldn't connect. Please try again in a moment.",
+    providerOverloaded:
+      'The assistant is temporarily busy (provider limit). Please try again in a few minutes.',
+    timePending: '–:–',
+  },
 } as const;
