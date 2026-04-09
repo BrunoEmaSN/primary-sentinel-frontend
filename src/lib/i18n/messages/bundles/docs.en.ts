@@ -5,7 +5,7 @@ export const docsEn = {
     'Primary Sentinel SaaS guide: multi-tenant account, dashboard, operations, DLQ, plans, and API integration.',
   layoutOgTitle: 'Documentation — Primary Sentinel',
   layoutOgDescription:
-    'Observability and autonomous reliability & security intelligence for data pipelines: documentation for teams and tenant administrators.',
+    'Observability and autonomous reliability & security intelligence for ingestion and workloads: documentation for teams and tenant administrators.',
   nav: {
     intro: 'Intro',
     app: 'App',
@@ -33,10 +33,10 @@ export const docsEn = {
     intro: {
       metaTitle: 'Introduction',
       metaDesc:
-        'Primary Sentinel as SaaS: multi-tenant, pipeline observability, and AI-assisted autonomous reliability & security intelligence.',
+        'Primary Sentinel as SaaS: multi-tenant, observability over endpoints and workloads, and AI-assisted autonomous reliability & security intelligence.',
       title: 'Introduction',
       p1:
-        '<strong>Primary Sentinel</strong> is a <strong>SaaS</strong> for teams that need <strong>observability and governance</strong> over data pipelines: webhook ingestion, AI-assisted repair rules, incident queues, and alerts. Each customer works in their own <strong>tenant</strong> (logical isolation of data and settings); the dashboard and API use the Supabase session to enforce those boundaries.',
+        '<strong>Primary Sentinel</strong> is a <strong>SaaS</strong> for teams that need <strong>observability and governance</strong> over webhook ingestion and destinations: AI-assisted repair rules, incident queues, and alerts. Each customer works in their own <strong>tenant</strong> (logical isolation of data and settings); the dashboard and API use the Supabase session to enforce those boundaries.',
       hWhat: 'What the product solves',
       liWhat: [
         '<strong>Visibility</strong> — Metrics, flow diagram, and operations without building a generic monitoring stack yourself.',
@@ -47,7 +47,7 @@ export const docsEn = {
       liFlow: [
         '<strong>Monitor</strong> — On the <strong>Dashboard</strong> you see metrics, the flow diagram, and recent events.',
         '<strong>Connect data</strong> — Under <strong>Flows</strong> you define endpoints and the per-tenant webhook URL.',
-        '<strong>Operations</strong> — Under <strong>Operations</strong> you review dependencies, AI history, and pipeline metrics.',
+        '<strong>Operations</strong> — Under <strong>Operations</strong> you review dependencies, AI history, and stage metrics.',
         '<strong>AI rules</strong> — You manage repair rules (approve, edit, or delete).',
         '<strong>Incidents</strong> — Anything the system could not repair automatically appears in <strong>Dead Letter</strong> for retry or discard.',
         '<strong>Alerts</strong> — <strong>Notifications</strong> in the app (Realtime) and channels configured under <strong>Settings</strong> (email, Slack, signed webhook).',
@@ -107,7 +107,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8787`,
       hRecent: 'Recent events',
       pRecent: 'A compact list of latest activity. For per-endpoint inspection or webhook tests, use Flows.',
       hActivity: 'Activity chart and agent',
-      pActivity: 'Time series of events and a status block for the AI rules agent tied to your pipelines.',
+      pActivity: 'Time series of events and a status block for the AI rules agent tied to your endpoints.',
     },
     flujos: {
       metaTitle: 'Flows',
@@ -127,7 +127,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8787`,
     },
     operaciones: {
       metaTitle: 'Operations',
-      metaDesc: 'Dependency map, AI history, pipeline metrics, and heuristic suggestions.',
+      metaDesc: 'Dependency map, AI history, stage metrics, and heuristic suggestions.',
       title: 'Operations',
       p1Before:
         'The <code>/dashboard/operations</code> view is for SaaS <strong>operators</strong>: it summarizes how your endpoints connect to destinations, recent AI engine decisions, and per-stage metrics (Worker',
@@ -135,11 +135,11 @@ NEXT_PUBLIC_API_URL=http://localhost:8787`,
         'Supabase). Data is <strong>per tenant</strong>: you only see what belongs to your account.',
       hMap: 'Endpoint → destinations map',
       pMap:
-        'Shows nodes (your pipelines) and edges linking sources to destinations. Use it to understand the dependency graph without opening each flow separately. If you have not created endpoints yet, you see an empty state until you configure <a href="/docs/flujos">Flows</a>.',
+        'Shows nodes (your endpoints) and edges linking sources to destinations. Use it to understand the dependency graph without opening each flow separately. If you have not created endpoints yet, you see an empty state until you configure <a href="/docs/flujos">Flows</a>.',
       hAi: 'AI decision history',
       pAi:
         'Lists recent events from the reasoning or automatic-action history, bounded in time. It complements detail you may see later in rules or specific events.',
-      hMetrics: 'Pipeline metrics',
+      hMetrics: 'Stage metrics',
       pMetrics:
         'Time series of metrics over hourly windows (default: a wide range) to spot spikes, drops, or stagnation. The backend aggregates; the UI presents it compactly.',
       hSuggest: 'Heuristic suggestions',
@@ -147,7 +147,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8787`,
         'The API may return suggestions from recent samples (severity + text). They are hints to prioritize schema, rule, or connectivity improvements—not a substitute for team judgment.',
       hApi: 'Related API',
       pApi:
-        'Routes used by this screen include <code>GET /api/operations/dependency-graph</code>, <code>GET /api/operations/ai-history</code>, <code>GET /api/metrics/pipeline</code>, and <code>GET /api/suggestions/heuristics</code>. They require a session JWT; details in <a href="/docs/api">API & webhooks</a>.',
+        'Routes used by this screen include <code>GET /api/operations/dependency-graph</code>, <code>GET /api/operations/ai-history</code>, <code>GET /api/metrics/stages</code>, and <code>GET /api/suggestions/heuristics</code>. They require a session JWT; details in <a href="/docs/api">API & webhooks</a>.',
     },
     reglas: {
       metaTitle: 'AI rules',
@@ -205,7 +205,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8787`,
         '<code>/dashboard/settings</code> groups <strong>tenant account</strong>, notification preferences, and service infrastructure. Sensitive changes are saved via authenticated API (<code>PUT /api/settings</code>).',
       hAccount: 'Account and plan',
       pAccount:
-        'You see your email, <strong>Tenant ID</strong> (useful for ingestion webhook URLs), and the current SaaS <strong>plan</strong>. The free plan includes API limits (e.g. active pipelines); more in <a href="/docs/facturacion">Billing</a>.',
+        'You see your email, <strong>Tenant ID</strong> (useful for ingestion webhook URLs), and the current SaaS <strong>plan</strong>. The free plan includes API limits (e.g. active endpoints); more in <a href="/docs/facturacion">Billing</a>.',
       hNotif: 'Notifications: Resend, Slack, and signed webhook',
       pNotif:
         'You can enable <strong>email</strong> (healings, DLQ, pending rules), a Slack <strong>Incoming Webhook</strong> for incident summaries, and your own <strong>HTTPS webhook</strong> with <code>HMAC-SHA256</code> in the <code>X-Sentinel-Signature</code> header (shared secret). These run in parallel with the in-app notification center.',
@@ -227,7 +227,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8787`,
         'At <code>/dashboard/billing</code> you see the <strong>current plan</strong> and notes returned by the backend (e.g. payment provider status or operational messages). From there you can return to <a href="/docs/configuracion">Settings</a> to review the same plan in the account summary.',
       hFree: 'Free plan and limits',
       pFree:
-        'In the current phase, the free plan applies <strong>API limits</strong> (e.g. a capped number of active pipelines). Exact limits may evolve; the settings screen and billing API response reflect what applies to your tenant.',
+        'In the current phase, the free plan applies <strong>API limits</strong> (e.g. a capped number of active endpoints). Exact limits may evolve; the settings screen and billing API response reflect what applies to your tenant.',
       hRoadmap: 'Roadmap: Stripe and customer portal',
       pRoadmap:
         '<strong>Stripe</strong> integration and a <strong>customer portal</strong> to change plan, payment method, and invoices are on the product roadmap. Until then, upgrades or enterprise agreements are handled outside the app or with the Primary Sentinel team.',
@@ -267,7 +267,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8787`,
         { method: 'GET', path: '/api/billing/status', use: 'Plan and billing notes' },
         { method: 'GET', path: '/api/operations/dependency-graph', use: 'Endpoint → destinations map' },
         { method: 'GET', path: '/api/operations/ai-history', use: 'AI decision history' },
-        { method: 'GET', path: '/api/metrics/pipeline', use: 'Pipeline metrics (query hours)' },
+        { method: 'GET', path: '/api/metrics/stages', use: 'Stage metrics (query hours)' },
         { method: 'GET', path: '/api/suggestions/heuristics', use: 'Heuristic suggestions' },
         { method: 'GET', path: '/api/public/slo', use: 'Public SLO (no JWT)' },
       ],

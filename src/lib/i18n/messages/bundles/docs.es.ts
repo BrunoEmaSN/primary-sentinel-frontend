@@ -5,7 +5,7 @@ export const docsEs = {
     'Guía del producto SaaS Primary Sentinel: cuenta multi-tenant, panel, operaciones, DLQ, planes e integración API.',
   layoutOgTitle: 'Documentación — Primary Sentinel',
   layoutOgDescription:
-    'SaaS de observabilidad e inteligencia autónoma de fiabilidad y seguridad en pipelines: documentación para equipos y administradores de tenant.',
+    'SaaS de observabilidad e inteligencia autónoma de fiabilidad y seguridad sobre ingesta y cargas de trabajo: documentación para equipos y administradores de tenant.',
   nav: {
     intro: 'Intro',
     app: 'App',
@@ -33,10 +33,10 @@ export const docsEs = {
     intro: {
       metaTitle: 'Introducción',
       metaDesc:
-        'Primary Sentinel como SaaS: multi-tenant, observabilidad de pipelines e inteligencia autónoma de fiabilidad y seguridad asistida por IA.',
+        'Primary Sentinel como SaaS: multi-tenant, observabilidad de endpoints y cargas de trabajo e inteligencia autónoma de fiabilidad y seguridad asistida por IA.',
       title: 'Introducción',
       p1:
-        '<strong>Primary Sentinel</strong> es un <strong>SaaS</strong> para equipos que necesitan <strong>observabilidad y gobierno</strong> sobre pipelines de datos: ingesta por webhooks, reglas de reparación asistidas por IA, colas de incidentes y alertas. Cada cliente trabaja en su propio <strong>tenant</strong> (aislamiento lógico de datos y configuración); el panel y la API usan la sesión de Supabase para aplicar esos límites.',
+        '<strong>Primary Sentinel</strong> es un <strong>SaaS</strong> para equipos que necesitan <strong>observabilidad y gobierno</strong> sobre ingesta por webhooks y destinos: reglas de reparación asistidas por IA, colas de incidentes y alertas. Cada cliente trabaja en su propio <strong>tenant</strong> (aislamiento lógico de datos y configuración); el panel y la API usan la sesión de Supabase para aplicar esos límites.',
       hWhat: 'Qué resuelve el producto',
       liWhat: [
         '<strong>Visibilidad</strong> — Métricas, diagrama de flujo y operaciones sin montar tu propio stack de monitorización genérico.',
@@ -47,7 +47,7 @@ export const docsEs = {
       liFlow: [
         '<strong>Monitor</strong> — En el <strong>Dashboard</strong> ves métricas, el diagrama de flujo y eventos recientes.',
         '<strong>Conectar datos</strong> — En <strong>Flujos</strong> definís endpoints y la URL de webhook por tenant.',
-        '<strong>Operaciones</strong> — En <strong>Operaciones</strong> revisás dependencias, historial IA y métricas de pipeline.',
+        '<strong>Operaciones</strong> — En <strong>Operaciones</strong> revisás dependencias, historial IA y métricas por etapa.',
         '<strong>Reglas IA</strong> — Gestionás reglas de reparación (aprobar, editar o eliminar).',
         '<strong>Incidentes</strong> — Lo que no se sanó automáticamente aparece en <strong>Dead Letter</strong> para reintento o descarte.',
         '<strong>Alertas</strong> — <strong>Notificaciones</strong> en el panel (Realtime) y canales configurables en <strong>Configuración</strong> (email, Slack, webhook firmado).',
@@ -107,7 +107,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8787`,
       hRecent: 'Eventos recientes',
       pRecent: 'Listado compacto de última actividad. Para inspección por endpoint o pruebas de webhook, usá la sección Flujos.',
       hActivity: 'Gráfico de actividad y agente',
-      pActivity: 'Evolución temporal de eventos y un bloque de estado del agente de reglas IA asociado a tus pipelines.',
+      pActivity: 'Evolución temporal de eventos y un bloque de estado del agente de reglas IA asociado a tus endpoints.',
     },
     flujos: {
       metaTitle: 'Flujos',
@@ -128,18 +128,18 @@ NEXT_PUBLIC_API_URL=http://localhost:8787`,
     operaciones: {
       metaTitle: 'Operaciones',
       metaDesc:
-        'Mapa de dependencias, historial IA, métricas de pipeline y sugerencias heurísticas en Primary Sentinel.',
+        'Mapa de dependencias, historial IA, métricas por etapa y sugerencias heurísticas en Primary Sentinel.',
       title: 'Operaciones',
       p1Before: 'La vista <code>/dashboard/operations</code> está pensada para <strong>operadores</strong> del SaaS: resume cómo se conectan tus endpoints con destinos, qué decisiones tomó el motor de IA recientemente y cómo evolucionan las métricas por etapa (Worker',
       p1After:
         'Supabase). Los datos son <strong>por tenant</strong>: solo ves lo asociado a tu cuenta.',
       hMap: 'Mapa endpoint → destinos',
       pMap:
-        'Muestra nodos (tus pipelines) y aristas que relacionan orígenes con destinos. Sirve para entender el grafo de dependencias sin abrir cada flujo por separado. Si aún no creaste endpoints, verás un estado vacío hasta que configures <a href="/docs/flujos">Flujos</a>.',
+        'Muestra nodos (tus endpoints) y aristas que relacionan orígenes con destinos. Sirve para entender el grafo de dependencias sin abrir cada flujo por separado. Si aún no creaste endpoints, verás un estado vacío hasta que configures <a href="/docs/flujos">Flujos</a>.',
       hAi: 'Historial de decisiones IA',
       pAi:
         'Lista eventos recientes del historial de razonamiento o acciones automáticas, acotado en tiempo. Complementa el detalle que más adelante podés ver en reglas o en eventos concretos.',
-      hMetrics: 'Métricas de pipeline',
+      hMetrics: 'Métricas por etapa',
       pMetrics:
         'Serie temporal de métricas por ventana de horas (por defecto un rango amplio) para detectar picos, caídas o estancamiento. El backend agrega datos; la UI las presenta de forma compacta.',
       hSuggest: 'Sugerencias heurísticas',
@@ -147,7 +147,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8787`,
         'El API puede devolver sugerencias basadas en muestras recientes (severidad + texto). Son orientativas para priorizar mejoras de esquema, reglas o conectividad, no sustituyen el juicio del equipo.',
       hApi: 'API relacionada',
       pApi:
-        'Las rutas usadas por esta pantalla incluyen <code>GET /api/operations/dependency-graph</code>, <code>GET /api/operations/ai-history</code>, <code>GET /api/metrics/pipeline</code> y <code>GET /api/suggestions/heuristics</code>. Requieren JWT de sesión; detalle en <a href="/docs/api">API y webhooks</a>.',
+        'Las rutas usadas por esta pantalla incluyen <code>GET /api/operations/dependency-graph</code>, <code>GET /api/operations/ai-history</code>, <code>GET /api/metrics/stages</code> y <code>GET /api/suggestions/heuristics</code>. Requieren JWT de sesión; detalle en <a href="/docs/api">API y webhooks</a>.',
     },
     reglas: {
       metaTitle: 'Reglas IA',
@@ -205,7 +205,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8787`,
         '<code>/dashboard/settings</code> agrupa la <strong>cuenta del tenant</strong>, preferencias de notificación e información de infraestructura del servicio. Los cambios sensibles se guardan vía API autenticada (<code>PUT /api/settings</code>).',
       hAccount: 'Cuenta y plan',
       pAccount:
-        'Ves tu email, el <strong>Tenant ID</strong> (útil para componer URLs de webhook de ingesta) y el <strong>plan</strong> actual del SaaS. El plan free incluye límites en API (p. ej. pipelines activos); más detalle en <a href="/docs/facturacion">Facturación</a>.',
+        'Ves tu email, el <strong>Tenant ID</strong> (útil para componer URLs de webhook de ingesta) y el <strong>plan</strong> actual del SaaS. El plan free incluye límites en API (p. ej. endpoints activos); más detalle en <a href="/docs/facturacion">Facturación</a>.',
       hNotif: 'Notificaciones: Resend, Slack y webhook firmado',
       pNotif:
         'Podés activar envío por <strong>email</strong> (reparaciones, DLQ, reglas pendientes), un <strong>Incoming Webhook de Slack</strong> para resúmenes de incidente, y un <strong>webhook HTTPS propio</strong> con firma <code>HMAC-SHA256</code> en la cabecera <code>X-Sentinel-Signature</code> (secreto compartido configurable). Son canales paralelos al centro de notificaciones en el panel.',
@@ -227,7 +227,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8787`,
         'En <code>/dashboard/billing</code> ves el <strong>plan actual</strong> y notas que devuelve el backend (por ejemplo estado del proveedor de pagos o mensajes operativos). Desde ahí podés volver a <a href="/docs/configuracion">Configuración</a> para revisar el mismo plan en el resumen de cuenta.',
       hFree: 'Plan free y límites',
       pFree:
-        'En la fase actual, el plan gratuito aplica <strong>límites en la API</strong> (por ejemplo un número acotado de pipelines activos). Los límites concretos pueden evolucionar; la pantalla de configuración y la respuesta del API de facturación reflejan lo que aplica a tu tenant.',
+        'En la fase actual, el plan gratuito aplica <strong>límites en la API</strong> (por ejemplo un número acotado de endpoints activos). Los límites concretos pueden evolucionar; la pantalla de configuración y la respuesta del API de facturación reflejan lo que aplica a tu tenant.',
       hRoadmap: 'Roadmap: Stripe y portal de cliente',
       pRoadmap:
         'La integración con <strong>Stripe</strong> y un <strong>portal de cliente</strong> para cambiar plan, método de pago y facturas está prevista en el roadmap del producto. Hasta entonces, los upgrades o acuerdos enterprise se gestionan fuera de la app o con el equipo de Primary Sentinel.',
@@ -267,7 +267,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8787`,
         { method: 'GET', path: '/api/billing/status', use: 'Plan y notas de facturación' },
         { method: 'GET', path: '/api/operations/dependency-graph', use: 'Mapa endpoint → destinos' },
         { method: 'GET', path: '/api/operations/ai-history', use: 'Historial de decisiones IA' },
-        { method: 'GET', path: '/api/metrics/pipeline', use: 'Métricas de pipeline (query hours)' },
+        { method: 'GET', path: '/api/metrics/stages', use: 'Métricas por etapa (query hours)' },
         { method: 'GET', path: '/api/suggestions/heuristics', use: 'Sugerencias heurísticas' },
         { method: 'GET', path: '/api/public/slo', use: 'SLO público (sin JWT)' },
       ],

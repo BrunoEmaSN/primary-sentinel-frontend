@@ -50,7 +50,7 @@ export const landingEn = {
   step4Badge: 'STEP 4',
   step4Side: 'You know where you stand',
   step4Title: 'Recover with snapshot and traceability',
-  step4BodyLead: 'You roll back to a saved pipeline point, compare what changed vs. the failed attempt, and trigger a new run only for what’s needed — plain language:',
+  step4BodyLead: 'You roll back to a saved restore point, compare what changed vs. the failed attempt, and trigger a new run only for what’s needed — plain language:',
   step4BodyStrong: 'backup, diff, and re-run',
   step4BodyTail: '.',
   step4BarLeft: 'Failed',
@@ -86,12 +86,12 @@ export const landingEn = {
     'For Enterprise (SSO, VPC, compliance), we schedule a short call from the matching plan.',
   faqItems: [
     {
-      q: 'What is a “pipeline” in Primary Sentinel?',
+      q: 'What is an endpoint in Primary Sentinel?',
       a: 'A configurable data flow (source, transforms, destination) the system watches end to end and can try to repair when it fails.',
     },
     {
       q: 'Does the AI apply changes without my approval?',
-      a: 'You can start in suggestion mode and move to automated actions per pipeline or error type, with rules and confidence thresholds.',
+      a: 'You can start in suggestion mode and move to automated actions per endpoint or error type, with rules and confidence thresholds.',
     },
     {
       q: 'Does it integrate with my stack?',
@@ -114,8 +114,8 @@ export const landingEn = {
   ctaButton: 'Get started',
   footerCopyright: '© {year} Primary Sentinel · AI · SaaS',
   heroMock: {
-    windowTitle: 'primary-sentinel · pipelines',
-    colPipeline: 'Pipeline',
+    windowTitle: 'primary-sentinel · operations',
+    colEndpoint: 'Endpoint',
     colState: 'Status',
     colLast: 'Last run',
     colHeal: 'AI / action',
@@ -141,13 +141,13 @@ export const landingEn = {
         name: 'Basic',
         desc: 'Try the end-to-end flow.',
         cta: 'Try for free',
-        features: ['1 active pipeline', 'Email alerts', 'Observability dashboard'],
+        features: ['1 active endpoint', 'Email alerts', 'Observability dashboard'],
       },
       {
         name: 'Professional',
         desc: 'For teams already in production.',
         cta: 'Get started',
-        features: ['Unlimited pipelines', 'Autonomous reliability & security intelligence', 'Rules & DLQ', 'Priority support'],
+        features: ['Unlimited endpoints', 'Autonomous reliability & security intelligence', 'Rules & DLQ', 'Priority support'],
       },
       {
         name: 'Enterprise',

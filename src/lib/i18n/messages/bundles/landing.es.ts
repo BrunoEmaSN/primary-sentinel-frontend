@@ -50,7 +50,7 @@ export const landingEs = {
   step4Badge: 'PASO 4',
   step4Side: 'Sabés en qué estado estás',
   step4Title: 'Recuperá con instantánea y trazabilidad',
-  step4BodyLead: 'Volvés a un punto guardado del pipeline, comparás qué cambió respecto al intento fallido y disparás una nueva corrida solo de lo necesario — sin mezclar términos en inglés: es',
+  step4BodyLead: 'Volvés a un punto de restauración guardado, comparás qué cambió respecto al intento fallido y disparás una nueva corrida solo de lo necesario — sin mezclar términos en inglés: es',
   step4BodyStrong: 'copia de seguridad, comparación y re-ejecución',
   step4BodyTail: '.',
   step4BarLeft: 'Fallo',
@@ -87,12 +87,12 @@ export const landingEs = {
     'Si tu caso es Enterprise (SSO, VPC, compliance), coordinamos una llamada corta desde el plan correspondiente.',
   faqItems: [
     {
-      q: '¿Qué es un “pipeline” en Primary Sentinel?',
+      q: '¿Qué es un endpoint en Primary Sentinel?',
       a: 'Es un flujo de datos configurable (origen, transformaciones y destino) que el sistema observa de punta a punta y puede intentar reparar cuando falla.',
     },
     {
       q: '¿La IA aplica cambios sin mi aprobación?',
-      a: 'Podés empezar en modo sugerencias y pasar a acciones automáticas por pipeline o por tipo de error, con reglas y umbrales de confianza.',
+      a: 'Podés empezar en modo sugerencias y pasar a acciones automáticas por endpoint o por tipo de error, con reglas y umbrales de confianza.',
     },
     {
       q: '¿Se integra con mi stack actual?',
@@ -115,8 +115,8 @@ export const landingEs = {
   ctaButton: 'Empezar ahora',
   footerCopyright: '© {year} Primary Sentinel · AI · SaaS',
   heroMock: {
-    windowTitle: 'primary-sentinel · pipelines',
-    colPipeline: 'Pipeline',
+    windowTitle: 'primary-sentinel · operaciones',
+    colEndpoint: 'Endpoint',
     colState: 'Estado',
     colLast: 'Última corrida',
     colHeal: 'IA / acción',
@@ -142,14 +142,14 @@ export const landingEs = {
         name: 'Básico',
         desc: 'Para probar el flujo end-to-end.',
         cta: 'Probar gratis',
-        features: ['1 pipeline activo', 'Alertas por email', 'Panel de observabilidad'],
+        features: ['1 endpoint activo', 'Alertas por email', 'Panel de observabilidad'],
       },
       {
         name: 'Profesional',
         desc: 'Para equipos que ya están en producción.',
         cta: 'Empezar ahora',
         features: [
-          'Pipelines ilimitados',
+          'Endpoints ilimitados',
           'Inteligencia autónoma de fiabilidad y seguridad',
           'Reglas y DLQ',
           'Soporte prioritario',

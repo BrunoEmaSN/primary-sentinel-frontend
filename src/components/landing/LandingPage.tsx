@@ -89,7 +89,7 @@ function HeroDashboardMock() {
         <table className="sentinel-table" style={{ margin: 0 }}>
           <thead>
             <tr>
-              <th>{hm.colPipeline}</th>
+              <th>{hm.colEndpoint}</th>
               <th>{hm.colState}</th>
               <th>{hm.colLast}</th>
               <th>{hm.colHeal}</th>

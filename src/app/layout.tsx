@@ -8,7 +8,7 @@ import { getLocaleFromCookie } from '@/lib/i18n/getLocale';
 export const metadata: Metadata = {
   title: 'Primary Sentinel — Autonomous Reliability & Security Intelligence',
   description:
-    'Autonomous reliability and security intelligence for your data pipelines — monitor, repair, and govern with AI.',
+    'Autonomous reliability and security intelligence for ingestion, workloads, and destinations — monitor, repair, and govern with AI.',
   icons: {
     icon: '/logo.svg',
   },

@@ -427,8 +427,8 @@ export async function getAiHistory(limit = 40): Promise<ApiResponse<{ data: unkn
   return apiFetch<{ data: unknown[] }>(`/api/operations/ai-history?limit=${limit}`);
 }
 
-export async function getPipelineMetrics(hours = 24): Promise<ApiResponse<{ data: unknown[]; hours: number }>> {
-  return apiFetch<{ data: unknown[]; hours: number }>(`/api/metrics/pipeline?hours=${hours}`);
+export async function getStageMetrics(hours = 24): Promise<ApiResponse<{ data: unknown[]; hours: number }>> {
+  return apiFetch<{ data: unknown[]; hours: number }>(`/api/metrics/stages?hours=${hours}`);
 }
 
 export async function getHeuristicSuggestions(): Promise<

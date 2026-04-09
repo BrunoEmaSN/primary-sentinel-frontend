@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   getDependencyGraph,
   getAiHistory,
-  getPipelineMetrics,
+  getStageMetrics,
   getHeuristicSuggestions,
 } from '@/lib/api';
 import { IconArrowRight } from '@/components/icons/Arrows';
@@ -24,7 +24,7 @@ export default function OperationsPage() {
     const [g, ai, pm, sug] = await Promise.all([
       getDependencyGraph(),
       getAiHistory(30),
-      getPipelineMetrics(48),
+      getStageMetrics(48),
       getHeuristicSuggestions(),
     ]);
     if (g.data) setGraph(g.data);
@@ -143,7 +143,7 @@ export default function OperationsPage() {
 
       <div className="sentinel-card">
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', fontWeight: 700, marginBottom: '10px' }}>
-          MÉTRICAS pipeline (muestras recientes)
+          MÉTRICAS por etapa (muestras recientes)
         </div>
         <div style={{ maxHeight: '160px', overflow: 'auto', fontSize: '10px', fontFamily: 'var(--font-mono)', color: 'var(--muted)' }}>
           {metrics.length === 0 && !loading ? (

@@ -113,7 +113,7 @@ export default function SettingsPage() {
             </button>
           </div>
         </Row>
-        <Row label="Plan" sub="Límite free: 1 pipeline activo (API)">
+        <Row label="Plan" sub="Límite free: 1 endpoint activo (API)">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span className="pill pill-active">{s.billing_plan.toUpperCase()}</span>
             <Link href="/dashboard/billing" style={{ fontSize: '10px', color: 'var(--accent)' }}>
