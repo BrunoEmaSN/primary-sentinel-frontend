@@ -2,6 +2,7 @@
 import { dashboardEs } from './bundles/dashboard.es';
 import { docsEs } from './bundles/docs.es';
 import { landingEs } from './bundles/landing.es';
+import { legalPrivacyEs } from './bundles/legalPrivacy.es';
 
 export const es = {
   common: {
@@ -104,6 +105,9 @@ export const es = {
   },
   dashboard: dashboardEs,
   docs: docsEs,
+  legal: {
+    privacy: legalPrivacyEs,
+  },
   arsiChat: {
     titleDefault: 'Arsi',
     greetingDefault: '¡Hola! Soy Arsi. ¿En qué te puedo ayudar con Primary Sentinel?',
