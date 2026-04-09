@@ -3,6 +3,7 @@ import { dashboardEs } from './bundles/dashboard.es';
 import { docsEs } from './bundles/docs.es';
 import { landingEs } from './bundles/landing.es';
 import { legalPrivacyEs } from './bundles/legalPrivacy.es';
+import { legalTermsEs } from './bundles/legalTerms.es';
 
 export const es = {
   common: {
@@ -107,6 +108,7 @@ export const es = {
   docs: docsEs,
   legal: {
     privacy: legalPrivacyEs,
+    terms: legalTermsEs,
   },
   arsiChat: {
     titleDefault: 'Arsi',
