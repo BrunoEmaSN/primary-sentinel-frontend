@@ -293,22 +293,8 @@ export default function LandingPage() {
               opacity: 0.85,
             }}
           >
-            {L.trustBrands.map((name) => (
-              <div
-                key={name}
-                style={{
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '11px',
-                  color: 'var(--muted)',
-                  padding: '10px 16px',
-                  border: '1px solid var(--border2)',
-                  borderRadius: '8px',
-                  background: 'var(--bg2)',
-                }}
-              >
-                {name}
-              </div>
-            ))}
+            <script src="https://widget.senja.io/widget/2e129861-e6dc-49be-b31f-8e611327ea73/platform.js" type="text/javascript" async></script>
+            <div className="senja-embed" data-id="2e129861-e6dc-49be-b31f-8e611327ea73" data-mode="shadow" data-lazyload="false" style={{ display: 'block', width: '100%' }}></div>
           </div>
           <p style={{ textAlign: 'center', fontSize: '10px', color: 'var(--muted)', marginTop: '14px', fontFamily: 'var(--font-mono)' }}>
             {L.trustFootnote}
