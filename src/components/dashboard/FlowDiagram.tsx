@@ -105,7 +105,11 @@ export default function FlowDiagram({ endpoints, events }: Props) {
           <g>
             <rect x="510" y="95" width="95" height="40" rx="6" fill="#14171c" stroke="#2a3444" strokeWidth="1"/>
             <text x="518" y="111" fill="#e8eaed" fontSize="8" fontFamily="Space Mono, monospace" fontWeight="700">DataLoader</text>
-            <text x="518" y="122" fill="#6b7a8d" fontSize="7" fontFamily="DM Sans, sans-serif">→ Supabase DB</text>
+            <g aria-hidden>
+              <line x1="518" y1="121" x2="524" y2="121" stroke="#6b7a8d" strokeWidth="1" strokeLinecap="round" />
+              <path d="M524 121 L521 118.5 M524 121 L521 123.5" stroke="#6b7a8d" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+            </g>
+            <text x="528" y="122" fill="#6b7a8d" fontSize="7" fontFamily="DM Sans, sans-serif">Supabase DB</text>
           </g>
         </svg>
       </div>

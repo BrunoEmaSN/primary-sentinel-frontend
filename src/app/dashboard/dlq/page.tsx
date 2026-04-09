@@ -14,6 +14,7 @@ import {
 import type { DLQEvent } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { IconArrowRight } from '@/components/icons/Arrows';
 
 export default function DLQPage() {
   const [events, setEvents] = useState<DLQEvent[]>([]);
@@ -79,9 +80,29 @@ export default function DLQPage() {
           DEAD LETTER QUEUE
         </div>
         <div style={{ fontSize: '10px', color: 'var(--muted)', lineHeight: 1.5 }}>
-          Flujo: webhook → validación → healing opcional → fan-out. Si todo falla, estado <code>dead</code>, copia en R2
-          bajo <code>dlq/&#123;tenant&#125;/&#123;event&#125;.json</code> y alertas multi-canal según ajustes.
-          Reinyección crea un evento nuevo y elimina este registro muerto.
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              gap: '6px',
+              marginBottom: '8px',
+            }}
+          >
+            <span>Flujo:</span>
+            <span>webhook</span>
+            <IconArrowRight size={10} style={{ color: 'var(--border2)' }} />
+            <span>validación</span>
+            <IconArrowRight size={10} style={{ color: 'var(--border2)' }} />
+            <span>healing opcional</span>
+            <IconArrowRight size={10} style={{ color: 'var(--border2)' }} />
+            <span>fan-out.</span>
+          </div>
+          <p style={{ margin: 0 }}>
+            Si todo falla, estado <code>dead</code>, copia en R2 bajo{' '}
+            <code>dlq/&#123;tenant&#125;/&#123;event&#125;.json</code> y alertas multi-canal según ajustes. Reinyección crea un
+            evento nuevo y elimina este registro muerto.
+          </p>
         </div>
       </div>
 

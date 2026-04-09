@@ -7,6 +7,7 @@ import type { Endpoint } from '@/types';
 import { DESTINATION_CONFIGS, type Destination, type DestinationType } from '@/types/destinations';
 import { DestinationSelector } from '@/components/dashboard/DestinationSelector';
 import { DestinationConfigForm } from '@/components/dashboard/DestinationConfigForm';
+import { IconArrowRight } from '@/components/icons/Arrows';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8787';
 
@@ -40,29 +41,61 @@ const MODAL_STEPS = [
   { id: 'heal', label: 'Healing' },
 ] as const;
 
-function summarizeDestination(dest: Destination): string {
+function DestArrowSummary({ dest }: { dest: Destination }) {
   switch (dest.type) {
     case 'supabase':
-      return `Supabase → ${'tableName' in dest ? dest.tableName : '…'}`;
+      return (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          <span>Supabase</span>
+          <IconArrowRight size={10} />
+          <span>{'tableName' in dest ? dest.tableName : '…'}</span>
+        </span>
+      );
     case 'postgres':
     case 'mysql':
-      return `${dest.type.toUpperCase()} → ${dest.table}`;
+      return (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          <span>{dest.type.toUpperCase()}</span>
+          <IconArrowRight size={10} />
+          <span>{dest.table}</span>
+        </span>
+      );
     case 'webhook':
-      return `Webhook → ${dest.url?.slice(0, 42) ?? '…'}`;
+      return (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          <span>Webhook</span>
+          <IconArrowRight size={10} />
+          <span>{dest.url?.slice(0, 42) ?? '…'}</span>
+        </span>
+      );
     case 'http_api':
-      return `HTTP API → ${dest.url?.slice(0, 42) ?? '…'}`;
+      return (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          <span>HTTP API</span>
+          <IconArrowRight size={10} />
+          <span>{dest.url?.slice(0, 42) ?? '…'}</span>
+        </span>
+      );
     case 'bigquery':
-      return `BigQuery → ${dest.datasetId}.${dest.tableId}`;
+      return (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          <span>BigQuery</span>
+          <IconArrowRight size={10} />
+          <span>
+            {dest.datasetId}.{dest.tableId}
+          </span>
+        </span>
+      );
     default:
-      return (dest as { type: string }).type;
+      return <span>{(dest as { type: string }).type}</span>;
   }
 }
 
-function endpointDestSummary(ep: Endpoint): string {
+function EndpointDestSummary({ ep }: { ep: Endpoint }) {
   const d = ep.destinations;
-  if (!d || d.length === 0) return 'Sin destino';
-  if (d.length > 1) return `${d.length} destinos (fan-out)`;
-  return summarizeDestination(d[0]!);
+  if (!d || d.length === 0) return <>Sin destino</>;
+  if (d.length > 1) return <>{d.length} destinos (fan-out)</>;
+  return <DestArrowSummary dest={d[0]!} />;
 }
 
 export default function FlowsPage() {
@@ -312,8 +345,26 @@ export default function FlowsPage() {
                     <div style={{ fontSize: '11px', color: 'var(--accent)', fontFamily: 'var(--font-mono)' }}>
                       {eventCounts[ep.id] ?? '—'} eventos
                     </div>
-                    <div style={{ fontSize: '9px', color: 'var(--muted)', marginTop: '1px' }}>
-                      → {endpointDestSummary(ep)}
+                    <div
+                      style={{
+                        fontSize: '9px',
+                        color: 'var(--muted)',
+                        marginTop: '1px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'flex-end',
+                        gap: '4px',
+                        flexWrap: 'wrap',
+                      }}
+                    >
+                      {ep.destinations && ep.destinations.length > 0 ? (
+                        <>
+                          <IconArrowRight size={10} style={{ color: 'var(--border2)' }} />
+                          <EndpointDestSummary ep={ep} />
+                        </>
+                      ) : (
+                        <span>Sin destino</span>
+                      )}
                     </div>
                   </div>
                   <button
@@ -435,7 +486,7 @@ export default function FlowsPage() {
                       {s.label}
                     </span>
                     {i < MODAL_STEPS.length - 1 && (
-                      <span aria-hidden style={{ color: 'var(--border)', marginLeft: '2px' }}>→</span>
+                      <IconArrowRight size={12} aria-hidden style={{ color: 'var(--border)', marginLeft: '2px' }} />
                     )}
                   </span>
                 ))}

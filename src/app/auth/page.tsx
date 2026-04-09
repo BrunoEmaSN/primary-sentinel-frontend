@@ -7,6 +7,7 @@ import { getOAuthCallbackUrl } from '@/lib/app-url';
 import { getSupabasePublicEnv } from '@/lib/supabase/public-env';
 import { useRouter } from 'next/navigation';
 import SentinelBrand from '@/components/SentinelBrand';
+import { IconArrowRight } from '@/components/icons/Arrows';
 
 function CloseIcon() {
   return (
@@ -205,14 +206,17 @@ export default function AuthPage() {
               {!supabaseEnv.ok && supabaseEnv.reason === 'service_role' ? (
                 <>
                   <strong style={{ color: 'var(--fg)' }}>Clave incorrecta:</strong> <span style={{ fontFamily: 'var(--font-mono)' }}>NEXT_PUBLIC_SUPABASE_ANON_KEY</span> tiene la clave{' '}
-                  <strong style={{ color: 'var(--fg)' }}>service_role</strong> (solo servidor). En Supabase → Settings → API copiá la clave{' '}
+                  <strong style={{ color: 'var(--fg)' }}>service_role</strong> (solo servidor). En Supabase{' '}
+                  <IconArrowRight size={10} style={{ verticalAlign: 'middle', margin: '0 2px' }} /> Settings{' '}
+                  <IconArrowRight size={10} style={{ verticalAlign: 'middle', margin: '0 2px' }} /> API copiá la clave{' '}
                   <strong style={{ color: 'var(--fg)' }}>anon</strong> / <strong style={{ color: 'var(--fg)' }}>public</strong>. Si esta service_role estuvo en el front, rotala en el panel. Reiniciá{' '}
                   <span style={{ fontFamily: 'var(--font-mono)' }}>next dev</span> tras guardar <span style={{ fontFamily: 'var(--font-mono)' }}>.env.local</span>.
                 </>
               ) : (
                 <>
                   Falta configurar Supabase: en <span style={{ fontFamily: 'var(--font-mono)' }}>.env.local</span> copiá{' '}
-                  <strong style={{ color: 'var(--fg)' }}>Project URL</strong> y la clave <strong style={{ color: 'var(--fg)' }}>anon public</strong> desde el panel (Settings → API). Reiniciá{' '}
+                  <strong style={{ color: 'var(--fg)' }}>Project URL</strong> y la clave                   <strong style={{ color: 'var(--fg)' }}>anon public</strong> desde el panel (Settings{' '}
+                  <IconArrowRight size={10} style={{ verticalAlign: 'middle', margin: '0 2px' }} /> API). Reiniciá{' '}
                   <span style={{ fontFamily: 'var(--font-mono)' }}>next dev</span> después de guardar.
                 </>
               )}

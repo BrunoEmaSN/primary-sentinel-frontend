@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { getBillingStatus } from '@/lib/api';
+import { IconArrowLeft } from '@/components/icons/Arrows';
 
 export default function BillingPage() {
   const [plan, setPlan] = useState<string>('—');
@@ -32,8 +33,13 @@ export default function BillingPage() {
           Stripe y portal de cliente están previstos en la fase de planes de pago del roadmap. Los límites del plan free se
           aplican ya en la API (un endpoint activo).
         </p>
-        <Link href="/dashboard/settings" className="btn-ghost" style={{ display: 'inline-block', marginTop: '12px', fontSize: '11px' }}>
-          ← Configuración
+        <Link
+          href="/dashboard/settings"
+          className="btn-ghost"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '12px', fontSize: '11px' }}
+        >
+          <IconArrowLeft size={14} />
+          Configuración
         </Link>
       </div>
     </div>

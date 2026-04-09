@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import SentinelBrand from '@/components/SentinelBrand';
+import { IconArrowRight } from '@/components/icons/Arrows';
 import LandingPricing from '@/components/landing/LandingPricing';
 
 const gridBg = {
@@ -345,7 +346,7 @@ export default function LandingPage() {
           </p>
         </section>
 
-        {/* Capacidades: flujo 1→4 (antes “pilares” demasiado abstractos) */}
+        {/* Capacidades: flujo 1–4 (antes “pilares” demasiado abstractos) */}
         <section
           id="features"
           style={{
@@ -487,7 +488,7 @@ export default function LandingPage() {
                 >
                   1 informe
                 </div>
-                <span style={{ color: 'var(--muted)', fontSize: '12px' }}>→</span>
+                <IconArrowRight size={14} style={{ color: 'var(--muted)' }} />
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                   {['Slack', 'Correo', 'Webhook'].map((name) => (
                     <div

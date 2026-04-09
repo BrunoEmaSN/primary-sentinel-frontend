@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { IconArrowRight } from '@/components/icons/Arrows';
 
 export const metadata: Metadata = {
   title: 'Operaciones',
@@ -13,11 +14,14 @@ export default function DocsOperacionesPage() {
       <p>
         La vista <code>/dashboard/operations</code> está pensada para <strong>operadores</strong> del SaaS: resume cómo
         se conectan tus endpoints con destinos, qué decisiones tomó el motor de IA recientemente y cómo evolucionan las
-        métricas por etapa (Worker → Supabase). Los datos son <strong>por tenant</strong>: solo ves lo asociado a tu
-        cuenta.
+        métricas por etapa (Worker{' '}
+        <IconArrowRight size={12} style={{ verticalAlign: 'middle', display: 'inline-block', margin: '0 2px' }} />{' '}
+        Supabase). Los datos son <strong>por tenant</strong>: solo ves lo asociado a tu cuenta.
       </p>
 
-      <h2>Mapa endpoint → destinos</h2>
+      <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+        Mapa endpoint <IconArrowRight size={14} style={{ color: 'var(--accent)' }} /> destinos
+      </h2>
       <p>
         Muestra nodos (tus pipelines) y aristas que relacionan orígenes con destinos. Sirve para entender el grafo de
         dependencias sin abrir cada flujo por separado. Si aún no creaste endpoints, verás un estado vacío hasta que

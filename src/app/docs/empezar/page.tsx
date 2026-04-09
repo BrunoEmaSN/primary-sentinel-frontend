@@ -32,7 +32,7 @@ export default function DocsEmpezarPage() {
       </pre>
       <p>Ejemplo de contenido:</p>
       <pre>
-        <code>{`# Supabase — Settings → API (clave anon / public)
+        <code>{`# Supabase — Settings / API (clave anon / public)
 NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 
@@ -46,7 +46,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8787`}</code>
       <h2>3. Arrancar en local</h2>
       <pre>
         <code>{`npm run dev
-# → http://localhost:3000`}</code>
+# Luego abrí http://localhost:3000 en el navegador`}</code>
       </pre>
 
       <h2>4. Cuenta e inicio de sesión</h2>

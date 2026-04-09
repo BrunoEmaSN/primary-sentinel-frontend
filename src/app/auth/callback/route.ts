@@ -19,7 +19,7 @@ export async function GET(request: Request) {
     if (!supabase) {
       return NextResponse.redirect(
         `${origin}/auth?error=oauth&details=${encodeURIComponent(
-          'Configurá NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY en .env.local (Settings → API, clave anon).'
+          'Configurá NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY en .env.local (Settings / API, clave anon).'
         )}`
       );
     }

@@ -1,7 +1,7 @@
 /**
  * Base URL for OAuth and email confirmation redirects.
  * On Vercel, set NEXT_PUBLIC_SITE_URL to your deployment URL (e.g. https://tu-app.vercel.app)
- * so Supabase redirectTo matches an entry in Authentication → URL Configuration → Redirect URLs.
+ * so Supabase redirectTo matches an entry in Authentication / URL Configuration / Redirect URLs.
  * If unset, the browser uses window.location.origin (fine for local dev).
  */
 export function getOAuthCallbackOrigin(): string {

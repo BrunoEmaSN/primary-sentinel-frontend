@@ -69,11 +69,11 @@ export function getSupabasePublicEnvOrThrow(): { url: string; anonKey: string } 
   if (!result.ok) {
     if (result.reason === 'service_role') {
       throw new Error(
-        'NEXT_PUBLIC_SUPABASE_ANON_KEY no puede ser la clave service_role. En Supabase → Settings → API usá la clave anon (public) en el cliente. Rotá la service_role si la expusiste.'
+        'NEXT_PUBLIC_SUPABASE_ANON_KEY no puede ser la clave service_role. En Supabase (Settings / API) usá la clave anon (public) en el cliente. Rotá la service_role si la expusiste.'
       );
     }
     throw new Error(
-      'Supabase no está configurado: en .env.local definí NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY con los valores del panel de Supabase (Settings → API), sin placeholders.'
+      'Supabase no está configurado: en .env.local definí NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY con los valores del panel de Supabase (Settings / API), sin placeholders.'
     );
   }
   return { url: result.url, anonKey: result.anonKey };

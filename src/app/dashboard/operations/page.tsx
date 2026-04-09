@@ -7,6 +7,7 @@ import {
   getPipelineMetrics,
   getHeuristicSuggestions,
 } from '@/lib/api';
+import { IconArrowRight } from '@/components/icons/Arrows';
 
 export default function OperationsPage() {
   const [graph, setGraph] = useState<{ nodes: unknown[]; edges: { from: string; to: string; label: string }[] } | null>(
@@ -39,8 +40,20 @@ export default function OperationsPage() {
     <div className="fade-up">
       <div className="sentinel-card" style={{ marginBottom: '16px' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700 }}>OPERACIONES</div>
-        <div style={{ fontSize: '10px', color: 'var(--muted)', marginTop: '4px' }}>
-          Mapa de dependencias, historial de decisiones IA y métricas por etapa (Worker → Supabase).
+        <div
+          style={{
+            fontSize: '10px',
+            color: 'var(--muted)',
+            marginTop: '4px',
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            gap: '6px',
+          }}
+        >
+          <span>Mapa de dependencias, historial de decisiones IA y métricas por etapa (Worker</span>
+          <IconArrowRight size={10} style={{ color: 'var(--muted)' }} />
+          <span>Supabase).</span>
         </div>
       </div>
 
@@ -50,8 +63,21 @@ export default function OperationsPage() {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
         <div className="sentinel-card">
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', fontWeight: 700, marginBottom: '10px' }}>
-            MAPA endpoint → destinos
+          <div
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '11px',
+              fontWeight: 700,
+              marginBottom: '10px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              flexWrap: 'wrap',
+            }}
+          >
+            <span>MAPA endpoint</span>
+            <IconArrowRight size={12} style={{ color: 'var(--accent)' }} />
+            <span>destinos</span>
           </div>
           {!graph?.nodes?.length && !loading ? (
             <div style={{ fontSize: '11px', color: 'var(--muted)' }}>Sin endpoints todavía.</div>
@@ -68,8 +94,10 @@ export default function OperationsPage() {
           {graph?.edges?.length ? (
             <div style={{ marginTop: '10px', fontSize: '10px', color: 'var(--muted)', fontFamily: 'var(--font-mono)' }}>
               {graph.edges.slice(0, 12).map((e, i) => (
-                <div key={i}>
-                  {e.from.slice(0, 8)}… → {e.label}
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                  <span>{e.from.slice(0, 8)}…</span>
+                  <IconArrowRight size={10} style={{ color: 'var(--border2)' }} />
+                  <span>{e.label}</span>
                 </div>
               ))}
             </div>

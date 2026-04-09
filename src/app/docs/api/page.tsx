@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { IconArrowRight } from '@/components/icons/Arrows';
 
 export const metadata: Metadata = {
   title: 'API y webhooks',
@@ -176,7 +177,11 @@ export default function DocsApiPage() {
             <td>
               <code>/api/operations/dependency-graph</code>
             </td>
-            <td>Mapa endpoint → destinos</td>
+            <td style={{ verticalAlign: 'middle' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                Mapa endpoint <IconArrowRight size={12} /> destinos
+              </span>
+            </td>
           </tr>
           <tr>
             <td>

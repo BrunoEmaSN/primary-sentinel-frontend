@@ -1,10 +1,12 @@
 import Link from 'next/link';
+import { IconArrowLeft } from '@/components/icons/Arrows';
 
 export default function PrivacyPage() {
   return (
     <div style={{ maxWidth: '720px', margin: '0 auto', padding: '48px 20px', lineHeight: 1.65 }}>
-      <Link href="/" style={{ fontSize: '12px', color: 'var(--accent)' }}>
-        ← Inicio
+      <Link href="/" style={{ fontSize: '12px', color: 'var(--accent)', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+        <IconArrowLeft size={14} />
+        Inicio
       </Link>
       <h1 style={{ fontSize: '1.5rem', marginTop: '24px', marginBottom: '16px' }}>Privacidad</h1>
       <p style={{ fontSize: '14px', color: 'var(--muted)' }}>
