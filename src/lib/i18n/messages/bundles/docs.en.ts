@@ -5,7 +5,7 @@ export const docsEn = {
     'Primary Sentinel SaaS guide: multi-tenant account, dashboard, operations, DLQ, plans, and API integration.',
   layoutOgTitle: 'Documentation — Primary Sentinel',
   layoutOgDescription:
-    'Observability and self-healing pipeline SaaS: documentation for teams and tenant administrators.',
+    'Observability and autonomous reliability & security intelligence for data pipelines: documentation for teams and tenant administrators.',
   nav: {
     intro: 'Intro',
     app: 'App',
@@ -33,7 +33,7 @@ export const docsEn = {
     intro: {
       metaTitle: 'Introduction',
       metaDesc:
-        'Primary Sentinel as SaaS: multi-tenant, pipeline observability, and AI-assisted self-healing.',
+        'Primary Sentinel as SaaS: multi-tenant, pipeline observability, and AI-assisted autonomous reliability & security intelligence.',
       title: 'Introduction',
       p1:
         '<strong>Primary Sentinel</strong> is a <strong>SaaS</strong> for teams that need <strong>observability and governance</strong> over data pipelines: webhook ingestion, AI-assisted repair rules, incident queues, and alerts. Each customer works in their own <strong>tenant</strong> (logical isolation of data and settings); the dashboard and API use the Supabase session to enforce those boundaries.',
@@ -49,7 +49,7 @@ export const docsEn = {
         '<strong>Connect data</strong> — Under <strong>Flows</strong> you define endpoints and the per-tenant webhook URL.',
         '<strong>Operations</strong> — Under <strong>Operations</strong> you review dependencies, AI history, and pipeline metrics.',
         '<strong>AI rules</strong> — You manage repair rules (approve, edit, or delete).',
-        '<strong>Incidents</strong> — Anything not auto-healed appears in <strong>Dead Letter</strong> for retry or discard.',
+        '<strong>Incidents</strong> — Anything the system could not repair automatically appears in <strong>Dead Letter</strong> for retry or discard.',
         '<strong>Alerts</strong> — <strong>Notifications</strong> in the app (Realtime) and channels configured under <strong>Settings</strong> (email, Slack, signed webhook).',
         '<strong>Plan</strong> — <strong>Billing</strong> summarizes your SaaS plan and payment roadmap.',
       ],
@@ -170,7 +170,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8787`,
       metaDesc: 'Per-tenant DLQ queue, reinjection, snapshots, and discard in Primary Sentinel.',
       title: 'Dead Letter Queue',
       p1:
-        '<code>/dashboard/dlq</code> lists events the system <strong>could not auto-heal</strong>. This is the human review queue: you inspect the payload and failure reason and, when the backend allows, you can <strong>reinject</strong> the event or <strong>discard</strong> it. You only see your tenant’s items.',
+        '<code>/dashboard/dlq</code> lists events the system <strong>could not repair automatically</strong>. This is the human review queue: you inspect the payload and failure reason and, when the backend allows, you can <strong>reinject</strong> the event or <strong>discard</strong> it. You only see your tenant’s items.',
       hWhen: 'When an item appears',
       pWhen:
         'Usually recurrent errors, out-of-schema data, or situations not covered by current rules. Use it to prioritize rule improvements or fixes upstream.',

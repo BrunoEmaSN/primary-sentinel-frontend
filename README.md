@@ -15,7 +15,7 @@
   </h3>
 </div>
 
-Panel de control para el sistema de auto-reparación IA.  
+Panel de control para inteligencia autónoma de fiabilidad y seguridad (*Autonomous Reliability & Security Intelligence*).  
 Backend: [sentinel-saas-backend](https://github.com/BrunoEmaSN/sentinel-saas-backend)
 
 ---

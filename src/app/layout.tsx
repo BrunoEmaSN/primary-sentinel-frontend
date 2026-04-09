@@ -6,8 +6,9 @@ import { getDictionary } from '@/lib/i18n/messages';
 import { getLocaleFromCookie } from '@/lib/i18n/getLocale';
 
 export const metadata: Metadata = {
-  title: 'Primary Sentinel — Self-Healing AI Pipeline',
-  description: 'Monitor, auto-repair, and manage your data pipelines with AI.',
+  title: 'Primary Sentinel — Autonomous Reliability & Security Intelligence',
+  description:
+    'Autonomous reliability and security intelligence for your data pipelines — monitor, repair, and govern with AI.',
   icons: {
     icon: '/logo.svg',
   },

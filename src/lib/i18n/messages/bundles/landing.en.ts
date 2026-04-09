@@ -147,7 +147,7 @@ export const landingEn = {
         name: 'Professional',
         desc: 'For teams already in production.',
         cta: 'Get started',
-        features: ['Unlimited pipelines', 'AI self-healing', 'Rules & DLQ', 'Priority support'],
+        features: ['Unlimited pipelines', 'Autonomous reliability & security intelligence', 'Rules & DLQ', 'Priority support'],
       },
       {
         name: 'Enterprise',

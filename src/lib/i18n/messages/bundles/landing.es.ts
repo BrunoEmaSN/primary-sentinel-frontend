@@ -150,7 +150,7 @@ export const landingEs = {
         cta: 'Empezar ahora',
         features: [
           'Pipelines ilimitados',
-          'Auto-reparación con IA',
+          'Inteligencia autónoma de fiabilidad y seguridad',
           'Reglas y DLQ',
           'Soporte prioritario',
         ],

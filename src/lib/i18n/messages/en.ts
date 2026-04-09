@@ -65,7 +65,7 @@ export const en = {
     toggleLogin: 'Already have an account?',
     register: 'Sign up',
     loginLink: 'Sign in',
-    footerTag: 'PRIMARY SENTINEL · AUTO-HEALING AI PIPELINE',
+    footerTag: 'PRIMARY SENTINEL · AUTONOMOUS RELIABILITY & SECURITY INTELLIGENCE',
     errorServiceRole:
       'Wrong key: NEXT_PUBLIC_SUPABASE_ANON_KEY is the service_role key (server-only). In Supabase Settings / API use the anon / public key. If you exposed service_role in the client, rotate it in the dashboard. Restart next dev after saving .env.local.',
     errorMissingEnv:
@@ -83,7 +83,7 @@ export const en = {
     navPricing: 'Pricing',
     navFaq: 'FAQ',
     signIn: 'Sign in',
-    kicker: 'AUTO-HEALING AI PIPELINE',
+    kicker: 'AUTONOMOUS RELIABILITY & SECURITY INTELLIGENCE',
     heroTitle: 'Monitor and repair your pipelines with AI',
     heroSubtitle:
       'Primary Sentinel detects failures, suggests fixes, and keeps your data moving. One panel for observability and automatic recovery.',

@@ -5,7 +5,7 @@ export const docsEs = {
     'Guía del producto SaaS Primary Sentinel: cuenta multi-tenant, panel, operaciones, DLQ, planes e integración API.',
   layoutOgTitle: 'Documentación — Primary Sentinel',
   layoutOgDescription:
-    'SaaS de observabilidad y auto-reparación de pipelines: documentación para equipos y administradores de tenant.',
+    'SaaS de observabilidad e inteligencia autónoma de fiabilidad y seguridad en pipelines: documentación para equipos y administradores de tenant.',
   nav: {
     intro: 'Intro',
     app: 'App',
@@ -33,7 +33,7 @@ export const docsEs = {
     intro: {
       metaTitle: 'Introducción',
       metaDesc:
-        'Primary Sentinel como SaaS: multi-tenant, observabilidad de pipelines y auto-reparación asistida por IA.',
+        'Primary Sentinel como SaaS: multi-tenant, observabilidad de pipelines e inteligencia autónoma de fiabilidad y seguridad asistida por IA.',
       title: 'Introducción',
       p1:
         '<strong>Primary Sentinel</strong> es un <strong>SaaS</strong> para equipos que necesitan <strong>observabilidad y gobierno</strong> sobre pipelines de datos: ingesta por webhooks, reglas de reparación asistidas por IA, colas de incidentes y alertas. Cada cliente trabaja en su propio <strong>tenant</strong> (aislamiento lógico de datos y configuración); el panel y la API usan la sesión de Supabase para aplicar esos límites.',

@@ -4,9 +4,9 @@ import { createClientIfConfigured } from '@/lib/supabase/server';
 import LandingPage from '@/components/landing/LandingPage';
 
 export const metadata: Metadata = {
-  title: 'Primary Sentinel — Pipeline con IA auto-reparable',
+  title: 'Primary Sentinel — Inteligencia autónoma de fiabilidad y seguridad',
   description:
-    'Monitoreá, repará y gestioná tus pipelines de datos con IA. Observabilidad y recuperación automática en un solo panel.',
+    'Inteligencia autónoma de fiabilidad y seguridad para tus pipelines de datos: monitoreá, protegé y gestioná con IA en un solo panel.',
 };
 
 function firstParam(v: string | string[] | undefined): string | undefined {
