@@ -114,7 +114,7 @@ html, body {
 
   /* Legal — Terms & Privacy (jerarquía clara, alineado al tema Primary Sentinel) */
   .legal-doc {
-    max-width: 42rem;
+    max-width: 60rem;
     margin-inline: auto;
     padding: 3rem 1.25rem 4rem;
     line-height: 1.72;
