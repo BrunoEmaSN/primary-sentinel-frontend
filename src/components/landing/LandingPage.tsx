@@ -705,6 +705,11 @@ export default function LandingPage() {
           </div>
         </section>
 
+        <section id="senja-embed">
+          <script src="https://widget.senja.io/widget/48d052c4-c439-4b45-8583-96f3994bb6be/platform.js" type="text/javascript" async></script>
+          <div className="senja-embed" data-id="48d052c4-c439-4b45-8583-96f3994bb6be" data-mode="shadow" data-lazyload="false" style={{ display: 'block', width: '100%' }}></div>
+        </section>
+
         {/* CTA final */}
         <section
           style={{
@@ -802,8 +807,6 @@ export default function LandingPage() {
               </li>
             </ul>
           </div>
-          <script src="https://widget.senja.io/widget/48d052c4-c439-4b45-8583-96f3994bb6be/platform.js" type="text/javascript" async></script>
-          <div className="senja-embed" data-id="48d052c4-c439-4b45-8583-96f3994bb6be" data-mode="shadow" data-lazyload="false" style={{ display: 'block', width: '100%' }}></div>
           <div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--muted)', marginBottom: '10px', letterSpacing: '0.1em' }}>
               {t('landing.footerLegal')}
