@@ -615,38 +615,8 @@ export default function LandingPage() {
 
         {/* Testimonial */}
         <section style={{ maxWidth: '880px', margin: '0 auto', padding: '0 20px 64px' }}>
-          <div
-            className="sentinel-card"
-            style={{
-              padding: '36px 28px',
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-              gap: '28px',
-              alignItems: 'center',
-            }}
-          >
-            <div>
-              <p style={{ fontSize: 'clamp(1.05rem, 2vw, 1.25rem)', lineHeight: 1.55, color: 'var(--text)', fontWeight: 500 }}>
-                {L.testimonialQuote}
-              </p>
-            </div>
-            <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-              <div
-                style={{
-                  width: '64px',
-                  height: '64px',
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, var(--border2), var(--bg3))',
-                  border: '2px solid var(--border2)',
-                  flexShrink: 0,
-                }}
-              />
-              <div>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--text)' }}>{L.testimonialName}</div>
-                <div style={{ fontSize: '11px', color: 'var(--muted)' }}>{L.testimonialRole}</div>
-              </div>
-            </div>
-          </div>
+          <script src="https://widget.senja.io/widget/48d052c4-c439-4b45-8583-96f3994bb6be/platform.js" type="text/javascript" async></script>
+          <div className="senja-embed" data-id="48d052c4-c439-4b45-8583-96f3994bb6be" data-mode="shadow" data-lazyload="false" style={{ display: 'block', width: '100%' }}></div>
         </section>
 
         {/* Pricing */}
@@ -703,11 +673,6 @@ export default function LandingPage() {
               ))}
             </div>
           </div>
-        </section>
-
-        <section id="senja-embed">
-          <script src="https://widget.senja.io/widget/48d052c4-c439-4b45-8583-96f3994bb6be/platform.js" type="text/javascript" async></script>
-          <div className="senja-embed" data-id="48d052c4-c439-4b45-8583-96f3994bb6be" data-mode="shadow" data-lazyload="false" style={{ display: 'block', width: '100%' }}></div>
         </section>
 
         {/* CTA final */}
