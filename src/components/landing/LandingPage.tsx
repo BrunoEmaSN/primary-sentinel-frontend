@@ -34,9 +34,12 @@ const trustPillStyle = {
 
 function TrustLogoMarquee({ brands }: { brands: readonly string[] }) {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
   const stripRef = useRef<HTMLDivElement>(null);
   /** Desplazamiento exacto de un ciclo: ancho de la primera tira + gap entre tiras (bucle sin salto). */
   const [shiftPx, setShiftPx] = useState<number | null>(null);
+  /** Tiras idénticas en fila: al menos tantas como cubran el ancho visible + margen (evita huecos). */
+  const [stripCopies, setStripCopies] = useState(2);
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -48,12 +51,25 @@ function TrustLogoMarquee({ brands }: { brands: readonly string[] }) {
 
   useLayoutEffect(() => {
     if (prefersReducedMotion) return;
-    const el = stripRef.current;
-    if (!el) return;
-    const measure = () => setShiftPx(el.offsetWidth + TRUST_MARQUEE_GAP_PX);
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
+    const container = containerRef.current;
+    const strip = stripRef.current;
+    if (!container || !strip) return;
+
+    const update = () => {
+      const w = strip.offsetWidth;
+      const g = TRUST_MARQUEE_GAP_PX;
+      if (w <= 0) return;
+      const moduleW = w + g;
+      setShiftPx(moduleW);
+      const cw = container.clientWidth;
+      const needed = Math.max(2, Math.ceil(cw / moduleW) + 2);
+      setStripCopies(needed);
+    };
+
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(container);
+    ro.observe(strip);
     return () => ro.disconnect();
   }, [brands, prefersReducedMotion]);
 
@@ -89,22 +105,22 @@ function TrustLogoMarquee({ brands }: { brands: readonly string[] }) {
       : undefined;
 
   return (
-    <div className="landing-trust-marquee" style={{ opacity: 0.85 }}>
+    <div ref={containerRef} className="landing-trust-marquee" style={{ opacity: 0.85 }}>
       <div className="landing-trust-track" style={trackStyle}>
-        <div ref={stripRef} className="landing-trust-strip">
-          {brands.map((name, i) => (
-            <div key={`a-${name}-${i}`} style={trustPillStyle}>
-              {name}
-            </div>
-          ))}
-        </div>
-        <div className="landing-trust-strip" aria-hidden="true">
-          {brands.map((name, i) => (
-            <div key={`b-${name}-${i}`} style={trustPillStyle}>
-              {name}
-            </div>
-          ))}
-        </div>
+        {Array.from({ length: stripCopies }, (_, stripIdx) => (
+          <div
+            key={stripIdx}
+            ref={stripIdx === 0 ? stripRef : undefined}
+            className="landing-trust-strip"
+            aria-hidden={stripIdx > 0 ? true : undefined}
+          >
+            {brands.map((name, i) => (
+              <div key={`${stripIdx}-${name}-${i}`} style={trustPillStyle}>
+                {name}
+              </div>
+            ))}
+          </div>
+        ))}
       </div>
     </div>
   );
