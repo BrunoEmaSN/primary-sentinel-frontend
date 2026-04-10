@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import SentinelBrand from '@/components/SentinelBrand';
 import { IconArrowRight } from '@/components/icons/Arrows';
@@ -18,6 +18,9 @@ const gridBg = {
   pointerEvents: 'none' as const,
 };
 
+/** Debe coincidir con `gap` en `.landing-trust-track` / `.landing-trust-strip` (globals.css). */
+const TRUST_MARQUEE_GAP_PX = 12;
+
 const trustPillStyle = {
   fontFamily: 'var(--font-mono)',
   fontSize: '11px',
@@ -31,6 +34,9 @@ const trustPillStyle = {
 
 function TrustLogoMarquee({ brands }: { brands: readonly string[] }) {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const stripRef = useRef<HTMLDivElement>(null);
+  /** Desplazamiento exacto de un ciclo: ancho de la primera tira + gap entre tiras (bucle sin salto). */
+  const [shiftPx, setShiftPx] = useState<number | null>(null);
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -40,6 +46,17 @@ function TrustLogoMarquee({ brands }: { brands: readonly string[] }) {
     return () => mq.removeEventListener('change', sync);
   }, []);
 
+  useLayoutEffect(() => {
+    if (prefersReducedMotion) return;
+    const el = stripRef.current;
+    if (!el) return;
+    const measure = () => setShiftPx(el.offsetWidth + TRUST_MARQUEE_GAP_PX);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [brands, prefersReducedMotion]);
+
   if (prefersReducedMotion) {
     return (
       <div
@@ -47,7 +64,7 @@ function TrustLogoMarquee({ brands }: { brands: readonly string[] }) {
           display: 'flex',
           flexWrap: 'wrap',
           justifyContent: 'center',
-          gap: '12px',
+          gap: `${TRUST_MARQUEE_GAP_PX}px`,
           opacity: 0.85,
         }}
       >
@@ -60,19 +77,34 @@ function TrustLogoMarquee({ brands }: { brands: readonly string[] }) {
     );
   }
 
+  const durationSec =
+    shiftPx != null && shiftPx > 0 ? Math.max(20, shiftPx / 22) : 42;
+
+  const trackStyle =
+    shiftPx != null && shiftPx > 0
+      ? ({
+          ['--landing-trust-shift' as string]: `${shiftPx}px`,
+          ['--landing-trust-duration' as string]: `${durationSec}s`,
+        } as React.CSSProperties)
+      : undefined;
+
   return (
     <div className="landing-trust-marquee" style={{ opacity: 0.85 }}>
-      <div className="landing-trust-track">
-        {brands.map((name, i) => (
-          <div key={`a-${name}-${i}`} style={trustPillStyle}>
-            {name}
-          </div>
-        ))}
-        {brands.map((name, i) => (
-          <div key={`b-${name}-${i}`} style={trustPillStyle} aria-hidden="true">
-            {name}
-          </div>
-        ))}
+      <div className="landing-trust-track" style={trackStyle}>
+        <div ref={stripRef} className="landing-trust-strip">
+          {brands.map((name, i) => (
+            <div key={`a-${name}-${i}`} style={trustPillStyle}>
+              {name}
+            </div>
+          ))}
+        </div>
+        <div className="landing-trust-strip" aria-hidden="true">
+          {brands.map((name, i) => (
+            <div key={`b-${name}-${i}`} style={trustPillStyle}>
+              {name}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

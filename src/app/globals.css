@@ -112,13 +112,13 @@ html, body {
   .sentinel-table tr:last-child td { border-bottom: none; }
   .sentinel-table tr:hover td { background: rgba(255,255,255,.015); }
 
-  /* Landing — carrusel infinito de logos (confianza) */
+  /* Landing — carrusel infinito de logos (una vuelta = ancho 1ª tira + gap; --landing-trust-shift en px desde JS) */
   @keyframes landing-trust-marquee {
     from {
       transform: translate3d(0, 0, 0);
     }
     to {
-      transform: translate3d(-50%, 0, 0);
+      transform: translate3d(calc(-1 * var(--landing-trust-shift, 0px)), 0, 0);
     }
   }
 
@@ -131,10 +131,19 @@ html, body {
 
   .landing-trust-track {
     display: flex;
-    width: max-content;
+    align-items: center;
     gap: 12px;
-    animation: landing-trust-marquee 42s linear infinite;
+    width: max-content;
+    animation: landing-trust-marquee var(--landing-trust-duration, 42s) linear infinite;
     will-change: transform;
+    backface-visibility: hidden;
+  }
+
+  .landing-trust-strip {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
   }
 
   .landing-trust-marquee:hover .landing-trust-track {
