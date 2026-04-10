@@ -391,13 +391,13 @@ export default function LandingPage() {
         </section>
 
         {/* Logo cloud */}
-        <section style={{ maxWidth: '1040px', margin: '0 auto', padding: '0 20px 56px' }}>
+        {/* <section style={{ maxWidth: '1040px', margin: '0 auto', padding: '0 20px 56px' }}>
           {sectionTitle(L.trustKicker, L.trustTitle, L.trustSubtitle)}
           <TrustLogoMarquee brands={L.trustBrands} />
           <p style={{ textAlign: 'center', fontSize: '10px', color: 'var(--muted)', marginTop: '14px', fontFamily: 'var(--font-mono)' }}>
             {L.trustFootnote}
           </p>
-        </section>
+        </section> */}
 
         {/* Capacidades: flujo 1–4 (antes “pilares” demasiado abstractos) */}
         <section
@@ -698,7 +698,7 @@ export default function LandingPage() {
         </section>
 
         {/* Testimonial */}
-        <section style={{ maxWidth: '880px', margin: '0 auto', padding: '0 20px 64px' }}>
+        {/* <section style={{ maxWidth: '880px', margin: '0 auto', padding: '0 20px 64px' }}>
           <div
             className="sentinel-card"
             style={{
@@ -731,7 +731,7 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-        </section>
+        </section> */}
 
         {/* Pricing */}
         <section id="pricing" style={{ maxWidth: '1040px', margin: '0 auto', padding: '0 20px 64px' }}>
