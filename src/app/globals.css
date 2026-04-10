@@ -112,6 +112,37 @@ html, body {
   .sentinel-table tr:last-child td { border-bottom: none; }
   .sentinel-table tr:hover td { background: rgba(255,255,255,.015); }
 
+  /* Landing — carrusel infinito de logos (confianza) */
+  @keyframes landing-trust-marquee {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(-50%, 0, 0);
+    }
+  }
+
+  .landing-trust-marquee {
+    overflow: hidden;
+    width: 100%;
+    mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  }
+
+  .landing-trust-track {
+    display: flex;
+    width: max-content;
+    gap: 12px;
+    animation: landing-trust-marquee 42s linear infinite;
+    will-change: transform;
+  }
+
+  .landing-trust-marquee:hover .landing-trust-track {
+    animation-play-state: paused;
+  }
+
+  /* prefers-reduced-motion: el componente TrustLogoMarquee muestra rejilla estática sin duplicar */
+
   /* Legal — Terms & Privacy (jerarquía clara, alineado al tema Primary Sentinel) */
   .legal-doc {
     max-width: 60rem;

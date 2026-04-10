@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import SentinelBrand from '@/components/SentinelBrand';
 import { IconArrowRight } from '@/components/icons/Arrows';
@@ -16,6 +17,66 @@ const gridBg = {
   backgroundSize: '40px 40px',
   pointerEvents: 'none' as const,
 };
+
+const trustPillStyle = {
+  fontFamily: 'var(--font-mono)',
+  fontSize: '11px',
+  color: 'var(--muted)',
+  padding: '10px 16px',
+  border: '1px solid var(--border2)',
+  borderRadius: '8px',
+  background: 'var(--bg2)',
+  flexShrink: 0,
+} as const;
+
+function TrustLogoMarquee({ brands }: { brands: readonly string[] }) {
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const sync = () => setPrefersReducedMotion(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
+
+  if (prefersReducedMotion) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          justifyContent: 'center',
+          gap: '12px',
+          opacity: 0.85,
+        }}
+      >
+        {brands.map((name) => (
+          <div key={name} style={trustPillStyle}>
+            {name}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="landing-trust-marquee" style={{ opacity: 0.85 }}>
+      <div className="landing-trust-track">
+        {brands.map((name, i) => (
+          <div key={`a-${name}-${i}`} style={trustPillStyle}>
+            {name}
+          </div>
+        ))}
+        {brands.map((name, i) => (
+          <div key={`b-${name}-${i}`} style={trustPillStyle} aria-hidden="true">
+            {name}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 const sectionTitle = (kicker: string, title: string, subtitle?: string) => (
   <div style={{ textAlign: 'center', marginBottom: '36px', maxWidth: '640px', marginLeft: 'auto', marginRight: 'auto' }}>
@@ -284,32 +345,7 @@ export default function LandingPage() {
         {/* Logo cloud */}
         <section style={{ maxWidth: '1040px', margin: '0 auto', padding: '0 20px 56px' }}>
           {sectionTitle(L.trustKicker, L.trustTitle, L.trustSubtitle)}
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              justifyContent: 'center',
-              gap: '12px',
-              opacity: 0.85,
-            }}
-          >
-            {L.trustBrands.map((name) => (
-              <div
-                key={name}
-                style={{
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '11px',
-                  color: 'var(--muted)',
-                  padding: '10px 16px',
-                  border: '1px solid var(--border2)',
-                  borderRadius: '8px',
-                  background: 'var(--bg2)',
-                }}
-              >
-                {name}
-              </div>
-            ))}
-          </div>
+          <TrustLogoMarquee brands={L.trustBrands} />
           <p style={{ textAlign: 'center', fontSize: '10px', color: 'var(--muted)', marginTop: '14px', fontFamily: 'var(--font-mono)' }}>
             {L.trustFootnote}
           </p>
