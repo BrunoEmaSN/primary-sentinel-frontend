@@ -136,7 +136,10 @@ export const en = {
     closePanelAria: 'Close panel',
     validationEmailAndMessageRequired: 'Email and message are required.',
     errorEmailNotSent: 'The message could not be sent. Please try again.',
-    successCheckInbox: 'Thanks! Check your inbox for a confirmation.',
+    successCheckInboxHighlight: 'Sent!',
+    successCheckInboxTitle: 'Your message is officially on its way.',
+    successCheckInboxHint:
+      'Check your inbox (and spam, just in case) for the confirmation — we will get back to you soon.',
     labelName: 'Name',
     labelEmail: 'Email',
     labelCompany: 'Company',
