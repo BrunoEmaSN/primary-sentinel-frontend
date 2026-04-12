@@ -126,7 +126,7 @@ export default function LandingPricing() {
                 ))}
               </ul>
               {idx === 2 && isSalesContactConfigured ? (
-                <button type="button" className={btnClass} onClick={openSalesContact} style={{ justifyContent: 'center' }}>
+                <button id="landing-pricing-enterprise-button" type="button" className={btnClass} onClick={openSalesContact} style={{ justifyContent: 'center' }}>
                   {plan.cta}
                 </button>
               ) : (
