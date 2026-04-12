@@ -17,11 +17,9 @@ import { useI18n } from "@/lib/i18n/I18nProvider";
 
 const PLAN_VALUES = ["unknown", "free", "starter", "pro", "enterprise"] as const;
 
-/** Ilustración decorativa: sobre saliendo con confeti (estilo line art + acento lima). */
-function EmailConfettiIllustration() {
+/** Ilustración de éxito: sobre centrado con check (estilo line art + acento lima). */
+function EmailSuccessIllustration() {
   const acc = "var(--ss-accent)";
-  const accDim = "color-mix(in srgb, var(--ss-accent) 78%, #ffffff)";
-  const ink = "rgba(255,255,255,.35)";
   return (
     <svg
       className="ssm-success-art-svg"
@@ -30,58 +28,33 @@ function EmailConfettiIllustration() {
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden
     >
-      {/* Velocidad / trayectoria */}
-      <path
-        d="M28 112c18-22 38-40 62-52"
-        stroke={ink}
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeDasharray="4 6"
-        opacity={0.85}
-      />
-      <path
-        d="M36 124c14-14 30-26 48-34"
-        stroke={ink}
-        strokeWidth="1"
-        strokeLinecap="round"
-        strokeDasharray="3 5"
-        opacity={0.55}
-      />
-      {/* Confeti — animado por CSS */}
-      <g className="ssm-confetti">
-        <rect x="178" y="18" width="6" height="10" rx="1" fill={acc} transform="rotate(22 181 23)" className="ssm-cf1" />
-        <rect x="200" y="42" width="5" height="8" rx="1" fill={accDim} transform="rotate(-15 202 46)" className="ssm-cf2" />
-        <rect x="12" y="36" width="5" height="9" rx="1" fill={acc} transform="rotate(-32 14 40)" className="ssm-cf3" />
-        <circle cx="214" cy="78" r="3.5" fill={acc} className="ssm-cf4" />
-        <circle cx="22" cy="68" r="2.5" fill={ink} className="ssm-cf5" />
-        <rect x="188" y="96" width="7" height="5" rx="1" fill={accDim} transform="rotate(38 191 98)" className="ssm-cf6" />
-        <rect x="152" y="12" width="4" height="7" rx="1" fill={acc} transform="rotate(-48 154 15)" className="ssm-cf7" />
-        <circle cx="168" cy="52" r="2.8" fill={accDim} className="ssm-cf8" />
-      </g>
-      {/* Sobre (perspectiva, “saliendo”) */}
-      <g className="ssm-mail-wrap">
-        <g transform="translate(72 48) rotate(-8 48 40)">
-          <rect
-            x="4"
-            y="20"
-            width="88"
-            height="56"
-            rx="8"
-            stroke={acc}
-            strokeWidth="2.25"
-            fill="rgba(200,245,80,.06)"
-          />
-          <path
-            d="M4 28 L48 58 L92 28"
-            stroke={acc}
-            strokeWidth="2.25"
-            strokeLinejoin="round"
-            fill="rgba(200,245,80,.04)"
-          />
-          <path d="M48 58 L48 76" stroke={acc} strokeWidth="2" strokeLinecap="round" opacity={0.55} />
-          <circle cx="76" cy="44" r="5" stroke={acc} strokeWidth="1.5" fill="none" opacity={0.7} />
-          <path d="M73 44 L78 44" stroke={acc} strokeWidth="1.5" strokeLinecap="round" />
-        </g>
+      <g className="ssm-mail-wrap" transform="translate(72 36)">
+        <rect
+          x="4"
+          y="20"
+          width="88"
+          height="56"
+          rx="8"
+          stroke={acc}
+          strokeWidth="2.25"
+          fill="rgba(200,245,80,.06)"
+        />
+        <path
+          d="M4 28 L48 58 L92 28"
+          stroke={acc}
+          strokeWidth="2.25"
+          strokeLinejoin="round"
+          fill="rgba(200,245,80,.04)"
+        />
+        <path d="M48 58 L48 76" stroke={acc} strokeWidth="2" strokeLinecap="round" opacity={0.55} />
+        <circle cx="48" cy="44" r="14" stroke={acc} strokeWidth="2" fill="var(--bg)" />
+        <path
+          d="M41.5 44 L46 48.5 L54.5 39"
+          stroke={acc}
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
       </g>
     </svg>
   );
@@ -283,23 +256,6 @@ export default function SentinelSalesModal({
         .ssm-success-wrap { text-align: center; padding: 4px 0 8px; }
         .ssm-success-art { display: flex; justify-content: center; margin-bottom: 12px; }
         .ssm-success-art-svg { width: min(228px, 100%); height: auto; overflow: visible; display: block; }
-        .ssm-success-art-svg .ssm-mail-wrap {
-          animation: ssm-mail-bob 2.6s ease-in-out infinite;
-          transform-origin: 120px 84px;
-        }
-        @keyframes ssm-mail-bob {
-          0%, 100% { transform: translate(0, 3px); }
-          50% { transform: translate(8px, -5px); }
-        }
-        .ssm-success-art-svg .ssm-confetti {
-          animation: ssm-confetti-pop 2.4s ease-in-out infinite;
-          transform-origin: 120px 60px;
-        }
-        @keyframes ssm-confetti-pop {
-          0%, 100% { opacity: 0.88; transform: translate(0, 0) scale(1); }
-          40% { opacity: 1; transform: translate(-2px, -3px) scale(1.03); }
-          70% { opacity: 0.95; transform: translate(1px, 2px) scale(0.99); }
-        }
         .ssm-success-title {
           font-size: 15px; font-weight: 600; margin: 0 0 10px; letter-spacing: -0.02em;
           color: var(--text); line-height: 1.35;
@@ -370,7 +326,7 @@ export default function SentinelSalesModal({
               {done ? (
                 <div className="ssm-success-wrap">
                   <div className="ssm-success-art">
-                    <EmailConfettiIllustration />
+                    <EmailSuccessIllustration />
                   </div>
                   <p className="ssm-success-title">
                     <span className="ssm-success-accent">{t("sentinelSales.successCheckInboxHighlight")}</span>{" "}

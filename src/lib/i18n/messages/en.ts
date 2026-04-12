@@ -137,9 +137,9 @@ export const en = {
     validationEmailAndMessageRequired: 'Email and message are required.',
     errorEmailNotSent: 'The message could not be sent. Please try again.',
     successCheckInboxHighlight: 'Sent!',
-    successCheckInboxTitle: 'Your message is officially on its way.',
+    successCheckInboxTitle: 'Your message is on its way.',
     successCheckInboxHint:
-      'Check your inbox (and spam, just in case) for the confirmation — we will get back to you soon.',
+      'We will get back to you soon. Check your inbox (and spam, just in case)',
     labelName: 'Name',
     labelEmail: 'Email',
     labelCompany: 'Company',
