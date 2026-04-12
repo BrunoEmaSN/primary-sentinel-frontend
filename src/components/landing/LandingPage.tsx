@@ -734,10 +734,10 @@ export default function LandingPage() {
         </section> */}
 
         {/* Pricing */}
-        <section id="pricing" style={{ maxWidth: '1040px', margin: '0 auto', padding: '0 20px 64px' }}>
+        {/* <section id="pricing" style={{ maxWidth: '1040px', margin: '0 auto', padding: '0 20px 64px' }}>
           {sectionTitle(L.pricingKicker, L.pricingTitle, L.pricingSubtitle)}
           <LandingPricing />
-        </section>
+        </section> */}
 
         {/* FAQ */}
         <section id="faq" style={{ maxWidth: '920px', margin: '0 auto', padding: '0 20px 64px' }}>
