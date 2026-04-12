@@ -2,11 +2,13 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { useSalesContact } from '@/components/SalesContactProvider';
 import { useI18n } from '@/lib/i18n/I18nProvider';
 
 export default function LandingPricing() {
   const [yearly, setYearly] = useState(false);
   const { dict } = useI18n();
+  const { openSalesContact, isSalesContactConfigured } = useSalesContact();
   const p = dict.landing.pricing;
   const plans = p.plans;
 
@@ -123,9 +125,15 @@ export default function LandingPricing() {
                   </li>
                 ))}
               </ul>
-              <Link href="/auth" className={btnClass} style={{ textDecoration: 'none', justifyContent: 'center' }}>
-                {plan.cta}
-              </Link>
+              {idx === 2 && isSalesContactConfigured ? (
+                <button type="button" className={btnClass} onClick={openSalesContact} style={{ justifyContent: 'center' }}>
+                  {plan.cta}
+                </button>
+              ) : (
+                <Link href="/auth" className={btnClass} style={{ textDecoration: 'none', justifyContent: 'center' }}>
+                  {plan.cta}
+                </Link>
+              )}
             </div>
           );
         })}
