@@ -3,7 +3,6 @@
   <br />
   <div>
     <img src="https://img.shields.io/badge/-Nextjs-black?style=for-the-badge&logo=next.js&logoColor=white&color=000000" alt="next.js" />
-    <img src="https://img.shields.io/badge/-Supabase-black?style=for-the-badge&logo=supabase&logoColor=3CC88B&color=000000" alt="supabase" />
     <img src="https://img.shields.io/badge/-Cloudflare-black?style=for-the-badge&logo=cloudflare&logoColor=EB7D20&color=000000" alt="cloudflare" />
     <img src="https://img.shields.io/badge/-Tailwindcss-black?style=for-the-badge&logo=tailwindcss&logoColor=36B7F0&color=000000" alt="tailwind" />
     <img src="https://img.shields.io/badge/-Vercel-black?style=for-the-badge&logo=vercel&logoColor=white&color=000000" alt="vercel" />
@@ -25,7 +24,7 @@ Backend: [sentinel-saas-backend](https://github.com/BrunoEmaSN/sentinel-saas-bac
 | Capa | Tecnología |
 |------|-----------|
 | Framework | Next.js 14 (App Router) |
-| Auth | Supabase Auth + SSR |
+| Auth | Sesión con JWT en cookie (SSR); variables públicas según `.env.example` |
 | API calls | Cloudflare Worker (tu backend) |
 | UI | Tailwind CSS + CSS Variables |
 | Charts | Recharts |
@@ -49,16 +48,7 @@ npm install
 cp .env.example .env.local
 ```
 
-Editá `.env.local`:
-
-```env
-# De tu proyecto Supabase (Settings → API)
-NEXT_PUBLIC_SUPABASE_URL=https://XXXX.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-
-# Tu Cloudflare Worker (local o deployed)
-NEXT_PUBLIC_API_URL=http://localhost:8787
-```
+Editá `.env.local` siguiendo **`.env.example`**: incluye la URL base del API (Worker) y las variables públicas de autenticación que use tu despliegue. Esta guía no detalla proveedores concretos de identidad ni almacenes externos.
 
 ### 3. Correr en desarrollo
 
@@ -92,7 +82,7 @@ src/
 │   └── dashboard/         # Cards, Chart, Flow diagram
 ├── lib/
 │   ├── api.ts             # Cliente HTTP → tu backend
-│   └── supabase/          # Browser + Server clients
+│   └── …                  # utilidades de sesión del panel (ver código)
 ├── types/                 # Tipos TypeScript del backend
 └── middleware.ts          # Protección de rutas
 ```
@@ -105,7 +95,7 @@ Todas las llamadas HTTP se hacen en `src/lib/api.ts`:
 
 ```
 Frontend (Next.js)
-  └── Bearer JWT (Supabase)
+  └── Bearer JWT de sesión
        └── POST /api/endpoints         → Crear endpoint
        └── GET  /api/endpoints         → Listar endpoints
        └── GET  /api/endpoints/:id/events → Ver eventos
@@ -114,7 +104,7 @@ Frontend (Next.js)
        └── POST /webhook/:tenantId/:slug  → Enviar webhook de prueba
 ```
 
-El JWT viene de `supabase.auth.getSession()` y se envía como `Authorization: Bearer <token>`.
+El token de sesión del usuario se adjunta como `Authorization: Bearer <token>` en las llamadas al API del producto.
 
 ---
 
@@ -128,36 +118,14 @@ npm i -g vercel
 vercel
 
 # Variables de entorno en Vercel Dashboard:
-# NEXT_PUBLIC_SUPABASE_URL
-# NEXT_PUBLIC_SUPABASE_ANON_KEY
-# NEXT_PUBLIC_API_URL  ← tu Worker URL en producción
+# Replicá las claves de `.env.example` (URL del API, variables públicas de sesión, etc.).
 ```
 
 ---
 
-## Realtime (Notificaciones)
+## Notificaciones en tiempo real
 
-La página de notificaciones se suscribe a la tabla `notifications` de Supabase usando Realtime.  
-Asegurate de que tu backend inserte en esa tabla cuando genere una regla o encuentre un evento irrecuperable.
-
-Schema sugerido para la tabla `notifications`:
-
-```sql
-create table notifications (
-  id uuid primary key default gen_random_uuid(),
-  tenant_id uuid references auth.users(id),
-  type text check (type in ('healed','dead','rule_created','rule_pending','info')),
-  title text not null,
-  body text,
-  read boolean default false,
-  created_at timestamptz default now()
-);
-
--- RLS
-alter table notifications enable row level security;
-create policy "Own notifications" on notifications
-  for all using (auth.uid() = tenant_id);
-```
+El centro de notificaciones del panel usa el **canal en tiempo real del propio producto**. El modelo de datos, retención y políticas de acceso son internos al servicio Primary Sentinel y no se documentan aquí como integración con terceros.
 
 ---
 

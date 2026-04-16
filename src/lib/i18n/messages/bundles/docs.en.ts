@@ -33,10 +33,10 @@ export const docsEn = {
     intro: {
       metaTitle: 'Introduction',
       metaDesc:
-        'Primary Sentinel as SaaS: multi-tenant, observability over endpoints and workloads, and AI-assisted autonomous reliability & security intelligence.',
+        'Multi-tenant SaaS to observe and auto-repair webhook ingestion—AI rules, DLQ, and alerts—without acting as a generic business data access layer.',
       title: 'Introduction',
       p1:
-        '<strong>Primary Sentinel</strong> is a <strong>SaaS</strong> for teams that need <strong>observability and governance</strong> over webhook ingestion and destinations: AI-assisted repair rules, incident queues, and alerts. Each customer works in their own <strong>tenant</strong> (logical isolation of data and settings); the dashboard and API enforce those boundaries from your account session and permissions.',
+        '<strong>Primary Sentinel</strong> is a <strong>SaaS</strong> for teams that need <strong>observability and governance</strong> over webhook ingestion and destinations: AI-assisted repair rules, incident queues, and alerts. Each customer works in their own <strong>tenant</strong> (logical isolation of <strong>pipeline configuration and telemetry</strong>); the dashboard and API enforce those boundaries from your account session and permissions.<br/><br/><strong>Scope:</strong> the product is built to <strong>auto-repair ingestion</strong> toward your destinations; it is not a generic data-access layer into your business stores or a replacement for analytics tools. <strong>Minimal</strong> ingestion-related artifacts the service <strong>persists</strong>—<strong>event</strong> payloads, <strong>DLQ</strong> archive copies, and <strong>reinject snapshots</strong>—are stored <strong>encrypted at rest</strong> using <strong>AES-GCM</strong> with keying material <strong>derived from the tenant ID</strong> (HKDF), keeping organizations <strong>cryptographically isolated</strong>.',
       hWhat: 'What the product solves',
       liWhat: [
         '<strong>Visibility</strong> — Metrics, flow diagram, and operations without building a generic monitoring stack yourself.',
@@ -46,7 +46,7 @@ export const docsEn = {
       hFlow: 'Typical flow in the dashboard',
       liFlow: [
         '<strong>Monitor</strong> — On the <strong>Dashboard</strong> you see metrics, the flow diagram, and recent events.',
-        '<strong>Connect data</strong> — Under <strong>Flows</strong> you define endpoints and the per-tenant webhook URL.',
+        '<strong>Configure ingestion</strong> — Under <strong>Flows</strong> you define endpoints and the per-tenant webhook URL.',
         '<strong>Operations</strong> — Under <strong>Operations</strong> you review dependencies, AI history, and stage metrics.',
         '<strong>AI rules</strong> — You manage repair rules (approve, edit, or delete).',
         '<strong>Incidents</strong> — Anything the system could not repair automatically appears in <strong>Dead Letter</strong> for retry or discard.',
@@ -62,7 +62,7 @@ export const docsEn = {
       metaDesc: 'Sign-up, first access to the dashboard, and map of in-app documentation.',
       title: 'Getting started',
       p1:
-        'Primary Sentinel is a <strong>cloud service</strong>: you create an account (email/password or OAuth), get an isolated space for your organization (<strong>tenant</strong>), and the dashboard guides you to connect data, review operations, and manage incidents. You do not need to install software to use the product.',
+        'Primary Sentinel is a <strong>cloud service</strong>: you create an account (email/password or OAuth), get an isolated space for your organization (<strong>tenant</strong>), and the dashboard guides you to <strong>configure ingestion</strong>, review operations, and manage pipeline incidents. You do not need to install software to use the product.',
       hExplore: 'Documentation by topic in the app',
       pExplore:
         'Each guide lives under <code>/docs/…</code>. You can open directly: <a href="/docs">introduction</a> (<code>/docs</code>), <a href="/docs/dashboard">main dashboard</a> (<code>/docs/dashboard</code>), <a href="/docs/flujos">flows and webhooks</a> (<code>/docs/flujos</code>), <a href="/docs/operaciones">operations</a> (<code>/docs/operaciones</code>), <a href="/docs/reglas">AI rules</a> (<code>/docs/reglas</code>), <a href="/docs/dlq">Dead Letter</a> (<code>/docs/dlq</code>), <a href="/docs/notificaciones">notifications</a> (<code>/docs/notificaciones</code>), <a href="/docs/configuracion">settings</a> (<code>/docs/configuracion</code>), <a href="/docs/facturacion">billing</a> (<code>/docs/facturacion</code>), and <a href="/docs/api">API & webhooks</a> (<code>/docs/api</code>).',
@@ -106,14 +106,14 @@ export const docsEn = {
         'The service exposes <code>POST /webhook/:tenantId/:slug</code>. <code>tenantId</code> matches the identifier shown under <a href="/docs/configuracion">Settings</a>. Authenticated REST calls send a session token in <code>Authorization: Bearer …</code> (see <a href="/docs/api">API & webhooks</a>).',
       hEvents: 'Events per endpoint',
       pEvents:
-        'You can list and inspect events for an endpoint to debug integrations before AI rules run or items land in DLQ.',
+        'You can list and review <strong>operational ingestion history</strong> per endpoint to debug the pipeline before AI rules run or items land in DLQ.',
     },
     operaciones: {
       metaTitle: 'Operations',
       metaDesc: 'Dependency map, AI history, stage metrics, and heuristic suggestions.',
       title: 'Operations',
       p1:
-        'The <code>/dashboard/operations</code> view is for SaaS <strong>operators</strong>: it summarizes how your endpoints connect to destinations, recent AI engine decisions, and per-stage metrics. Data is <strong>per tenant</strong>: you only see what belongs to your account.',
+        'The <code>/dashboard/operations</code> view is for SaaS <strong>operators</strong>: it summarizes how your endpoints connect to destinations, recent AI engine decisions, and per-stage metrics. What you see is <strong>pipeline telemetry and state</strong>, always scoped to your <strong>tenant</strong>.',
       hMap: 'Endpoint → destinations map',
       pMap:
         'Shows nodes (your endpoints) and edges linking sources to destinations. Use it to understand the dependency graph without opening each flow separately. If you have not created endpoints yet, you see an empty state until you configure <a href="/docs/flujos">Flows</a>.',
@@ -122,7 +122,7 @@ export const docsEn = {
         'Lists recent events from the reasoning or automatic-action history, bounded in time. It complements detail you may see later in rules or specific events.',
       hMetrics: 'Stage metrics',
       pMetrics:
-        'Time series of metrics over hourly windows (default: a wide range) to spot spikes, drops, or stagnation. The backend aggregates; the UI presents it compactly.',
+        'Time series of metrics over hourly windows (default: a wide range) to spot spikes, drops, or stagnation. The backend aggregates <strong>pipeline metrics</strong>; the UI presents them compactly.',
       hSuggest: 'Heuristic suggestions',
       pSuggest:
         'The API may return suggestions from recent samples (severity + text). They are hints to prioritize schema, rule, or connectivity improvements—not a substitute for team judgment.',
@@ -151,10 +151,10 @@ export const docsEn = {
       metaDesc: 'Per-tenant DLQ queue, reinjection, snapshots, and discard in Primary Sentinel.',
       title: 'Dead Letter Queue',
       p1:
-        '<code>/dashboard/dlq</code> lists events the system <strong>could not repair automatically</strong>. This is the human review queue: you inspect the payload and failure reason and, when the backend allows, you can <strong>reinject</strong> the event or <strong>discard</strong> it. You only see your tenant’s items.',
+        '<code>/dashboard/dlq</code> lists events the system <strong>could not repair automatically</strong>. This is the human review queue: you review <strong>failure context</strong> in the pipeline and, when the backend allows, you can <strong>reinject</strong> the event or <strong>discard</strong> it. You only see your tenant’s items.',
       hWhen: 'When an item appears',
       pWhen:
-        'Usually recurrent errors, out-of-schema data, or situations not covered by current rules. Use it to prioritize rule improvements or fixes upstream.',
+        'Usually recurrent errors, <strong>out-of-schema payloads</strong>, or situations not covered by current rules. Use it to prioritize rule improvements or fixes upstream.',
       hReinject: 'Reinjection and snapshots',
       pReinject:
         'The API exposes reinjection with optional corrected payload (<code>POST /api/dlq/:id/reinject</code>), listing snapshots per event, and diffing versions for audit. Exact behavior may vary with the service version.',
@@ -192,7 +192,7 @@ export const docsEn = {
         'You can enable <strong>email</strong> (healings, DLQ, pending rules), a Slack <strong>Incoming Webhook</strong> for incident summaries, and your own <strong>HTTPS webhook</strong> with <code>HMAC-SHA256</code> in the <code>X-Sentinel-Signature</code> header (shared secret). These run in parallel with the in-app notification center.',
       hInfra: 'Operational signals',
       pInfra:
-        'You may see a contextual summary of the API endpoint and other support-oriented data. It is in-product context only; it does not replace contractual documentation or internal technical details, which are not published in these guides.',
+        'You may see a contextual summary of the API endpoint and other <strong>support-oriented fields</strong>. It is in-product context only; it does not replace contractual documentation or internal technical details, which are not published in these guides.',
     },
     facturacion: {
       metaTitle: 'Billing',

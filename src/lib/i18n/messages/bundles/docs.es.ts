@@ -33,10 +33,10 @@ export const docsEs = {
     intro: {
       metaTitle: 'Introducción',
       metaDesc:
-        'Primary Sentinel como SaaS: multi-tenant, observabilidad de endpoints y cargas de trabajo e inteligencia autónoma de fiabilidad y seguridad asistida por IA.',
+        'SaaS multi-tenant para observar y autoreparar la ingesta por webhooks; reglas IA, DLQ y alertas sin posicionarse como acceso a almacenes de negocio.',
       title: 'Introducción',
       p1:
-        '<strong>Primary Sentinel</strong> es un <strong>SaaS</strong> para equipos que necesitan <strong>observabilidad y gobierno</strong> sobre ingesta por webhooks y destinos: reglas de reparación asistidas por IA, colas de incidentes y alertas. Cada cliente trabaja en su propio <strong>tenant</strong> (aislamiento lógico de datos y configuración); el panel y la API aplican esos límites según tu sesión y permisos de cuenta.',
+        '<strong>Primary Sentinel</strong> es un <strong>SaaS</strong> para equipos que necesitan <strong>observabilidad y gobierno</strong> sobre ingesta por webhooks y destinos: reglas de reparación asistidas por IA, colas de incidentes y alertas. Cada cliente trabaja en su propio <strong>tenant</strong> (aislamiento lógico de <strong>configuración y telemetría del pipeline</strong>); el panel y la API aplican esos límites según tu sesión y permisos de cuenta.<br/><br/><strong>Alcance:</strong> la función del servicio es <strong>autoreparar la ingesta</strong> hacia tus destinos; no ofrecemos acceso genérico a tus almacenes de datos ni sustituimos tus herramientas de análisis. Los artefactos mínimos que el servicio <strong>persiste</strong> ligados a la ingesta (payloads de eventos, copias en cola <strong>DLQ</strong> y <strong>snapshots</strong> de reinyección) se guardan <strong>cifrados en reposo</strong> con <strong>AES-GCM</strong> y material de claves derivado del <strong>tenant ID</strong> (HKDF), para conservar el <strong>aislamiento criptográfico</strong> entre organizaciones.',
       hWhat: 'Qué resuelve el producto',
       liWhat: [
         '<strong>Visibilidad</strong> — Métricas, diagrama de flujo y operaciones sin montar tu propio stack de monitorización genérico.',
@@ -46,7 +46,7 @@ export const docsEs = {
       hFlow: 'Flujo general en el panel',
       liFlow: [
         '<strong>Monitor</strong> — En el <strong>Dashboard</strong> ves métricas, el diagrama de flujo y eventos recientes.',
-        '<strong>Conectar datos</strong> — En <strong>Flujos</strong> definís endpoints y la URL de webhook por tenant.',
+        '<strong>Configurar ingesta</strong> — En <strong>Flujos</strong> definís endpoints y la URL de webhook por tenant.',
         '<strong>Operaciones</strong> — En <strong>Operaciones</strong> revisás dependencias, historial IA y métricas por etapa.',
         '<strong>Reglas IA</strong> — Gestionás reglas de reparación (aprobar, editar o eliminar).',
         '<strong>Incidentes</strong> — Lo que no se sanó automáticamente aparece en <strong>Dead Letter</strong> para reintento o descarte.',
@@ -62,7 +62,7 @@ export const docsEs = {
       metaDesc: 'Alta en el SaaS, primer acceso al panel y mapa de la documentación en la app.',
       title: 'Primeros pasos',
       p1:
-        'Primary Sentinel es un <strong>servicio en la nube</strong>: creás tu cuenta (email/contraseña u OAuth), obtenés un espacio aislado para tu organización (<strong>tenant</strong>) y el panel te guía para conectar datos, revisar operaciones y gestionar incidentes. No necesitás instalar software para usar el producto.',
+        'Primary Sentinel es un <strong>servicio en la nube</strong>: creás tu cuenta (email/contraseña u OAuth), obtenés un espacio aislado para tu organización (<strong>tenant</strong>) y el panel te guía para <strong>configurar la ingesta</strong>, revisar operaciones y gestionar incidentes del pipeline. No necesitás instalar software para usar el producto.',
       hExplore: 'Documentación por tema en la app',
       pExplore:
         'Cada guía vive bajo <code>/docs/…</code>. Podés abrir directamente: <a href="/docs">introducción</a> (<code>/docs</code>), <a href="/docs/dashboard">panel principal</a> (<code>/docs/dashboard</code>), <a href="/docs/flujos">flujos y webhooks</a> (<code>/docs/flujos</code>), <a href="/docs/operaciones">operaciones</a> (<code>/docs/operaciones</code>), <a href="/docs/reglas">reglas IA</a> (<code>/docs/reglas</code>), <a href="/docs/dlq">Dead Letter</a> (<code>/docs/dlq</code>), <a href="/docs/notificaciones">notificaciones</a> (<code>/docs/notificaciones</code>), <a href="/docs/configuracion">configuración</a> (<code>/docs/configuracion</code>), <a href="/docs/facturacion">facturación</a> (<code>/docs/facturacion</code>) e <a href="/docs/api">API y webhooks</a> (<code>/docs/api</code>).',
@@ -106,7 +106,7 @@ export const docsEs = {
         'El servicio expone <code>POST /webhook/:tenantId/:slug</code>. El <code>tenantId</code> coincide con el identificador que mostramos en <a href="/docs/configuracion">Configuración</a>. Las llamadas al API REST autenticado envían un token de sesión en <code>Authorization: Bearer …</code> (ver <a href="/docs/api">API y webhooks</a>).',
       hEvents: 'Eventos por endpoint',
       pEvents:
-        'Podés listar y revisar eventos asociados a un endpoint para depurar integraciones antes de que actúen las reglas IA o terminen en DLQ.',
+        'Podés listar y revisar el <strong>historial operativo de la ingesta</strong> por endpoint para diagnosticar el pipeline antes de que actúen las reglas IA o terminen en DLQ.',
     },
     operaciones: {
       metaTitle: 'Operaciones',
@@ -114,7 +114,7 @@ export const docsEs = {
         'Mapa de dependencias, historial IA, métricas por etapa y sugerencias heurísticas en Primary Sentinel.',
       title: 'Operaciones',
       p1:
-        'La vista <code>/dashboard/operations</code> está pensada para <strong>operadores</strong> del SaaS: resume cómo se conectan tus endpoints con destinos, qué decisiones tomó el motor de IA recientemente y cómo evolucionan las métricas por etapa. Los datos son <strong>por tenant</strong>: solo ves lo asociado a tu cuenta.',
+        'La vista <code>/dashboard/operations</code> está pensada para <strong>operadores</strong> del SaaS: resume cómo se conectan tus endpoints con destinos, qué decisiones tomó el motor de IA recientemente y cómo evolucionan las métricas por etapa. Lo que ves es <strong>telemetría y estado del pipeline</strong>, siempre acotado a tu <strong>tenant</strong>.',
       hMap: 'Mapa endpoint → destinos',
       pMap:
         'Muestra nodos (tus endpoints) y aristas que relacionan orígenes con destinos. Sirve para entender el grafo de dependencias sin abrir cada flujo por separado. Si aún no creaste endpoints, verás un estado vacío hasta que configures <a href="/docs/flujos">Flujos</a>.',
@@ -123,7 +123,7 @@ export const docsEs = {
         'Lista eventos recientes del historial de razonamiento o acciones automáticas, acotado en tiempo. Complementa el detalle que más adelante podés ver en reglas o en eventos concretos.',
       hMetrics: 'Métricas por etapa',
       pMetrics:
-        'Serie temporal de métricas por ventana de horas (por defecto un rango amplio) para detectar picos, caídas o estancamiento. El backend agrega datos; la UI las presenta de forma compacta.',
+        'Serie temporal de métricas por ventana de horas (por defecto un rango amplio) para detectar picos, caídas o estancamiento. El backend agrega <strong>métricas agregadas</strong> del pipeline; la UI las presenta de forma compacta.',
       hSuggest: 'Sugerencias heurísticas',
       pSuggest:
         'El API puede devolver sugerencias basadas en muestras recientes (severidad + texto). Son orientativas para priorizar mejoras de esquema, reglas o conectividad, no sustituyen el juicio del equipo.',
@@ -152,10 +152,10 @@ export const docsEs = {
       metaDesc: 'Cola DLQ por tenant, reinyección, snapshots y descarte en Primary Sentinel.',
       title: 'Dead Letter Queue',
       p1:
-        '<code>/dashboard/dlq</code> lista los eventos que el sistema <strong>no pudo sanar</strong> de forma automática. Es la cola de revisión humana del SaaS: inspeccionás el payload, el motivo del fallo y, cuando el backend lo permite, podés <strong>reinyectar</strong> el evento o <strong>descartarlo</strong>. Solo ves ítems de tu tenant.',
+        '<code>/dashboard/dlq</code> lista los eventos que el sistema <strong>no pudo sanar</strong> de forma automática. Es la cola de revisión humana del SaaS: revisás el <strong>contexto del fallo</strong> en el pipeline y, cuando el backend lo permite, podés <strong>reinyectar</strong> el evento o <strong>descartarlo</strong>. Solo ves ítems de tu tenant.',
       hWhen: 'Cuándo aparece un ítem',
       pWhen:
-        'Suelen ser errores recurrentes, datos fuera de esquema o situaciones no cubiertas por las reglas actuales. Es el lugar para priorizar mejoras de reglas o correcciones en los productores upstream.',
+        'Suelen ser errores recurrentes, <strong>cargas fuera de esquema</strong> o situaciones no cubiertas por las reglas actuales. Es el lugar para priorizar mejoras de reglas o correcciones en los productores upstream.',
       hReinject: 'Reinyección y snapshots',
       pReinject:
         'La API expone reinyección con payload corregido opcional (<code>POST /api/dlq/:id/reinject</code>), listado de snapshots por evento y comparación entre versiones para auditoría. El comportamiento exacto puede variar según la versión del servicio.',
@@ -193,7 +193,7 @@ export const docsEs = {
         'Podés activar envío por <strong>email</strong> (reparaciones, DLQ, reglas pendientes), un <strong>Incoming Webhook de Slack</strong> para resúmenes de incidente, y un <strong>webhook HTTPS propio</strong> con firma <code>HMAC-SHA256</code> en la cabecera <code>X-Sentinel-Signature</code> (secreto compartido configurable). Son canales paralelos al centro de notificaciones en el panel.',
       hInfra: 'Señales operativas',
       pInfra:
-        'Podés ver un resumen orientativo del endpoint del API y otros datos útiles para soporte. Es información de contexto dentro del producto; no reemplaza la documentación contractual ni los detalles técnicos internos, que no se publican en estas guías.',
+        'Podés ver un resumen orientativo del endpoint del API y otros <strong>campos de contexto</strong> para soporte. Es información dentro del producto; no reemplaza la documentación contractual ni los detalles técnicos internos, que no se publican en estas guías.',
     },
     facturacion: {
       metaTitle: 'Facturación',
