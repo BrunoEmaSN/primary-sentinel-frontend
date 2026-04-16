@@ -1,16 +1,45 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSalesContact } from '@/components/SalesContactProvider';
 import { useI18n } from '@/lib/i18n/I18nProvider';
+import { getPublicPricing, type PublicPricingCatalog } from '@/lib/api';
+
+const PLAN_KEYS = ['basic', 'professional', 'enterprise'] as const;
+
+const FALLBACK_USD: { monthly: number; yearlyPerMonth: number }[] = [
+  { monthly: 0, yearlyPerMonth: 0 },
+  { monthly: 15, yearlyPerMonth: 12 },
+  { monthly: 50, yearlyPerMonth: 42 },
+];
+
+function amountsForPlanIndex(catalog: PublicPricingCatalog | null, idx: number) {
+  const key = PLAN_KEYS[idx];
+  const row = catalog?.plans?.find((p) => p.planKey === key);
+  const fb = FALLBACK_USD[idx] ?? FALLBACK_USD[0]!;
+  if (!row) return fb;
+  return { monthly: row.monthlyUsd, yearlyPerMonth: row.yearlyPerMonthUsd };
+}
 
 export default function LandingPricing() {
   const [yearly, setYearly] = useState(false);
-  const { dict } = useI18n();
+  const [catalog, setCatalog] = useState<PublicPricingCatalog | null>(null);
+  const { dict, locale } = useI18n();
   const { openSalesContact, isSalesContactConfigured } = useSalesContact();
   const p = dict.landing.pricing;
   const plans = p.plans;
+
+  useEffect(() => {
+    void getPublicPricing().then((r) => {
+      if (r.data) setCatalog(r.data);
+    });
+  }, []);
+
+  const yearlyBadge =
+    catalog?.yearlyCommitmentSavingsPercent != null
+      ? `−${catalog.yearlyCommitmentSavingsPercent}%`
+      : p.yearlyDiscount;
 
   return (
     <div>
@@ -56,7 +85,7 @@ export default function LandingPricing() {
         </button>
         <span style={{ fontSize: '12px', color: yearly ? 'var(--text)' : 'var(--muted)' }}>
           {p.yearly}{' '}
-          <span style={{ color: 'var(--accent)', fontFamily: 'var(--font-mono)', fontSize: '10px' }}>{p.yearlyDiscount}</span>
+          <span style={{ color: 'var(--accent)', fontFamily: 'var(--font-mono)', fontSize: '10px' }}>{yearlyBadge}</span>
         </span>
       </div>
 
@@ -69,9 +98,8 @@ export default function LandingPricing() {
         }}
       >
         {plans.map((plan, idx) => {
-          const monthly = idx === 0 ? 0 : idx === 1 ? 15 : 50;
-          const yearlyPrice = idx === 0 ? 0 : idx === 1 ? 12 : 42;
-          const price = yearly ? yearlyPrice : monthly;
+          const { monthly, yearlyPerMonth } = amountsForPlanIndex(catalog, idx);
+          const price = yearly ? yearlyPerMonth : monthly;
           const highlight = idx === 1;
           const cardBg = highlight ? 'var(--bg2)' : 'var(--card)';
           const cardFg = 'var(--text)';
@@ -101,7 +129,8 @@ export default function LandingPricing() {
                   p.freePrice
                 ) : (
                   <>
-                    US${price}
+                    US$
+                    {Number.isInteger(price) ? price : price.toFixed(2)}
                     <span style={{ fontSize: '13px', fontWeight: 500, color: mutedCol }}>{p.perMonth}</span>
                   </>
                 )}
@@ -138,6 +167,35 @@ export default function LandingPricing() {
           );
         })}
       </div>
+
+      {catalog?.discounts && catalog.discounts.length > 0 ? (
+        <div
+          style={{
+            marginTop: '28px',
+            padding: '16px 18px',
+            borderRadius: '10px',
+            border: '1px solid var(--border2)',
+            background: 'var(--bg2)',
+          }}
+        >
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--muted)', marginBottom: '10px' }}>
+            {locale === 'es' ? 'Promociones activas' : 'Active promotions'}
+          </div>
+          <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {catalog.discounts.map((d) => (
+              <li key={d.code}>
+                <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text)' }}>
+                  {d.label}{' '}
+                  <span style={{ color: 'var(--accent)', fontFamily: 'var(--font-mono)' }}>−{d.percentOff}%</span>
+                </div>
+                {d.description ? (
+                  <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '4px', lineHeight: 1.5 }}>{d.description}</div>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
     </div>
   );
 }

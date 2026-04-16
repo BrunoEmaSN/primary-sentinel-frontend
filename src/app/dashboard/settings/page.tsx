@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
 import { getTenantSettings, putTenantSettings, type TenantSettingsApi } from '@/lib/api';
+import { allowPrices } from '@/lib/allowPrices';
 import { useI18n } from '@/lib/i18n/I18nProvider';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8787';
@@ -116,9 +117,11 @@ export default function SettingsPage() {
         <Row label="Plan" sub="Límite free: 1 endpoint activo (API)">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span className="pill pill-active">{s.billing_plan.toUpperCase()}</span>
-            <Link href="/dashboard/billing" style={{ fontSize: '10px', color: 'var(--accent)' }}>
-              Facturación
-            </Link>
+            {allowPrices ? (
+              <Link href="/dashboard/billing" style={{ fontSize: '10px', color: 'var(--accent)' }}>
+                Facturación
+              </Link>
+            ) : null}
           </div>
         </Row>
       </Section>

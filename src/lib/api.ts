@@ -415,6 +415,47 @@ export async function getBillingStatus(): Promise<
   return apiFetch('/api/billing/status');
 }
 
+export type PublicPricingCatalog = {
+  plans: Array<{
+    planKey: string;
+    sortOrder: number;
+    monthlyUsd: number;
+    yearlyPerMonthUsd: number;
+    currency: string;
+    floorMonthlyUsd?: number;
+    floorYearlyPerMonthUsd?: number;
+  }>;
+  discounts: Array<{
+    code: string;
+    label: string;
+    description: string | null;
+    percentOff: number;
+    billingPeriod: string;
+    appliesToPlanKeys: string[] | null;
+    eligibility: Record<string, unknown>;
+  }>;
+  yearlyCommitmentSavingsPercent: number | null;
+};
+
+/** Público: sin JWT. Precios y promociones desde la base (Worker). */
+export async function getPublicPricing(): Promise<ApiResponse<PublicPricingCatalog>> {
+  const url = `${API_URL}/api/public/pricing`;
+  try {
+    const res = await fetch(url, {
+      headers: { 'Content-Type': 'application/json' },
+      cache: 'no-store',
+    });
+    if (!res.ok) {
+      const text = await res.text().catch(() => 'Unknown error');
+      return { error: text || `HTTP ${res.status}` };
+    }
+    const data = (await res.json()) as PublicPricingCatalog;
+    return { data };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : 'Network error' };
+  }
+}
+
 // ─── Operations & métricas ────────────────────────────────────────────────────
 
 export async function getDependencyGraph(): Promise<

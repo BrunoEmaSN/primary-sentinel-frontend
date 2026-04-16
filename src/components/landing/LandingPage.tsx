@@ -7,6 +7,7 @@ import { IconArrowRight } from '@/components/icons/Arrows';
 import LandingPricing from '@/components/landing/LandingPricing';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useI18n } from '@/lib/i18n/I18nProvider';
+import { allowPrices } from '@/lib/allowPrices';
 
 const gridBg = {
   position: 'fixed' as const,
@@ -280,7 +281,7 @@ export default function LandingPage() {
             {[
               ['#producto', t('landing.navProduct')],
               ['#features', t('landing.navFeatures')],
-              ['#pricing', t('landing.navPricing')],
+              ...(allowPrices ? ([['#pricing', t('landing.navPricing')]] as const) : []),
               ['#faq', t('landing.navFaq')],
             ].map(([href, label]) => (
               <a
@@ -733,11 +734,12 @@ export default function LandingPage() {
           </div>
         </section> */}
 
-        {/* Pricing */}
-        {/* <section id="pricing" style={{ maxWidth: '1040px', margin: '0 auto', padding: '0 20px 64px' }}>
-          {sectionTitle(L.pricingKicker, L.pricingTitle, L.pricingSubtitle)}
-          <LandingPricing />
-        </section> */}
+        {allowPrices ? (
+          <section id="pricing" style={{ maxWidth: '1040px', margin: '0 auto', padding: '0 20px 64px' }}>
+            {sectionTitle(L.pricingKicker, L.pricingTitle, L.pricingSubtitle)}
+            <LandingPricing />
+          </section>
+        ) : null}
 
         {/* FAQ */}
         <section id="faq" style={{ maxWidth: '920px', margin: '0 auto', padding: '0 20px 64px' }}>
@@ -857,11 +859,13 @@ export default function LandingPage() {
                   {t('landing.footerCapabilities')}
                 </a>
               </li>
-              <li>
-                <a href="#pricing" style={{ fontSize: '12px', color: 'var(--text)', textDecoration: 'none' }}>
-                  {t('landing.footerPricing')}
-                </a>
-              </li>
+              {allowPrices ? (
+                <li>
+                  <a href="#pricing" style={{ fontSize: '12px', color: 'var(--text)', textDecoration: 'none' }}>
+                    {t('landing.footerPricing')}
+                  </a>
+                </li>
+              ) : null}
               <li>
                 <a href="#faq" style={{ fontSize: '12px', color: 'var(--text)', textDecoration: 'none' }}>
                   {t('landing.footerFaq')}
