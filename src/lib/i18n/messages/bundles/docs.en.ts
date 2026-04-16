@@ -36,12 +36,12 @@ export const docsEn = {
         'Primary Sentinel as SaaS: multi-tenant, observability over endpoints and workloads, and AI-assisted autonomous reliability & security intelligence.',
       title: 'Introduction',
       p1:
-        '<strong>Primary Sentinel</strong> is a <strong>SaaS</strong> for teams that need <strong>observability and governance</strong> over webhook ingestion and destinations: AI-assisted repair rules, incident queues, and alerts. Each customer works in their own <strong>tenant</strong> (logical isolation of data and settings); the dashboard and API use the Supabase session to enforce those boundaries.',
+        '<strong>Primary Sentinel</strong> is a <strong>SaaS</strong> for teams that need <strong>observability and governance</strong> over webhook ingestion and destinations: AI-assisted repair rules, incident queues, and alerts. Each customer works in their own <strong>tenant</strong> (logical isolation of data and settings); the dashboard and API enforce those boundaries from your account session and permissions.',
       hWhat: 'What the product solves',
       liWhat: [
         '<strong>Visibility</strong> — Metrics, flow diagram, and operations without building a generic monitoring stack yourself.',
         '<strong>Action</strong> — Rules that fix or route problematic events; what cannot be healed goes to <strong>Dead Letter</strong> for human review.',
-        '<strong>Integration</strong> — Documented REST API and ingestion webhooks; the deployed backend (e.g. Cloudflare Worker) scales with the service.',
+        '<strong>Integration</strong> — Documented REST API and ingestion webhooks; the service scales with your event volume.',
       ],
       hFlow: 'Typical flow in the dashboard',
       liFlow: [
@@ -50,47 +50,30 @@ export const docsEn = {
         '<strong>Operations</strong> — Under <strong>Operations</strong> you review dependencies, AI history, and stage metrics.',
         '<strong>AI rules</strong> — You manage repair rules (approve, edit, or delete).',
         '<strong>Incidents</strong> — Anything the system could not repair automatically appears in <strong>Dead Letter</strong> for retry or discard.',
-        '<strong>Alerts</strong> — <strong>Notifications</strong> in the app (Realtime) and channels configured under <strong>Settings</strong> (email, Slack, signed webhook).',
+        '<strong>Alerts</strong> — <strong>Notifications</strong> in the app in real time and channels configured under <strong>Settings</strong> (email, Slack, signed webhook).',
         '<strong>Plan</strong> — <strong>Billing</strong> summarizes your SaaS plan and payment roadmap.',
       ],
-      hStack: 'Stack overview',
+      hStack: 'Documentation by topic',
       pStack:
-        'The frontend (Next.js) uses <strong>Supabase</strong> authentication and calls the <strong>product API</strong> with a JWT. Public variables (<code>NEXT_PUBLIC_*</code>) and the API URL are set per environment (local or Vercel). Step-by-step setup in <a href="/docs/empezar">Getting started</a>.',
+        'Go deeper from the app itself: <a href="/docs/empezar">Getting started</a>, <a href="/docs/dashboard">Dashboard</a>, <a href="/docs/flujos">Flows</a>, <a href="/docs/operaciones">Operations</a>, <a href="/docs/reglas">AI rules</a>, <a href="/docs/dlq">Dead Letter</a>, <a href="/docs/notificaciones">Notifications</a>, <a href="/docs/configuracion">Settings</a>, <a href="/docs/facturacion">Billing</a>, and <a href="/docs/api">API & webhooks</a>. You do not need to know the internal stack to operate the product.',
     },
     empezar: {
       metaTitle: 'Getting started',
-      metaDesc: 'Sign-up, environment variables, Supabase, API, and deploying Primary Sentinel.',
+      metaDesc: 'Sign-up, first access to the dashboard, and map of in-app documentation.',
       title: 'Getting started',
       p1:
-        'Primary Sentinel is used as a <strong>service</strong>: you create an account (email/password or OAuth), get an implicit <strong>tenant</strong> tied to your Supabase user, and the dashboard talks to the deployed backend that exposes the REST API. In development you run the frontend and point it at a local Worker or a shared environment.',
-      h1: '1. Install dependencies',
-      pInstall: 'To contribute or run the dashboard locally, in the frontend directory:',
-      h2: '2. Environment variables',
-      pEnv:
-        'Copy <code>.env.example</code> to <code>.env.local</code> and fill in real values (no placeholders). <code>NEXT_PUBLIC_*</code> keys are injected into the client bundle: use only the Supabase <strong>anon</strong> key, never <code>service_role</code>.',
-      pEnvExample: 'Example contents:',
-      h3: '3. Run locally',
-      h4: '4. Account and sign-in',
+        'Primary Sentinel is a <strong>cloud service</strong>: you create an account (email/password or OAuth), get an isolated space for your organization (<strong>tenant</strong>), and the dashboard guides you to connect data, review operations, and manage incidents. You do not need to install software to use the product.',
+      hExplore: 'Documentation by topic in the app',
+      pExplore:
+        'Each guide lives under <code>/docs/…</code>. You can open directly: <a href="/docs">introduction</a> (<code>/docs</code>), <a href="/docs/dashboard">main dashboard</a> (<code>/docs/dashboard</code>), <a href="/docs/flujos">flows and webhooks</a> (<code>/docs/flujos</code>), <a href="/docs/operaciones">operations</a> (<code>/docs/operaciones</code>), <a href="/docs/reglas">AI rules</a> (<code>/docs/reglas</code>), <a href="/docs/dlq">Dead Letter</a> (<code>/docs/dlq</code>), <a href="/docs/notificaciones">notifications</a> (<code>/docs/notificaciones</code>), <a href="/docs/configuracion">settings</a> (<code>/docs/configuracion</code>), <a href="/docs/facturacion">billing</a> (<code>/docs/facturacion</code>), and <a href="/docs/api">API & webhooks</a> (<code>/docs/api</code>).',
+      hSignIn: 'Account and sign-in',
       pAuth:
-        'After opening the site, if there is no session you are redirected to <code>/auth</code>. You can register with email and password or the OAuth provider configured in Supabase (e.g. Google). With a successful login you reach the <a href="/dashboard">dashboard</a> (<code>/dashboard</code>), where all API routes carry your JWT and the backend resolves the <strong>tenant</strong>.',
-      pAuthFail:
-        'If login fails, check <code>NEXT_PUBLIC_SUPABASE_URL</code> and <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code>, and restart the dev server after changing <code>.env.local</code>.',
-      h5: '5. Production (Vercel or other host)',
-      pProd:
-        'Set the same <code>NEXT_PUBLIC_*</code> variables in your host’s dashboard (e.g. Vercel). <code>NEXT_PUBLIC_API_URL</code> must point to the Worker or API in production. Also set <code>NEXT_PUBLIC_SITE_URL</code> if you use OAuth, aligned with Supabase allowed URLs and with <code>ALLOWED_ORIGINS</code> / CORS on the backend.',
-      codeInstall: 'npm install',
-      codeCpEnv: 'cp .env.example .env.local',
-      codeEnvExample: `# Supabase — Settings / API (anon / public key)
-NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
-
-# Public site URL (production: same origin as in Supabase Redirect URLs)
-# NEXT_PUBLIC_SITE_URL=https://your-app.vercel.app
-
-# SaaS backend (local Worker or deployed URL)
-NEXT_PUBLIC_API_URL=http://localhost:8787`,
-      codeDev: `npm run dev
-# Then open http://localhost:3000 in the browser`,
+        'If there is no active session, the app sends you to <code>/auth</code>. After sign-in you reach the <a href="/dashboard">dashboard</a> (<code>/dashboard</code>), where everything you see is scoped to your <strong>tenant</strong>.',
+      pAuthHelp:
+        'If you cannot sign in, verify credentials and the account recovery flow. For technical integrations continue with <a href="/docs/api">API & webhooks</a> and <a href="/docs/flujos">Flows</a>; if the issue persists, contact support.',
+      hSupport: 'Private installs or custom environments',
+      pSupport:
+        'Environment provisioning, keys, and deployments are handled by your organization or enterprise agreements with Primary Sentinel; those details are not part of the public product documentation.',
     },
     dashboard: {
       metaTitle: 'Dashboard',
@@ -117,10 +100,10 @@ NEXT_PUBLIC_API_URL=http://localhost:8787`,
         'At <code>/dashboard/flows</code> you manage SaaS <strong>endpoints</strong>: each belongs to your <strong>tenant</strong> and has metadata, schema, destinations, and a <strong>webhook URL</strong> your systems call to send events (test or production).',
       hCreate: 'Create and edit endpoints',
       pCreate:
-        'Changes are persisted in the multi-tenant backend; the dashboard uses the session JWT so you only see and modify resources for your account.',
+        'Changes are persisted in the multi-tenant backend; with an active session you only see and modify resources for your account.',
       hWebhook: 'Ingestion webhook',
       pWebhook:
-        'The backend exposes <code>POST /webhook/:tenantId/:slug</code>. <code>tenantId</code> matches the user/tenant id shown under <a href="/docs/configuracion">Settings</a>. Authenticated REST calls use <code>Authorization: Bearer &lt;JWT&gt;</code> (see <a href="/docs/api">API & webhooks</a>).',
+        'The service exposes <code>POST /webhook/:tenantId/:slug</code>. <code>tenantId</code> matches the identifier shown under <a href="/docs/configuracion">Settings</a>. Authenticated REST calls send a session token in <code>Authorization: Bearer …</code> (see <a href="/docs/api">API & webhooks</a>).',
       hEvents: 'Events per endpoint',
       pEvents:
         'You can list and inspect events for an endpoint to debug integrations before AI rules run or items land in DLQ.',
@@ -129,10 +112,8 @@ NEXT_PUBLIC_API_URL=http://localhost:8787`,
       metaTitle: 'Operations',
       metaDesc: 'Dependency map, AI history, stage metrics, and heuristic suggestions.',
       title: 'Operations',
-      p1Before:
-        'The <code>/dashboard/operations</code> view is for SaaS <strong>operators</strong>: it summarizes how your endpoints connect to destinations, recent AI engine decisions, and per-stage metrics (Worker',
-      p1After:
-        'Supabase). Data is <strong>per tenant</strong>: you only see what belongs to your account.',
+      p1:
+        'The <code>/dashboard/operations</code> view is for SaaS <strong>operators</strong>: it summarizes how your endpoints connect to destinations, recent AI engine decisions, and per-stage metrics. Data is <strong>per tenant</strong>: you only see what belongs to your account.',
       hMap: 'Endpoint → destinations map',
       pMap:
         'Shows nodes (your endpoints) and edges linking sources to destinations. Use it to understand the dependency graph without opening each flow separately. If you have not created endpoints yet, you see an empty state until you configure <a href="/docs/flujos">Flows</a>.',
@@ -147,7 +128,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8787`,
         'The API may return suggestions from recent samples (severity + text). They are hints to prioritize schema, rule, or connectivity improvements—not a substitute for team judgment.',
       hApi: 'Related API',
       pApi:
-        'Routes used by this screen include <code>GET /api/operations/dependency-graph</code>, <code>GET /api/operations/ai-history</code>, <code>GET /api/metrics/stages</code>, and <code>GET /api/suggestions/heuristics</code>. They require a session JWT; details in <a href="/docs/api">API & webhooks</a>.',
+        'Routes used by this screen include <code>GET /api/operations/dependency-graph</code>, <code>GET /api/operations/ai-history</code>, <code>GET /api/metrics/stages</code>, and <code>GET /api/suggestions/heuristics</code>. They require an authenticated session; details in <a href="/docs/api">API & webhooks</a>.',
     },
     reglas: {
       metaTitle: 'AI rules',
@@ -176,7 +157,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8787`,
         'Usually recurrent errors, out-of-schema data, or situations not covered by current rules. Use it to prioritize rule improvements or fixes upstream.',
       hReinject: 'Reinjection and snapshots',
       pReinject:
-        'The API exposes reinjection with optional corrected payload (<code>POST /api/dlq/:id/reinject</code>), listing snapshots per event, and diffing versions for audit. Exact behavior depends on the deployed Worker version.',
+        'The API exposes reinjection with optional corrected payload (<code>POST /api/dlq/:id/reinject</code>), listing snapshots per event, and diffing versions for audit. Exact behavior may vary with the service version.',
       hDiscard: 'Discard',
       pDiscard:
         'You can remove a DLQ record when you decide not to reprocess it (<code>DELETE /api/dlq/:id</code>), according to backend retention policies.',
@@ -186,13 +167,13 @@ NEXT_PUBLIC_API_URL=http://localhost:8787`,
       metaDesc: 'In-app notification center and tenant channels in Primary Sentinel.',
       title: 'In-app notifications',
       p1:
-        'The <code>/dashboard/notifications</code> route concentrates <strong>real-time</strong> alerts inside the product. The frontend subscribes to the <code>notifications</code> table in Supabase via <strong>Realtime</strong>, so alerts appear without reload when the backend inserts rows for your <strong>tenant</strong>.',
+        'The <code>/dashboard/notifications</code> route concentrates <strong>real-time</strong> alerts inside the product: items appear without reload when the service records updates for your <strong>tenant</strong>.',
       hBackend: 'What the backend must do',
       pBackend:
-        'The SaaS API should insert rows into <code>notifications</code> on relevant milestones (rules, healings, unrecoverable cases, etc.). <code>tenant_id</code> must align with the authenticated user so <strong>RLS</strong> policies only return your notifications.',
-      hSchema: 'Suggested schema (SQL)',
-      pAfterSchema:
-        'Types can be extended if the product requires; keep them consistent with what the dashboard shows.',
+        'The service should record notifications on relevant milestones (rules, healings, unrecoverable cases, etc.), always tied to the correct tenant so you only see your own.',
+      hSchema: 'Typical notification content',
+      pSchema:
+        'Usually includes event type (e.g. healed, Dead Letter, new or pending rule), title, optional body, read flag, and timestamp. Concrete values should match what the dashboard displays.',
       hChannels: 'Email, Slack, and webhooks',
       pChannels:
         'Beyond the on-screen center, you can enable <strong>Resend</strong>, <strong>Slack</strong>, and a <strong>signed alert webhook</strong> from <a href="/docs/configuracion">Settings</a> to route the same incidents to your team’s channels.',
@@ -209,12 +190,9 @@ NEXT_PUBLIC_API_URL=http://localhost:8787`,
       hNotif: 'Notifications: Resend, Slack, and signed webhook',
       pNotif:
         'You can enable <strong>email</strong> (healings, DLQ, pending rules), a Slack <strong>Incoming Webhook</strong> for incident summaries, and your own <strong>HTTPS webhook</strong> with <code>HMAC-SHA256</code> in the <code>X-Sentinel-Signature</code> header (shared secret). These run in parallel with the in-app notification center.',
-      hInfra: 'Infrastructure (reference)',
+      hInfra: 'Operational signals',
       pInfra:
-        'The screen summarizes the <strong>API</strong> origin (Worker URL) and the typical stack: Supabase (Postgres), cache (e.g. Redis/Upstash), DLQ storage (e.g. R2), and email (Resend). It is informational for support and operational transparency; it does not replace your cloud provider’s console.',
-      hEnv: 'Frontend environment variables',
-      pEnv:
-        'Public keys (<code>NEXT_PUBLIC_*</code>) are set at build time or in Vercel; they are not edited from this screen. For local development use <code>.env.local</code> as in <a href="/docs/empezar">Getting started</a>.',
+        'You may see a contextual summary of the API endpoint and other support-oriented data. It is in-product context only; it does not replace contractual documentation or internal technical details, which are not published in these guides.',
     },
     facturacion: {
       metaTitle: 'Billing',
@@ -237,15 +215,15 @@ NEXT_PUBLIC_API_URL=http://localhost:8787`,
     },
     api: {
       metaTitle: 'API & webhooks',
-      metaDesc: 'Supabase JWT auth, Primary Sentinel REST routes, and ingestion webhooks.',
+      metaDesc: 'Authenticated session, Primary Sentinel REST routes, and ingestion webhooks.',
       title: 'API & webhooks',
       p1:
-        'The dashboard is a client of the <strong>product API</strong> (e.g. Cloudflare Worker). Authenticated requests send the <strong>Supabase session JWT</strong> as <code>Authorization: Bearer &lt;token&gt;</code>; the backend validates the user and enforces <strong>tenant</strong> isolation. Public ingestion webhooks do not use that JWT (they use the path <code>tenantId</code> and endpoint slug).',
-      hClient: 'Client code',
+        'The dashboard consumes the <strong>product API</strong> with your signed-in session. Authenticated requests send a <strong>session token</strong> as <code>Authorization: Bearer &lt;token&gt;</code>; the service validates the user and enforces <strong>tenant</strong> isolation. Ingestion webhooks do not use that header: they identify tenant and endpoint in the path itself.',
+      hCliente: 'Integration best practices',
       pClient:
-        'HTTP is centralized in <code>src/lib/api.ts</code>: keep paths, retries, and headers there to avoid duplicating logic in components.',
+        'Centralize paths, retries, and headers in a single HTTP client in your application to avoid duplicating logic and to make credential rotation easier.',
       hRest: 'Common REST endpoints',
-      pRest: 'Patterns exposed by the Worker (prefix from your <code>NEXT_PUBLIC_API_URL</code> deployment):',
+      pRest: 'Common API patterns (base URL is the Primary Sentinel environment you are using):',
       thMethod: 'Method',
       thPath: 'Path',
       thUse: 'Purpose',
@@ -269,13 +247,13 @@ NEXT_PUBLIC_API_URL=http://localhost:8787`,
         { method: 'GET', path: '/api/operations/ai-history', use: 'AI decision history' },
         { method: 'GET', path: '/api/metrics/stages', use: 'Stage metrics (query hours)' },
         { method: 'GET', path: '/api/suggestions/heuristics', use: 'Heuristic suggestions' },
-        { method: 'GET', path: '/api/public/slo', use: 'Public SLO (no JWT)' },
+        { method: 'GET', path: '/api/public/slo', use: 'Public SLO (no session)' },
       ],
       hWebhook: 'Ingestion webhook',
       pWebhookIngest: 'Event ingestion (JSON body)',
       hCors: 'Base URL and CORS',
       pCors:
-        'The base URL comes from <code>NEXT_PUBLIC_API_URL</code> per environment. The backend must allow the frontend origin (e.g. your Vercel domain) in CORS / <code>ALLOWED_ORIGINS</code>.',
+        'Use HTTPS and the base URL provided by your administrator or the official deployment. For server-to-server integrations, agree origins and CORS policy with whoever runs the environment.',
     },
   },
 } as const;

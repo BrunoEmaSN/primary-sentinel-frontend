@@ -16,7 +16,7 @@ export default async function DocsApiPage() {
       <h1>{p.title}</h1>
       <DocHtml html={p.p1} />
 
-      <h2>{p.hClient}</h2>
+      <h2>{p.hCliente}</h2>
       <DocHtml html={p.pClient} />
 
       <h2>{p.hRest}</h2>

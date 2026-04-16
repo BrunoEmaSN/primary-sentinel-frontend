@@ -81,7 +81,7 @@ export const es = {
   },
   landing: {
     navProduct: 'Producto',
-    navFeatures: 'Capacidades',
+    navFeatures: 'Características',
     navPricing: 'Precios',
     navFaq: 'FAQ',
     signIn: 'Iniciar sesión',
@@ -90,12 +90,12 @@ export const es = {
     heroSubtitle:
       'Primary Sentinel detecta fallos, propone correcciones y mantiene tus datos en marcha. Un solo panel para observabilidad y recuperación automática.',
     ctaStart: 'Comenzar',
-    ctaSecondary: 'Ver capacidades',
+    ctaSecondary: 'Ver Características',
     footerTagline: 'Observabilidad y recuperación para ingesta y destinos, con IA supervisada.',
     footerProduct: 'PRODUCTO',
     footerAccount: 'CUENTA',
     footerLegal: 'LEGAL',
-    footerCapabilities: 'Capacidades',
+    footerCapabilities: 'Características',
     footerPricing: 'Precios',
     footerFaq: 'FAQ',
     footerSignIn: 'Iniciar sesión',

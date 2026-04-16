@@ -23,9 +23,6 @@ export default async function DocsConfiguracionPage() {
 
       <h2>{p.hInfra}</h2>
       <DocHtml html={p.pInfra} />
-
-      <h2>{p.hEnv}</h2>
-      <DocHtml html={p.pEnv} />
     </>
   );
 }

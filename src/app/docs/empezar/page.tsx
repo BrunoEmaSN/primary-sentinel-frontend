@@ -15,33 +15,15 @@ export default async function DocsEmpezarPage() {
       <h1>{p.title}</h1>
       <DocHtml html={p.p1} />
 
-      <h2>{p.h1}</h2>
-      <DocHtml html={p.pInstall} />
-      <pre>
-        <code>{p.codeInstall}</code>
-      </pre>
+      <h2>{p.hExplore}</h2>
+      <DocHtml html={p.pExplore} />
 
-      <h2>{p.h2}</h2>
-      <DocHtml html={p.pEnv} />
-      <pre>
-        <code>{p.codeCpEnv}</code>
-      </pre>
-      <p>{p.pEnvExample}</p>
-      <pre>
-        <code>{p.codeEnvExample}</code>
-      </pre>
-
-      <h2>{p.h3}</h2>
-      <pre>
-        <code>{p.codeDev}</code>
-      </pre>
-
-      <h2>{p.h4}</h2>
+      <h2>{p.hSignIn}</h2>
       <DocHtml html={p.pAuth} />
-      <DocHtml html={p.pAuthFail} />
+      <DocHtml html={p.pAuthHelp} />
 
-      <h2>{p.h5}</h2>
-      <DocHtml html={p.pProd} />
+      <h2>{p.hSupport}</h2>
+      <DocHtml html={p.pSupport} />
     </>
   );
 }

@@ -2,7 +2,6 @@ import { DocHtml } from '@/components/docs/DocHtml';
 import { docsPageMetadata } from '@/lib/i18n/docsMeta';
 import { getDictionary } from '@/lib/i18n/messages';
 import { getLocaleFromCookie } from '@/lib/i18n/getLocale';
-import { IconArrowRight } from '@/components/icons/Arrows';
 
 export async function generateMetadata() {
   return docsPageMetadata('operaciones');
@@ -15,9 +14,7 @@ export default async function DocsOperacionesPage() {
     <>
       <h1>{p.title}</h1>
       <p>
-        <DocHtml html={p.p1Before} as="span" />{' '}
-        <IconArrowRight size={12} style={{ verticalAlign: 'middle', display: 'inline-block', margin: '0 2px' }} />{' '}
-        <DocHtml html={p.p1After} as="span" />
+        <DocHtml html={p.p1} as="span" />
       </p>
 
       <h2>{p.hMap}</h2>
