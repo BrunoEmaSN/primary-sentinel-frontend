@@ -122,13 +122,17 @@ export default function AuthPage() {
     }
     setLoading(true);
     try {
+      const emailNorm = email.trim().toLowerCase();
       if (mode === 'login') {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabase.auth.signInWithPassword({
+          email: emailNorm,
+          password,
+        });
         if (error) setError(error.message);
         else router.push('/dashboard');
       } else {
         const { error } = await supabase.auth.signUp({
-          email,
+          email: emailNorm,
           password,
           options: { emailRedirectTo: getOAuthCallbackUrl() },
         });
