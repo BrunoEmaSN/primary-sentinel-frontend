@@ -17,10 +17,13 @@ import {
   useRef,
   useEffect,
   useCallback,
+  type AnchorHTMLAttributes,
   type CSSProperties,
   type KeyboardEvent,
 } from "react";
 import Image from "next/image";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { useI18n } from "@/lib/i18n/I18nProvider";
 import type { Locale } from "@/lib/i18n/types";
 
@@ -111,6 +114,20 @@ function messageForWorkerFailure(data: unknown, t: (key: string) => string): str
 
   return t("arsiChat.connectionError");
 }
+
+const CHAT_MARKDOWN_PLUGINS = [remarkGfm];
+
+function ChatMarkdownAnchor(props: AnchorHTMLAttributes<HTMLAnchorElement>) {
+  const { href, children, ...rest } = props;
+  const external = typeof href === "string" && /^https?:\/\//i.test(href);
+  return (
+    <a href={href} {...rest} {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
+      {children}
+    </a>
+  );
+}
+
+const CHAT_MARKDOWN_COMPONENTS = { a: ChatMarkdownAnchor };
 
 // ─── Componente principal ─────────────────────────────────────────────────────
 export default function SentinelChat({
@@ -338,6 +355,70 @@ export default function SentinelChat({
           border: 1px solid var(--border);
           word-break: break-word;
         }
+        .sc-bubble-bot:has(.sc-md) { overflow-x: auto; }
+        .sc-md { font-size: 12px; line-height: 1.55; word-break: break-word; }
+        .sc-md > *:first-child { margin-top: 0; }
+        .sc-md > *:last-child { margin-bottom: 0; }
+        .sc-md p { margin: 0.45em 0; }
+        .sc-md p:first-child { margin-top: 0; }
+        .sc-md p:last-child { margin-bottom: 0; }
+        .sc-md ul, .sc-md ol { margin: 0.4em 0; padding-left: 1.2em; }
+        .sc-md li { margin: 0.12em 0; }
+        .sc-md li > p { margin: 0.2em 0; }
+        .sc-md h1, .sc-md h2, .sc-md h3, .sc-md h4 {
+          font-size: 1.05em;
+          font-weight: 600;
+          margin: 0.55em 0 0.3em;
+          line-height: 1.35;
+        }
+        .sc-md h1:first-child, .sc-md h2:first-child, .sc-md h3:first-child, .sc-md h4:first-child { margin-top: 0; }
+        .sc-md code {
+          font-family: var(--font-mono), ui-monospace, monospace;
+          font-size: 0.9em;
+          background: var(--bg3);
+          padding: 0.1em 0.35em;
+          border-radius: 4px;
+        }
+        .sc-md pre {
+          margin: 0.5em 0;
+          padding: 8px 10px;
+          background: var(--bg);
+          border: 1px solid var(--border);
+          border-radius: 8px;
+          overflow-x: auto;
+          max-width: 100%;
+        }
+        .sc-md pre code {
+          background: transparent;
+          padding: 0;
+          font-size: 0.88em;
+          white-space: pre;
+        }
+        .sc-md a { color: var(--sc-primary); text-decoration: underline; text-underline-offset: 2px; }
+        .sc-md a:hover { opacity: 0.9; }
+        .sc-md blockquote {
+          margin: 0.45em 0;
+          padding: 0.2em 0 0.2em 10px;
+          border-left: 3px solid var(--border2);
+          color: var(--muted);
+        }
+        .sc-md strong { font-weight: 600; }
+        .sc-md hr { border: none; border-top: 1px solid var(--border); margin: 0.65em 0; }
+        .sc-md table {
+          border-collapse: collapse;
+          width: 100%;
+          font-size: 0.95em;
+          margin: 0.5em 0;
+          max-width: 100%;
+        }
+        .sc-md th, .sc-md td {
+          border: 1px solid var(--border);
+          padding: 5px 8px;
+          text-align: left;
+          vertical-align: top;
+        }
+        .sc-md th { background: var(--bg3); font-weight: 600; }
+        .sc-md tbody tr:nth-child(even) { background: rgba(255,255,255,.02); }
         .sc-time { font-size: 10px; font-family: var(--font-mono), monospace; color: var(--muted); margin-top: 4px; }
         .sc-typing { display: flex; gap: 4px; padding: 10px 12px; align-items: center; }
         .sc-typing span {
@@ -480,7 +561,20 @@ export default function SentinelChat({
           <div className="sc-messages" role="log" aria-live="polite">
             {messages.map((msg) => (
               <div key={msg.id} className={`sc-msg ${msg.role === "user" ? "user" : "bot"}`}>
-                <div className={msg.role === "user" ? "sc-bubble-user" : "sc-bubble-bot"}>{msg.content}</div>
+                <div className={msg.role === "user" ? "sc-bubble-user" : "sc-bubble-bot"}>
+                  {msg.role === "user" ? (
+                    msg.content
+                  ) : (
+                    <div className="sc-md">
+                      <ReactMarkdown
+                        remarkPlugins={CHAT_MARKDOWN_PLUGINS}
+                        components={CHAT_MARKDOWN_COMPONENTS}
+                      >
+                        {msg.content}
+                      </ReactMarkdown>
+                    </div>
+                  )}
+                </div>
                 <span className="sc-time">
                   {timeReady
                     ? new Date().toLocaleTimeString(timeLocale, { hour: "2-digit", minute: "2-digit" })
