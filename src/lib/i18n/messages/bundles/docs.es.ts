@@ -2,14 +2,14 @@
 export const docsEs = {
   layoutTitle: 'Documentación',
   layoutDescription:
-    'Guía del producto SaaS Primary Sentinel: cuenta multi-tenant, panel, operaciones, DLQ, planes e integración API.',
+    'Guía del producto SaaS Primary Sentinel: cuenta multi-tenant, panel, operaciones, DLQ, planes y uso del API.',
   layoutOgTitle: 'Documentación — Primary Sentinel',
   layoutOgDescription:
     'SaaS de observabilidad e inteligencia autónoma de fiabilidad y seguridad sobre ingesta y cargas de trabajo: documentación para equipos y administradores de tenant.',
   nav: {
     intro: 'Intro',
     app: 'App',
-    integration: 'Integración',
+    integration: 'Conexión',
     backHome: 'Volver al inicio',
     goDashboard: 'Ir al panel',
     docsBadge: 'DOCS',
@@ -36,12 +36,12 @@ export const docsEs = {
         'SaaS multi-tenant para observar y autoreparar la ingesta por webhooks; reglas IA, DLQ y alertas sin posicionarse como acceso a almacenes de negocio.',
       title: 'Introducción',
       p1:
-        '<strong>Primary Sentinel</strong> es un <strong>SaaS</strong> para equipos que necesitan <strong>observabilidad y gobierno</strong> sobre ingesta por webhooks y destinos: reglas de reparación asistidas por IA, colas de incidentes y alertas. Cada cliente trabaja en su propio <strong>tenant</strong> (aislamiento lógico de <strong>configuración y telemetría del pipeline</strong>); el panel y la API aplican esos límites según tu sesión y permisos de cuenta.<br/><br/><strong>Alcance:</strong> la función del servicio es <strong>autoreparar la ingesta</strong> hacia tus destinos; no ofrecemos acceso genérico a tus almacenes de datos ni sustituimos tus herramientas de análisis. Los artefactos mínimos que el servicio <strong>persiste</strong> ligados a la ingesta (payloads de eventos, copias en cola <strong>DLQ</strong> y <strong>snapshots</strong> de reinyección) se guardan <strong>cifrados en reposo</strong> con <strong>AES-GCM</strong> y material de claves derivado del <strong>tenant ID</strong> (HKDF), para conservar el <strong>aislamiento criptográfico</strong> entre organizaciones.',
+        '<strong>Primary Sentinel</strong> es un <strong>SaaS</strong> para equipos que necesitan <strong>observabilidad y gobierno</strong> sobre ingesta por webhooks y destinos: reglas de reparación asistidas por IA, colas de incidentes y alertas. Cada cliente trabaja en su propio <strong>tenant</strong> (aislamiento lógico de <strong>configuración y telemetría del pipeline</strong>); el panel y la API aplican esos límites según tu sesión y permisos de cuenta.<br/><br/><strong>Alcance:</strong> la función del servicio es <strong>autoreparar la ingesta</strong> hacia tus destinos; no ofrecemos acceso genérico a tus almacenes de datos ni sustituimos tus herramientas de análisis. Los artefactos mínimos que el servicio <strong>persiste</strong> ligados a la ingesta (payloads de eventos, copias en cola <strong>DLQ</strong> y <strong>snapshots</strong> de reinyección) se guardan <strong>cifrados en reposo</strong> con <strong>separación estricta entre organizaciones</strong>.',
       hWhat: 'Qué resuelve el producto',
       liWhat: [
-        '<strong>Visibilidad</strong> — Métricas, diagrama de flujo y operaciones sin montar tu propio stack de monitorización genérico.',
+        '<strong>Visibilidad</strong> — Métricas, diagrama de flujo y operaciones sin montar por tu cuenta un sistema genérico de monitorización.',
         '<strong>Acción</strong> — Reglas que corrigen o enrutan eventos problemáticos; lo que no se puede sanar va a <strong>Dead Letter</strong> para revisión humana.',
-        '<strong>Integración</strong> — API REST y webhooks de ingesta documentados; el servicio escala con tu volumen de eventos.',
+        '<strong>Conexión</strong> — API HTTP documentada y webhooks de ingesta; el servicio escala con tu volumen de eventos.',
       ],
       hFlow: 'Flujo general en el panel',
       liFlow: [
@@ -50,19 +50,19 @@ export const docsEs = {
         '<strong>Operaciones</strong> — En <strong>Operaciones</strong> revisás dependencias, historial IA y métricas por etapa.',
         '<strong>Reglas IA</strong> — Gestionás reglas de reparación (aprobar, editar o eliminar).',
         '<strong>Incidentes</strong> — Lo que no se sanó automáticamente aparece en <strong>Dead Letter</strong> para reintento o descarte.',
-        '<strong>Alertas</strong> — <strong>Notificaciones</strong> en el panel en tiempo real y canales configurables en <strong>Configuración</strong> (email, Slack, webhook firmado).',
+        '<strong>Alertas</strong> — <strong>Notificaciones</strong> en el panel en tiempo real y canales configurables en <strong>Configuración</strong> (email, mensajería de equipo si la activás, webhook firmado hacia tu URL).',
         '<strong>Plan</strong> — <strong>Facturación</strong> resume tu plan SaaS y el roadmap de pagos.',
       ],
       hStack: 'Documentación por tema',
       pStack:
-        'Profundizá desde la propia app: <a href="/docs/empezar">Primeros pasos</a>, <a href="/docs/dashboard">Dashboard</a>, <a href="/docs/flujos">Flujos</a>, <a href="/docs/operaciones">Operaciones</a>, <a href="/docs/reglas">Reglas IA</a>, <a href="/docs/dlq">Dead Letter</a>, <a href="/docs/notificaciones">Notificaciones</a>, <a href="/docs/configuracion">Configuración</a>, <a href="/docs/facturacion">Facturación</a> e <a href="/docs/api">API y webhooks</a>. No necesitás conocer el stack interno para operar el producto.',
+        'Profundizá desde la propia app: <a href="/docs/empezar">Primeros pasos</a>, <a href="/docs/dashboard">Dashboard</a>, <a href="/docs/flujos">Flujos</a>, <a href="/docs/operaciones">Operaciones</a>, <a href="/docs/reglas">Reglas IA</a>, <a href="/docs/dlq">Dead Letter</a>, <a href="/docs/notificaciones">Notificaciones</a>, <a href="/docs/configuracion">Configuración</a>, <a href="/docs/facturacion">Facturación</a> e <a href="/docs/api">API y webhooks</a>. No necesitás conocer detalles de implementación internos para operar el producto.',
     },
     empezar: {
       metaTitle: 'Primeros pasos',
       metaDesc: 'Alta en el SaaS, primer acceso al panel y mapa de la documentación en la app.',
       title: 'Primeros pasos',
       p1:
-        'Primary Sentinel es un <strong>servicio en la nube</strong>: creás tu cuenta (email/contraseña u OAuth), obtenés un espacio aislado para tu organización (<strong>tenant</strong>) y el panel te guía para <strong>configurar la ingesta</strong>, revisar operaciones y gestionar incidentes del pipeline. No necesitás instalar software para usar el producto.',
+        'Primary Sentinel es un <strong>servicio en la nube</strong>: creás tu cuenta desde la pantalla de acceso (según las opciones disponibles), obtenés un espacio aislado para tu organización (<strong>tenant</strong>) y el panel te guía para <strong>configurar la ingesta</strong>, revisar operaciones y gestionar incidentes del pipeline. No necesitás instalar software para usar el producto.',
       hExplore: 'Documentación por tema en la app',
       pExplore:
         'Cada guía vive bajo <code>/docs/…</code>. Podés abrir directamente: <a href="/docs">introducción</a> (<code>/docs</code>), <a href="/docs/dashboard">panel principal</a> (<code>/docs/dashboard</code>), <a href="/docs/flujos">flujos y webhooks</a> (<code>/docs/flujos</code>), <a href="/docs/operaciones">operaciones</a> (<code>/docs/operaciones</code>), <a href="/docs/reglas">reglas IA</a> (<code>/docs/reglas</code>), <a href="/docs/dlq">Dead Letter</a> (<code>/docs/dlq</code>), <a href="/docs/notificaciones">notificaciones</a> (<code>/docs/notificaciones</code>), <a href="/docs/configuracion">configuración</a> (<code>/docs/configuracion</code>), <a href="/docs/facturacion">facturación</a> (<code>/docs/facturacion</code>) e <a href="/docs/api">API y webhooks</a> (<code>/docs/api</code>).',
@@ -70,7 +70,7 @@ export const docsEs = {
       pAuth:
         'Si no hay sesión activa, la app te lleva a <code>/auth</code>. Tras iniciar sesión accedés al <a href="/dashboard">panel</a> (<code>/dashboard</code>), donde todo lo que ves queda acotado a tu <strong>tenant</strong>.',
       pAuthHelp:
-        'Si no podés entrar, verificá credenciales y el flujo de recuperación de acceso. Para integraciones técnicas seguí con <a href="/docs/api">API y webhooks</a> y <a href="/docs/flujos">Flujos</a>; si el problema persiste, contactá a soporte.',
+        'Si no podés entrar, verificá credenciales y el flujo de recuperación de acceso. Para conectar tus sistemas con el producto seguí con <a href="/docs/api">API y webhooks</a> y <a href="/docs/flujos">Flujos</a>; si el problema persiste, contactá a soporte.',
       hSupport: 'Instalación o entorno propio',
       pSupport:
         'El aprovisionamiento de entornos, claves y despliegues lo maneja tu organización o acuerdos con Primary Sentinel; esos detalles no forman parte de la documentación pública del producto.',
@@ -100,10 +100,10 @@ export const docsEs = {
         'En <code>/dashboard/flows</code> administrás los <strong>endpoints</strong> del SaaS: cada uno pertenece a tu <strong>tenant</strong> y tiene metadatos, esquema, destinos y una <strong>URL de webhook</strong> que tus sistemas invocan para enviar eventos (prueba o producción).',
       hCreate: 'Crear y editar endpoints',
       pCreate:
-        'Los cambios quedan persistidos en el backend multi-tenant; con tu sesión activa solo ves y modificás recursos de tu cuenta.',
+        'Los cambios quedan guardados en el servicio; con tu sesión activa solo ves y modificás recursos de tu cuenta.',
       hWebhook: 'Webhook de ingesta',
       pWebhook:
-        'El servicio expone <code>POST /webhook/:tenantId/:slug</code>. El <code>tenantId</code> coincide con el identificador que mostramos en <a href="/docs/configuracion">Configuración</a>. Las llamadas al API REST autenticado envían un token de sesión en <code>Authorization: Bearer …</code> (ver <a href="/docs/api">API y webhooks</a>).',
+        'El servicio expone <code>POST /webhook/:tenantId/:slug</code>. El <code>tenantId</code> coincide con el identificador que mostramos en <a href="/docs/configuracion">Configuración</a>. Las llamadas al API autenticado envían un token de sesión en <code>Authorization: Bearer …</code> (ver <a href="/docs/api">API y webhooks</a>).',
       hEvents: 'Eventos por endpoint',
       pEvents:
         'Podés listar y revisar el <strong>historial operativo de la ingesta</strong> por endpoint para diagnosticar el pipeline antes de que actúen las reglas IA o terminen en DLQ.',
@@ -123,7 +123,7 @@ export const docsEs = {
         'Lista eventos recientes del historial de razonamiento o acciones automáticas, acotado en tiempo. Complementa el detalle que más adelante podés ver en reglas o en eventos concretos.',
       hMetrics: 'Métricas por etapa',
       pMetrics:
-        'Serie temporal de métricas por ventana de horas (por defecto un rango amplio) para detectar picos, caídas o estancamiento. El backend agrega <strong>métricas agregadas</strong> del pipeline; la UI las presenta de forma compacta.',
+        'Serie temporal de métricas por ventana de horas (por defecto un rango amplio) para detectar picos, caídas o estancamiento. El servicio agrega <strong>métricas agregadas</strong> del pipeline; la UI las presenta de forma compacta.',
       hSuggest: 'Sugerencias heurísticas',
       pSuggest:
         'El API puede devolver sugerencias basadas en muestras recientes (severidad + texto). Son orientativas para priorizar mejoras de esquema, reglas o conectividad, no sustituyen el juicio del equipo.',
@@ -139,7 +139,7 @@ export const docsEs = {
         'En <code>/dashboard/rules</code> gestionás las <strong>reglas de transformación / reparación</strong> del producto. El motor puede proponer reglas a partir del análisis de eventos; vos las revisás en el contexto de tu <strong>tenant</strong> antes de activarlas en producción.',
       hState: 'Estados',
       pState:
-        'Las reglas pueden mostrarse como pendientes de aprobación, activas u otros estados según el backend. El panel usa píldoras de color coherentes con el resto del SaaS para identificar el estado de un vistazo.',
+        'Las reglas pueden mostrarse como pendientes de aprobación, activas u otros estados según el estado en el servicio. El panel usa píldoras de color coherentes con el resto del SaaS para identificar el estado de un vistazo.',
       hApprove: 'Aprobar y editar',
       pApprove:
         'Podés revisar el contenido sugerido, aprobar para que entre en vigor o ajustar condiciones y acciones antes de activar. Todo queda acotado a tu organización en el modelo multi-tenant.',
@@ -152,16 +152,16 @@ export const docsEs = {
       metaDesc: 'Cola DLQ por tenant, reinyección, snapshots y descarte en Primary Sentinel.',
       title: 'Dead Letter Queue',
       p1:
-        '<code>/dashboard/dlq</code> lista los eventos que el sistema <strong>no pudo sanar</strong> de forma automática. Es la cola de revisión humana del SaaS: revisás el <strong>contexto del fallo</strong> en el pipeline y, cuando el backend lo permite, podés <strong>reinyectar</strong> el evento o <strong>descartarlo</strong>. Solo ves ítems de tu tenant.',
+        '<code>/dashboard/dlq</code> lista los eventos que el sistema <strong>no pudo sanar</strong> de forma automática. Es la cola de revisión humana del SaaS: revisás el <strong>contexto del fallo</strong> en el pipeline y, cuando el servicio lo permite, podés <strong>reinyectar</strong> el evento o <strong>descartarlo</strong>. Solo ves ítems de tu tenant.',
       hWhen: 'Cuándo aparece un ítem',
       pWhen:
-        'Suelen ser errores recurrentes, <strong>cargas fuera de esquema</strong> o situaciones no cubiertas por las reglas actuales. Es el lugar para priorizar mejoras de reglas o correcciones en los productores upstream.',
+        'Suelen ser errores recurrentes, <strong>cargas fuera de esquema</strong> o situaciones no cubiertas por las reglas actuales. Es el lugar para priorizar mejoras de reglas o correcciones en los sistemas que envían datos.',
       hReinject: 'Reinyección y snapshots',
       pReinject:
-        'La API expone reinyección con payload corregido opcional (<code>POST /api/dlq/:id/reinject</code>), listado de snapshots por evento y comparación entre versiones para auditoría. El comportamiento exacto puede variar según la versión del servicio.',
+        'La API expone reinyección con payload corregido opcional (<code>POST /api/dlq/:id/reinject</code>), listado de snapshots por evento y comparación entre versiones para auditoría. El comportamiento exacto puede variar según la versión del producto.',
       hDiscard: 'Descarte',
       pDiscard:
-        'Podés eliminar un registro DLQ cuando decidís no reprocesarlo (<code>DELETE /api/dlq/:id</code>), de acuerdo con las políticas de retención del backend.',
+        'Podés eliminar un registro DLQ cuando decidís no reprocesarlo (<code>DELETE /api/dlq/:id</code>), de acuerdo con las políticas de retención del servicio.',
     },
     notificaciones: {
       metaTitle: 'Notificaciones',
@@ -169,15 +169,15 @@ export const docsEs = {
       title: 'Notificaciones en el panel',
       p1:
         'La ruta <code>/dashboard/notifications</code> concentra alertas <strong>en tiempo real</strong> dentro del producto: los avisos aparecen sin recargar cuando el servicio registra novedades para tu <strong>tenant</strong>.',
-      hBackend: 'Qué debe hacer el backend',
+      hBackend: 'Cuándo aparecen avisos',
       pBackend:
-        'El servicio debe registrar notificaciones ante hitos relevantes (reglas, sanaciones, casos irrecuperables, etc.), siempre asociadas al tenant correcto para que solo veas las tuyas.',
+        'El producto registra notificaciones ante hitos relevantes (reglas, sanaciones, casos irrecuperables, etc.), siempre asociadas al tenant correcto para que solo veas las tuyas.',
       hSchema: 'Contenido típico de una notificación',
       pSchema:
         'Suele incluir tipo de evento (p. ej. sanado, Dead Letter, regla nueva o pendiente), título, cuerpo opcional, marca de leído y marca de tiempo. Los valores concretos deben alinearse con lo que muestra el panel.',
-      hChannels: 'Email, Slack y webhooks',
+      hChannels: 'Email y otros canales',
       pChannels:
-        'Además del centro en pantalla, podés activar <strong>Resend</strong>, <strong>Slack</strong> y un <strong>webhook de alertas firmado</strong> desde <a href="/docs/configuracion">Configuración</a>, para llevar el mismo tipo de incidentes a los canales de tu equipo.',
+        'Además del centro en pantalla, podés activar <strong>email</strong>, un <strong>canal de mensajería de equipo</strong> (si lo configurás) y un <strong>webhook de alertas firmado</strong> hacia tu sistema desde <a href="/docs/configuracion">Configuración</a>, para llevar el mismo tipo de incidentes a tu equipo.',
     },
     configuracion: {
       metaTitle: 'Configuración',
@@ -188,9 +188,9 @@ export const docsEs = {
       hAccount: 'Cuenta y plan',
       pAccount:
         'Ves tu email, el <strong>Tenant ID</strong> (útil para componer URLs de webhook de ingesta) y el <strong>plan</strong> actual del SaaS. El plan free incluye límites en API (p. ej. endpoints activos); más detalle en <a href="/docs/facturacion">Facturación</a>.',
-      hNotif: 'Notificaciones: Resend, Slack y webhook firmado',
+      hNotif: 'Notificaciones: email y webhooks',
       pNotif:
-        'Podés activar envío por <strong>email</strong> (reparaciones, DLQ, reglas pendientes), un <strong>Incoming Webhook de Slack</strong> para resúmenes de incidente, y un <strong>webhook HTTPS propio</strong> con firma <code>HMAC-SHA256</code> en la cabecera <code>X-Sentinel-Signature</code> (secreto compartido configurable). Son canales paralelos al centro de notificaciones en el panel.',
+        'Podés activar envío por <strong>email</strong> (reparaciones, DLQ, reglas pendientes), avisos a un <strong>canal de mensajería de equipo</strong> si lo configurás en la pantalla, y un <strong>webhook HTTPS propio</strong> hacia tu URL con firma en la cabecera <code>X-Sentinel-Signature</code> (secreto compartido). Son canales paralelos al centro de notificaciones en el panel.',
       hInfra: 'Señales operativas',
       pInfra:
         'Podés ver un resumen orientativo del endpoint del API y otros <strong>campos de contexto</strong> para soporte. Es información dentro del producto; no reemplaza la documentación contractual ni los detalles técnicos internos, que no se publican en estas guías.',
@@ -203,27 +203,27 @@ export const docsEs = {
         'Primary Sentinel es un <strong>producto SaaS multi-tenant</strong>: cada organización o equipo trabaja en su propio espacio aislado (tenant), con límites y facturación asociados al plan contratado.',
       hScreen: 'Pantalla Facturación',
       pScreen:
-        'En <code>/dashboard/billing</code> ves el <strong>plan actual</strong> y notas que devuelve el backend (por ejemplo estado del proveedor de pagos o mensajes operativos). Desde ahí podés volver a <a href="/docs/configuracion">Configuración</a> para revisar el mismo plan en el resumen de cuenta.',
+        'En <code>/dashboard/billing</code> ves el <strong>plan actual</strong> y notas operativas que muestra el producto (por ejemplo estado de facturación o mensajes de cuenta). Desde ahí podés volver a <a href="/docs/configuracion">Configuración</a> para revisar el mismo plan en el resumen de cuenta.',
       hFree: 'Plan free y límites',
       pFree:
         'En la fase actual, el plan gratuito aplica <strong>límites en la API</strong> (por ejemplo un número acotado de endpoints activos). Los límites concretos pueden evolucionar; la pantalla de configuración y la respuesta del API de facturación reflejan lo que aplica a tu tenant.',
-      hRoadmap: 'Roadmap: Stripe y portal de cliente',
+      hRoadmap: 'Roadmap: pagos self-service',
       pRoadmap:
-        'La integración con <strong>Stripe</strong> y un <strong>portal de cliente</strong> para cambiar plan, método de pago y facturas está prevista en el roadmap del producto. Hasta entonces, los upgrades o acuerdos enterprise se gestionan fuera de la app o con el equipo de Primary Sentinel.',
+        'Un <strong>portal de facturación</strong> para cambiar plan, método de pago y comprobantes está previsto en el roadmap del producto. Hasta entonces, los upgrades o acuerdos enterprise se gestionan fuera de la app o con el equipo de Primary Sentinel.',
       hApi: 'API',
       pApi:
         'El estado de facturación expuesto al panel proviene de <code>GET /api/billing/status</code> (autenticado). Más detalle en <a href="/docs/api">API y webhooks</a>.',
     },
     api: {
       metaTitle: 'API y webhooks',
-      metaDesc: 'Sesión autenticada, rutas REST del SaaS Primary Sentinel y webhooks de ingesta.',
+      metaDesc: 'Sesión autenticada, rutas del API del producto y webhooks de ingesta.',
       title: 'API y webhooks',
       p1:
         'El panel consume el <strong>API del producto</strong> con tu sesión iniciada. Las peticiones autenticadas envían un <strong>token de sesión</strong> en <code>Authorization: Bearer &lt;token&gt;</code>; el servicio valida el usuario y aplica el aislamiento por <strong>tenant</strong>. Los webhooks de ingesta no usan esa cabecera: identifican el tenant y el endpoint en la propia ruta.',
-      hCliente: 'Buenas prácticas de integración',
+      hCliente: 'Buenas prácticas al conectar tus sistemas',
       pClient:
         'Centralizá paths, reintentos y cabeceras en un único cliente HTTP en tu aplicación para evitar duplicar lógica y facilitar rotación de credenciales.',
-      hRest: 'Endpoints habituales (REST)',
+      hRest: 'Endpoints habituales',
       pRest: 'Patrones habituales del API (la URL base es la del entorno Primary Sentinel que estés usando):',
       thMethod: 'Método',
       thPath: 'Ruta',
@@ -252,9 +252,9 @@ export const docsEs = {
       ],
       hWebhook: 'Webhook de ingesta',
       pWebhookIngest: 'Ingesta de eventos (cuerpo JSON)',
-      hCors: 'Base URL y CORS',
+      hCors: 'Base URL y acceso desde tus sistemas',
       pCors:
-        'Usá HTTPS y la URL base que te proporcione tu administrador o el despliegue oficial. En integraciones servidor a servidor, acordá orígenes y políticas CORS con quien gestione el entorno.',
+        'Usá HTTPS y la URL base que te indique tu administrador o el entorno oficial del producto. Si llamás desde el navegador, coordiná con quien gestione el entorno qué orígenes están permitidos; entre servidores suele bastar con HTTPS y las credenciales correctas.',
     },
   },
 } as const;

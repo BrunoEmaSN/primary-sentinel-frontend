@@ -95,12 +95,12 @@ export const landingEs = {
       a: 'Podés empezar en modo sugerencias y pasar a acciones automáticas por endpoint o por tipo de error, con reglas y umbrales de confianza.',
     },
     {
-      q: '¿Se integra con mi stack actual?',
-      a: 'Soportamos conectores habituales (bases, colas, APIs) y añadimos nuevos según plan. En Empresa evaluamos integraciones a medida.',
+      q: '¿Cómo conecto mis aplicaciones?',
+      a: 'Desde Flujos obtenés las URLs de webhook por tenant y podés usar el API documentado en la app (`/docs/api`). Para requisitos especiales, escribinos.',
     },
     {
-      q: '¿Dónde se alojan los datos?',
-      a: 'El panel y la metadata operativa viven en nuestra infraestructura; los datos sensibles pueden quedar en tu nube según configuración y plan.',
+      q: '¿Dónde viven los datos que veo en el panel?',
+      a: 'Gestionás la ingesta y el estado del pipeline desde el producto; residencia, retención y términos contractuales los acordás con Primary Sentinel según tu plan.',
     },
     {
       q: '¿Hay período de prueba?',

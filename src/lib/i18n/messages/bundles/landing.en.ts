@@ -94,12 +94,12 @@ export const landingEn = {
       a: 'You can start in suggestion mode and move to automated actions per endpoint or error type, with rules and confidence thresholds.',
     },
     {
-      q: 'Does it integrate with my stack?',
-      a: 'We support common connectors (databases, queues, APIs) and add more by plan. Enterprise evaluates custom integrations.',
+      q: 'How do I connect my applications?',
+      a: 'From Flows you get per-tenant webhook URLs and you can use the in-app documented API (`/docs/api`). Contact us for special requirements.',
     },
     {
-      q: 'Where is data hosted?',
-      a: 'The dashboard and operational metadata run on our infrastructure; sensitive data can stay in your cloud depending on configuration and plan.',
+      q: 'Where does the data I see in the dashboard live?',
+      a: 'You manage ingestion and pipeline state from the product; residency, retention, and contractual terms are agreed with Primary Sentinel per plan.',
     },
     {
       q: 'Is there a trial?',
