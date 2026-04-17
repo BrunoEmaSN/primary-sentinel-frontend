@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { listEndpoints, createEndpoint, deleteEndpoint, listEvents } from '@/lib/api';
+import { getPublicWorkerUrl, listEndpoints, createEndpoint, deleteEndpoint, listEvents } from '@/lib/api';
 import type { Endpoint } from '@/types';
 import {
   DESTINATION_CONFIGS,
@@ -15,8 +15,6 @@ import { DestinationSelector } from '@/components/dashboard/DestinationSelector'
 import { DestinationConfigForm } from '@/components/dashboard/DestinationConfigForm';
 import { IconArrowRight } from '@/components/icons/Arrows';
 import { useI18n } from '@/lib/i18n/I18nProvider';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8787';
 
 /** Por encima de sidebar/topbar y dropdowns (z-index ~100). */
 const MODAL_LAYER_Z = 10_000;
@@ -347,7 +345,7 @@ export default function FlowsPage() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {endpoints.map(ep => {
-            const webhookUrl = `${API_URL}/webhook/${ep.tenant_id}/${ep.slug}`;
+            const webhookUrl = `${getPublicWorkerUrl()}/webhook/${ep.tenant_id}/${ep.slug}`;
             return (
               <div key={ep.id} style={{
                 background: 'var(--bg2)', border: '1px solid var(--border2)',

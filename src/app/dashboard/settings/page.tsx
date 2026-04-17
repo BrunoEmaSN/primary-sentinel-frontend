@@ -5,11 +5,9 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
-import { getTenantSettings, putTenantSettings, type TenantSettingsApi } from '@/lib/api';
+import { getPublicWorkerUrl, getTenantSettings, putTenantSettings, type TenantSettingsApi } from '@/lib/api';
 import { allowPrices } from '@/lib/allowPrices';
 import { useI18n } from '@/lib/i18n/I18nProvider';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8787';
 
 type SectionProps = { title: string; children: ReactNode };
 type RowProps = { label: string; sub?: string; children: ReactNode };
@@ -193,8 +191,8 @@ export default function SettingsPage() {
       </Section>
 
       <Section title="INFRAESTRUCTURA">
-        <Row label="Backend URL" sub="Cloudflare Worker URL">
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--muted)' }}>{API_URL}</span>
+        <Row label="Backend URL" sub="Cloudflare Worker URL (ingesta webhooks; el dashboard usa proxy /worker-api)">
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--muted)' }}>{getPublicWorkerUrl()}</span>
         </Row>
         <Row label="Base de datos" sub="Supabase PostgreSQL">
           <span className="pill pill-active">CONECTADO</span>

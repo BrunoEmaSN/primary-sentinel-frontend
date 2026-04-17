@@ -14,7 +14,24 @@ import type {
   CreateEndpointResponse,
 } from '@/types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8787';
+/**
+ * URL pública del Worker (webhooks, documentación). No usar para fetch del dashboard:
+ * esas peticiones van por mismo origen `/worker-api` (rewrites en next.config.mjs).
+ */
+export function getPublicWorkerUrl(): string {
+  return (process.env.NEXT_PUBLIC_API_URL?.trim() || 'http://localhost:8787').replace(/\/$/, '');
+}
+
+/** Base URL para fetch desde el navegador: mismo origen + proxy → Worker (sin CORS). */
+function getBrowserApiBaseUrl(): string {
+  if (typeof window !== 'undefined') {
+    return `${window.location.origin}/worker-api`;
+  }
+  const v = process.env.VERCEL_URL;
+  if (v) return `https://${v}/worker-api`;
+  const port = process.env.PORT || '3000';
+  return `http://127.0.0.1:${port}/worker-api`;
+}
 
 /** Backend list routes return `{ data: T[], ... }`; unwrap to `T[]`. */
 function unwrapListPayload<T>(body: unknown): T[] {
@@ -91,7 +108,7 @@ async function apiFetch<T>(
   path: string,
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> {
-  const url = `${API_URL}${path}`;
+  const url = `${getBrowserApiBaseUrl()}${path}`;
   const token = await getAccessToken();
 
   const doFetch = (accessToken: string | null) =>
@@ -104,12 +121,25 @@ async function apiFetch<T>(
       },
     });
 
-  let res = await doFetch(token);
+  let res: Response;
+  try {
+    res = await doFetch(token);
+  } catch (e) {
+    return {
+      error: e instanceof Error ? e.message : 'Error de red',
+    };
+  }
 
   if (res.status === 401) {
     const newToken = await refreshAccessToken();
     if (newToken) {
-      res = await doFetch(newToken);
+      try {
+        res = await doFetch(newToken);
+      } catch (e) {
+        return {
+          error: e instanceof Error ? e.message : 'Error de red',
+        };
+      }
     }
   }
 
@@ -290,11 +320,68 @@ export async function listAllEvents(
 
 // ─── Rules ────────────────────────────────────────────────────────────────────
 
+/** Worker devuelve `TransformationRule.toSnapshot()` (camelCase); el UI usa snake_case. */
+function normalizeTransformationRule(row: Record<string, unknown>): TransformationRule {
+  const created =
+    (typeof row.created_at === 'string' && row.created_at) ||
+    (typeof row.createdAt === 'string' && row.createdAt) ||
+    new Date().toISOString();
+  const updated =
+    (typeof row.updated_at === 'string' && row.updated_at) ||
+    (typeof row.updatedAt === 'string' && row.updatedAt) ||
+    created;
+
+  const description = typeof row.description === 'string' ? row.description : '';
+  const fp =
+    (typeof row.errorFingerprint === 'string' && row.errorFingerprint) ||
+    (typeof row.fingerprint === 'string' && row.fingerprint) ||
+    '';
+
+  const generatedBy = typeof row.generatedBy === 'string' ? row.generatedBy : '';
+  const source: TransformationRule['source'] =
+    /^(human|manual)$/i.test(generatedBy) ? 'human' : 'ai';
+
+  const rawStatus = String(row.status ?? 'active');
+  const status: TransformationRule['status'] =
+    rawStatus === 'deprecated'
+      ? 'inactive'
+      : rawStatus === 'pending' ||
+          rawStatus === 'active' ||
+          rawStatus === 'quarantined' ||
+          rawStatus === 'inactive'
+        ? (rawStatus as TransformationRule['status'])
+        : 'active';
+
+  const name =
+    (typeof row.name === 'string' && row.name) ||
+    (description.trim().length > 0 ? description.split('\n')[0]!.slice(0, 80) : fp.slice(0, 32) || 'Regla');
+
+  return {
+    id: String(row.id ?? ''),
+    endpoint_id: String(row.endpoint_id ?? row.endpointId ?? ''),
+    tenant_id: String(row.tenant_id ?? row.tenantId ?? ''),
+    name,
+    description: description || undefined,
+    fingerprint: fp,
+    script: typeof row.script === 'string' ? row.script : '',
+    source,
+    status,
+    confidence: typeof row.confidence === 'number' ? row.confidence : undefined,
+    success_count: Number(row.success_count ?? row.successCount ?? 0),
+    failure_count: Number(row.failure_count ?? row.failureCount ?? 0),
+    created_at: created,
+    updated_at: updated,
+  };
+}
+
 export async function listRules(endpointId: string): Promise<TransformationRule[]> {
   const res = await apiFetch<
     TransformationRule[] | { data: TransformationRule[]; count?: number }
   >(`/api/endpoints/${endpointId}/rules`);
-  return unwrapListPayload<TransformationRule>(res.data);
+  const raw = unwrapListPayload<Record<string, unknown>>(res.data).filter(
+    (r): r is Record<string, unknown> => r !== null && typeof r === 'object' && !Array.isArray(r)
+  );
+  return raw.map(normalizeTransformationRule);
 }
 
 export async function listAllRules(): Promise<TransformationRule[]> {
@@ -439,7 +526,7 @@ export type PublicPricingCatalog = {
 
 /** Público: sin JWT. Precios y promociones desde la base (Worker). */
 export async function getPublicPricing(): Promise<ApiResponse<PublicPricingCatalog>> {
-  const url = `${API_URL}/api/public/pricing`;
+  const url = `${getBrowserApiBaseUrl()}/api/public/pricing`;
   try {
     const res = await fetch(url, {
       headers: { 'Content-Type': 'application/json' },
@@ -522,7 +609,7 @@ export async function getPublicSlo(): Promise<{
   measured: boolean;
 } | null> {
   try {
-    const res = await fetch(`${API_URL}/api/public/slo`);
+    const res = await fetch(`${getBrowserApiBaseUrl()}/api/public/slo`);
     if (!res.ok) return null;
     return (await res.json()) as {
       availabilityTargetPercent: number;
