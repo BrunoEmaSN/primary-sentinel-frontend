@@ -43,7 +43,7 @@ export const dashboardEn = {
     dlq: 'Dead Letter Queue',
     aiRules: 'AI-generated rules',
     modelLabel: 'Base model',
-    modelValue: 'gemini-2.0-flash',
+    modelValue: 'gemini-2.5-flash',
   },
   agents: {
     detector: 'Detection agent',
