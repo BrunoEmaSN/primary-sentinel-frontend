@@ -220,7 +220,7 @@ export default function RulesPage() {
               fontSize: '10px', fontFamily: 'var(--font-mono)', color: 'var(--text)',
               border: '1px solid var(--border)', overflowX: 'auto', whiteSpace: 'pre-wrap',
             }}>
-              {selectedRule.script || '// Script generado por Claude\n// Se ejecuta en sandbox aislado\n\nfunction transform(payload) {\n  // Transformación aquí\n  return payload;\n}'}
+              {selectedRule.script || '// Script generado por Gemini\n// Se ejecuta en sandbox aislado\n\nfunction transform(payload) {\n  // Transformación aquí\n  return payload;\n}'}
             </pre>
             <div style={{ display: 'flex', gap: '8px', marginTop: '14px', justifyContent: 'flex-end' }}>
               {selectedRule.status === 'pending' && (

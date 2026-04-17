@@ -4,7 +4,13 @@ import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { listEndpoints, createEndpoint, deleteEndpoint, listEvents } from '@/lib/api';
 import type { Endpoint } from '@/types';
-import { DESTINATION_CONFIGS, type Destination, type DestinationType } from '@/types/destinations';
+import {
+  DESTINATION_CONFIGS,
+  type Destination,
+  type DestinationType,
+  createEmptyDestination,
+} from '@/types/destinations';
+import { validateDestinationRequiredFields } from '@/lib/destinationValidation';
 import { DestinationSelector } from '@/components/dashboard/DestinationSelector';
 import { DestinationConfigForm } from '@/components/dashboard/DestinationConfigForm';
 import { IconArrowRight } from '@/components/icons/Arrows';
@@ -133,10 +139,12 @@ export default function FlowsPage() {
     if (form.slots.length === 0) return 'Agregá al menos un destino';
     for (const s of form.slots) {
       if (!s.type) return 'Elegí el tipo para cada destino';
-      const c = s.config ?? ({ type: s.type } as Destination);
-      if ((c as { type: string }).type !== s.type) {
+      if (!s.config) return 'Completá la configuración de cada destino';
+      if ((s.config as { type: string }).type !== s.type) {
         return 'Destino inconsistente; reconfigurá el slot';
       }
+      const err = validateDestinationRequiredFields(s.type, s.config);
+      if (err) return err;
     }
     return null;
   }
@@ -207,7 +215,7 @@ export default function FlowsPage() {
     setForm(f => ({
       ...f,
       slots: f.slots.map(s =>
-        s.id === slotId ? { ...s, type: t, config: { type: t } as Destination } : s
+        s.id === slotId ? { ...s, type: t, config: createEmptyDestination(t) } : s
       ),
     }));
   }
@@ -250,13 +258,23 @@ export default function FlowsPage() {
         setSaving(false);
         return;
       }
-      const c = s.config ?? ({ type: s.type } as Destination);
-      if ((c as { type: string }).type !== s.type) {
+      if (!s.config) {
+        setError('Completá la configuración de cada destino');
+        setSaving(false);
+        return;
+      }
+      if ((s.config as { type: string }).type !== s.type) {
         setError('Destino inconsistente; reconfigurá el slot');
         setSaving(false);
         return;
       }
-      destinations.push(c);
+      const vErr = validateDestinationRequiredFields(s.type, s.config);
+      if (vErr) {
+        setError(vErr);
+        setSaving(false);
+        return;
+      }
+      destinations.push(s.config);
     }
 
     if (destinations.length === 0) {
@@ -573,7 +591,7 @@ export default function FlowsPage() {
                               <DestinationConfigForm
                                 key={`${slot.id}-${slot.type}`}
                                 type={slot.type}
-                                initialValue={slot.config ?? { type: slot.type }}
+                                initialValue={slot.config ?? createEmptyDestination(slot.type)}
                                 onChange={c => setSlotConfig(slot.id, c)}
                               />
                             </>

@@ -134,9 +134,35 @@ export const DESTINATION_CONFIGS = {
       { key: 'projectId', label: 'Google Cloud Project ID', type: 'text' as const, required: true },
       { key: 'datasetId', label: 'Dataset ID', type: 'text' as const, required: true },
       { key: 'tableId', label: 'Table ID', type: 'text' as const, required: true },
-      { key: 'serviceAccountKey', label: 'Service Account JSON (cifrado)', type: 'password' as const, required: false },
+      { key: 'serviceAccountKey', label: 'Service Account JSON (cifrado)', type: 'password' as const, required: true },
     ],
   },
 } as const;
 
 export type DestinationType = keyof typeof DESTINATION_CONFIGS;
+
+type FieldConfig = (typeof DESTINATION_CONFIGS)[DestinationType]['fields'][number];
+
+/** Valores iniciales por tipo para que cada slot envíe todas las claves definidas en la UI. */
+export function createEmptyDestination(t: DestinationType): Destination {
+  const fields = DESTINATION_CONFIGS[t].fields as readonly FieldConfig[];
+  const o: Record<string, unknown> = { type: t };
+  for (const f of fields) {
+    switch (f.type) {
+      case 'checkbox':
+        o[f.key] = f.key === 'retryOnFailure';
+        break;
+      case 'number':
+        o[f.key] = undefined;
+        break;
+      case 'select': {
+        const opts = f.type === 'select' && f.options.length > 0 ? f.options : [];
+        o[f.key] = opts.length > 0 ? opts[0]! : '';
+        break;
+      }
+      default:
+        o[f.key] = '';
+    }
+  }
+  return o as unknown as Destination;
+}

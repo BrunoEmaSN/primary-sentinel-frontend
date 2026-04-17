@@ -43,7 +43,7 @@ export const dashboardEs = {
     dlq: 'Dead Letter Queue',
     aiRules: 'Reglas generadas por IA',
     modelLabel: 'Modelo base',
-    modelValue: 'claude-sonnet',
+    modelValue: 'gemini-2.0-flash',
   },
   agents: {
     detector: 'Agente de detección',
