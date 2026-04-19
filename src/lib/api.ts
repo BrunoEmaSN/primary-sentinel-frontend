@@ -6,6 +6,7 @@
 import type { Destination } from '@/types/destinations';
 import type {
   Endpoint,
+  EndpointStatus,
   RawEvent,
   TransformationRule,
   DLQEvent,
@@ -182,6 +183,12 @@ function normalizeEndpoint(row: Record<string, unknown>): Endpoint {
     (typeof row.updatedAt === 'string' && row.updatedAt) ||
     created;
 
+  const rawStatus = row.status;
+  const status: EndpointStatus =
+    rawStatus === 'paused' || rawStatus === 'error' || rawStatus === 'active'
+      ? rawStatus
+      : 'active';
+
   return {
     id: String(row.id ?? ''),
     tenant_id: String(row.tenant_id ?? row.tenantId ?? ''),
@@ -200,6 +207,7 @@ function normalizeEndpoint(row: Record<string, unknown>): Endpoint {
       notifyOnHealing: Boolean(healingObj.notifyOnHealing ?? healingObj.notify_on_healing ?? true),
       notifyOnDead: Boolean(healingObj.notifyOnDead ?? healingObj.notify_on_dead ?? true),
     },
+    status,
     webhook_secret: typeof row.webhook_secret === 'string' ? row.webhook_secret : undefined,
     created_at: created,
     updated_at: updated,
@@ -222,7 +230,17 @@ export async function getEndpoint(id: string): Promise<Endpoint | null> {
 }
 
 export async function createEndpoint(
-  body: Omit<Endpoint, 'id' | 'tenant_id' | 'slug' | 'created_at' | 'updated_at' | 'destinations' | 'destination'> & {
+  body: Omit<
+    Endpoint,
+    | 'id'
+    | 'tenant_id'
+    | 'slug'
+    | 'created_at'
+    | 'updated_at'
+    | 'destinations'
+    | 'destination'
+    | 'status'
+  > & {
     destination?: Destination | Destination[];
     destinations?: Destination[];
   }
@@ -451,11 +469,19 @@ export async function listDlqSnapshots(eventId: string): Promise<ApiResponse<{ d
   return apiFetch<{ data: unknown[] }>(`/api/dlq/${eventId}/snapshots`);
 }
 
+export type DlqDiffResponse = {
+  snapshotId: string;
+  eventId: string;
+  left: unknown;
+  right: unknown;
+  sameJson: boolean;
+};
+
 export async function getDlqDiff(
   eventId: string,
   snapshotId: string
-): Promise<ApiResponse<{ left: unknown; right: unknown; sameJson: boolean }>> {
-  return apiFetch<{ left: unknown; right: unknown; sameJson: boolean }>(
+): Promise<ApiResponse<DlqDiffResponse>> {
+  return apiFetch<DlqDiffResponse>(
     `/api/dlq/${eventId}/diff?snapshotId=${encodeURIComponent(snapshotId)}`
   );
 }

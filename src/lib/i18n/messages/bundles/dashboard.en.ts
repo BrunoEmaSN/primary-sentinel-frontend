@@ -63,5 +63,6 @@ export const dashboardEn = {
     saveError: 'Could not save: {msg}',
     saved: '✔ Saved',
     saveButton: 'Save changes',
+    saving: 'Saving…',
   },
 } as const;

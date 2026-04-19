@@ -8,6 +8,7 @@ import type { User } from '@supabase/supabase-js';
 import TopbarNotifications from '@/components/layout/TopbarNotifications';
 import { useI18n } from '@/lib/i18n/I18nProvider';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { toast } from 'sonner';
 
 type Menu = 'none' | 'profile' | 'notifications';
 
@@ -24,13 +25,25 @@ export default function Topbar({ user }: { user: User }) {
     return t('topbar.defaultTitle');
   })();
   const [menu, setMenu] = useState<Menu>('none');
+  const [signingOut, setSigningOut] = useState(false);
   const profileWrapRef = useRef<HTMLDivElement>(null);
 
   const initials = user.email?.slice(0, 2).toUpperCase() ?? 'U';
 
   async function signOut() {
-    await supabase.auth.signOut();
-    router.push('/auth');
+    setSigningOut(true);
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+      router.push('/auth');
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'No se pudo cerrar sesión');
+    } finally {
+      setSigningOut(false);
+    }
   }
 
   useEffect(() => {
@@ -152,6 +165,7 @@ export default function Topbar({ user }: { user: User }) {
                   void signOut();
                 }}
                 className="btn-ghost"
+                disabled={signingOut}
                 style={{
                   width: '100%',
                   justifyContent: 'flex-start',
@@ -160,9 +174,10 @@ export default function Topbar({ user }: { user: User }) {
                   padding: '10px 14px',
                   borderTop: '1px solid var(--border)',
                   marginTop: '4px',
+                  opacity: signingOut ? 0.65 : 1,
                 }}
               >
-                {t('topbar.signOut')}
+                {signingOut ? t('topbar.signingOut') : t('topbar.signOut')}
               </button>
             </div>
           )}

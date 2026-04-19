@@ -3,10 +3,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { Notification } from '@/lib/notifications';
+import { toast } from 'sonner';
 
 export function useNotifications() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
+  const [markingAllRead, setMarkingAllRead] = useState(false);
   const supabase = useMemo(() => createClient(), []);
 
   const load = useCallback(async () => {
@@ -42,11 +44,20 @@ export function useNotifications() {
   }, [load, supabase]);
 
   const markAllRead = useCallback(async () => {
-    await supabase.from('notifications').update({ read: true }).eq('read', false);
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    setMarkingAllRead(true);
+    try {
+      const { error } = await supabase.from('notifications').update({ read: true }).eq('read', false);
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    } finally {
+      setMarkingAllRead(false);
+    }
   }, [supabase]);
 
   const unread = notifications.filter((n) => !n.read).length;
 
-  return { notifications, loading, load, markAllRead, unread };
+  return { notifications, loading, load, markAllRead, markingAllRead, unread };
 }

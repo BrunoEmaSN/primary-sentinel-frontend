@@ -170,13 +170,29 @@ export function DestinationConfigForm({ type, initialValue, onChange, onMultiAdd
             )}
 
             {['text', 'url', 'password'].includes(field.type) && (
-              <input
-                type={field.type === 'password' ? 'password' : field.type === 'url' ? 'url' : 'text'}
-                className="sentinel-input"
-                placeholder={field.key === 'url' ? 'https://api.example.com/events' : ''}
-                value={typeof value === 'string' ? value : ''}
-                onChange={e => handleChange(field.key, e.target.value)}
-              />
+              <>
+                <input
+                  type={field.type === 'password' ? 'password' : field.type === 'url' ? 'url' : 'text'}
+                  className="sentinel-input"
+                  placeholder={
+                    field.key === 'url' && type === 'webhook'
+                      ? 'https://tu-worker.workers.dev/api/public/webhook-test-sink'
+                      : field.key === 'url'
+                        ? 'https://api.example.com/events'
+                        : ''
+                  }
+                  value={typeof value === 'string' ? value : ''}
+                  onChange={e => handleChange(field.key, e.target.value)}
+                />
+                {field.key === 'url' && (type === 'webhook' || type === 'http_api') && (
+                  <div style={{ fontSize: '9px', color: 'var(--muted)', marginTop: '4px', lineHeight: 1.45 }}>
+                    No uses solo la raíz del sitio (<code style={{ fontSize: '9px' }}>https://localhost:3000</code>): suele
+                    responder <code style={{ fontSize: '9px' }}>Cannot POST /</code>. Incluí una ruta (p. ej.{' '}
+                    <code style={{ fontSize: '9px' }}>/api/public/webhook-test-sink</code> en el Worker o{' '}
+                    <code style={{ fontSize: '9px' }}>https://httpbin.org/post</code>).
+                  </div>
+                )}
+              </>
             )}
 
             {field.key === 'connectionString' && (

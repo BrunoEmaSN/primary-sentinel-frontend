@@ -1,8 +1,14 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
-import { getPublicWorkerUrl, listEndpoints, createEndpoint, deleteEndpoint, listEvents } from '@/lib/api';
+import {
+  getPublicWorkerUrl,
+  listEndpoints,
+  createEndpoint,
+  updateEndpoint,
+  deleteEndpoint,
+  listEvents,
+} from '@/lib/api';
 import type { Endpoint } from '@/types';
 import {
   DESTINATION_CONFIGS,
@@ -15,9 +21,7 @@ import { DestinationSelector } from '@/components/dashboard/DestinationSelector'
 import { DestinationConfigForm } from '@/components/dashboard/DestinationConfigForm';
 import { IconArrowRight } from '@/components/icons/Arrows';
 import { useI18n } from '@/lib/i18n/I18nProvider';
-
-/** Por encima de sidebar/topbar y dropdowns (z-index ~100). */
-const MODAL_LAYER_Z = 10_000;
+import SentinelModal from '@/components/SentinelModal';
 
 type DestSlot = {
   id: string;
@@ -35,10 +39,20 @@ const DEFAULT_FORM = {
   name: '',
   schemaJson: '{\n  "type": "object",\n  "required": ["id", "type", "data"],\n  "properties": {\n    "id":   { "type": "string" },\n    "type": { "type": "string" },\n    "data": { "type": "object" }\n  }\n}',
   slots: [] as DestSlot[],
+  healingEnabled: true,
+  maxAttempts: 3,
   autoApply: true,
   notifyOnHeal: true,
   notifyOnDead: true,
 };
+
+function cloneDestinationsToSlots(destinations: Destination[]): DestSlot[] {
+  return destinations.map(d => ({
+    id: newSlotId(),
+    type: d.type,
+    config: JSON.parse(JSON.stringify(d)) as Destination,
+  }));
+}
 
 const MODAL_STEPS = [
   { id: 'basic', label: 'Básico' },
@@ -109,15 +123,42 @@ export default function FlowsPage() {
   const [eventCounts, setEventCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [editingEndpointId, setEditingEndpointId] = useState<string | null>(null);
   const [modalStep, setModalStep] = useState(0);
   const [form, setForm] = useState(DEFAULT_FORM);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [pauseError, setPauseError] = useState('');
+  const [statusToggleId, setStatusToggleId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   function openModal() {
     setError('');
     setModalStep(0);
+    setEditingEndpointId(null);
     setForm(DEFAULT_FORM);
+    setShowModal(true);
+  }
+
+  function openEditModal(ep: Endpoint) {
+    setError('');
+    setModalStep(0);
+    setEditingEndpointId(ep.id);
+    const schemaJson = JSON.stringify(ep.schema ?? {}, null, 2);
+    const slots =
+      ep.destinations && ep.destinations.length > 0
+        ? cloneDestinationsToSlots(ep.destinations)
+        : [];
+    setForm({
+      name: ep.name,
+      schemaJson,
+      slots,
+      healingEnabled: ep.healingConfig.enabled,
+      maxAttempts: Math.min(20, Math.max(1, ep.healingConfig.maxAttempts || 3)),
+      autoApply: ep.healingConfig.autoApplyRules,
+      notifyOnHeal: ep.healingConfig.notifyOnHealing,
+      notifyOnDead: ep.healingConfig.notifyOnDead,
+    });
     setShowModal(true);
   }
 
@@ -178,6 +219,7 @@ export default function FlowsPage() {
   }
 
   const load = useCallback(async () => {
+    setPauseError('');
     const eps = await listEndpoints();
     setEndpoints(eps);
     const counts: Record<string, number> = {};
@@ -229,7 +271,7 @@ export default function FlowsPage() {
     setForm(f => ({ ...f, slots: f.slots.filter(s => s.id !== slotId) }));
   }
 
-  async function handleCreate(e: React.FormEvent) {
+  async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     setError('');
     setSaving(true);
@@ -281,41 +323,80 @@ export default function FlowsPage() {
       return;
     }
 
-    const res = await createEndpoint({
-      name: form.name,
-      schema,
-      ...(destinations.length === 1
-        ? { destination: destinations[0]! }
-        : { destinations }),
-      healingConfig: {
-        enabled: true,
-        maxAttempts: 3,
-        autoApplyRules: form.autoApply,
-        notifyOnHealing: form.notifyOnHeal,
-        notifyOnDead: form.notifyOnDead,
-      },
-    });
+    const healingConfig = {
+      enabled: form.healingEnabled,
+      maxAttempts: Math.min(20, Math.max(1, Math.floor(form.maxAttempts) || 3)),
+      autoApplyRules: form.autoApply,
+      notifyOnHealing: form.notifyOnHeal,
+      notifyOnDead: form.notifyOnDead,
+    };
 
-    if (res.error) {
-      setError(typeof res.error === 'string' ? res.error : 'Error al crear');
+    if (editingEndpointId) {
+      const res = await updateEndpoint(editingEndpointId, {
+        name: form.name.trim(),
+        schema,
+        destinations,
+        healingConfig,
+      });
+      if (res.error) {
+        setError(typeof res.error === 'string' ? res.error : 'Error al guardar');
+      } else {
+        setShowModal(false);
+        setModalStep(0);
+        setEditingEndpointId(null);
+        setForm(DEFAULT_FORM);
+        void load();
+      }
     } else {
-      setShowModal(false);
-      setModalStep(0);
-      setForm(DEFAULT_FORM);
-      void load();
+      const res = await createEndpoint({
+        name: form.name,
+        schema,
+        ...(destinations.length === 1
+          ? { destination: destinations[0]! }
+          : { destinations }),
+        healingConfig,
+      });
+
+      if (res.error) {
+        setError(typeof res.error === 'string' ? res.error : 'Error al crear');
+      } else {
+        setShowModal(false);
+        setModalStep(0);
+        setForm(DEFAULT_FORM);
+        void load();
+      }
     }
     setSaving(false);
   }
 
   async function handleDelete(id: string) {
     if (!confirm('¿Eliminar este endpoint?')) return;
-    await deleteEndpoint(id);
+    setDeletingId(id);
+    try {
+      await deleteEndpoint(id);
+      void load();
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
+  async function handleTogglePause(ep: Endpoint) {
+    setPauseError('');
+    const next = ep.status === 'active' ? 'paused' : 'active';
+    setStatusToggleId(ep.id);
+    const res = await updateEndpoint(ep.id, { status: next });
+    setStatusToggleId(null);
+    if (res.error) {
+      setPauseError(typeof res.error === 'string' ? res.error : 'No se pudo actualizar el estado');
+      return;
+    }
     void load();
   }
 
   function closeModal() {
     setShowModal(false);
     setModalStep(0);
+    setEditingEndpointId(null);
     setForm(DEFAULT_FORM);
     setError('');
   }
@@ -333,6 +414,22 @@ export default function FlowsPage() {
           <button className="btn-primary" onClick={openModal}>+ Nuevo endpoint</button>
         </div>
 
+        {pauseError && (
+          <div
+            style={{
+              marginBottom: '12px',
+              padding: '8px 10px',
+              borderRadius: '6px',
+              background: 'rgba(239,68,68,.08)',
+              border: '1px solid rgba(239,68,68,.2)',
+              fontSize: '11px',
+              color: 'var(--red)',
+            }}
+          >
+            {pauseError}
+          </div>
+        )}
+
         {loading && <div style={{ textAlign: 'center', padding: '30px', color: 'var(--muted)', fontSize: '11px' }}>{dict.dashboard.loading.default}</div>}
 
         {!loading && endpoints.length === 0 && (
@@ -346,13 +443,23 @@ export default function FlowsPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {endpoints.map(ep => {
             const webhookUrl = `${getPublicWorkerUrl()}/webhook/${ep.tenant_id}/${ep.slug}`;
+            const status = ep.status ?? 'active';
+            const statusPill =
+              status === 'active' ? (
+                <span className="pill pill-active">LIVE</span>
+              ) : status === 'paused' ? (
+                <span className="pill pill-inactive">PAUSA</span>
+              ) : (
+                <span className="pill pill-dead">ERROR</span>
+              );
+            const toggling = statusToggleId === ep.id;
             return (
               <div key={ep.id} style={{
                 background: 'var(--bg2)', border: '1px solid var(--border2)',
                 borderRadius: '8px', padding: '14px 16px',
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <span className="pill pill-active">LIVE</span>
+                  {statusPill}
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: '13px', fontWeight: 500 }}>{ep.name}</div>
                     <div style={{ fontSize: '10px', color: 'var(--muted)', fontFamily: 'var(--font-mono)', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -393,11 +500,30 @@ export default function FlowsPage() {
                     Copiar URL
                   </button>
                   <button
-                    onClick={() => handleDelete(ep.id)}
-                    className="btn-danger"
+                    type="button"
+                    onClick={() => void handleTogglePause(ep)}
+                    className="btn-ghost"
+                    style={{ fontSize: '10px', padding: '4px 8px' }}
+                    disabled={toggling}
+                  >
+                    {toggling ? '…' : status === 'active' ? 'Pausar' : 'Reanudar'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => openEditModal(ep)}
+                    className="btn-ghost"
                     style={{ fontSize: '10px', padding: '4px 8px' }}
                   >
-                    Eliminar
+                    Editar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void handleDelete(ep.id)}
+                    className="btn-danger"
+                    style={{ fontSize: '10px', padding: '4px 8px', opacity: deletingId === ep.id ? 0.65 : 1 }}
+                    disabled={deletingId === ep.id}
+                  >
+                    {deletingId === ep.id ? 'Eliminando…' : 'Eliminar'}
                   </button>
                 </div>
 
@@ -435,51 +561,25 @@ export default function FlowsPage() {
         </pre>
       </div>
 
-      {showModal && createPortal(
+      <SentinelModal open={showModal} onClose={closeModal} labelledBy="modal-endpoint-title">
         <div
-          role="presentation"
+          className="sentinel-card fade-up"
           style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: MODAL_LAYER_Z,
-            minHeight: '100dvh',
-            boxSizing: 'border-box',
-            padding: 'clamp(12px, 3vw, 24px)',
-            paddingTop: 'max(12px, env(safe-area-inset-top, 0px))',
-            paddingBottom: 'max(12px, env(safe-area-inset-bottom, 0px))',
-            background: 'rgba(0,0,0,.7)',
+            width: 'min(640px, calc(100vw - clamp(24px, 6vw, 48px)))',
+            maxWidth: '100%',
+            maxHeight: 'min(90dvh, 900px)',
             display: 'flex',
-            alignItems: 'safe center',
-            justifyContent: 'center',
-            overflowY: 'auto',
-            WebkitOverflowScrolling: 'touch',
+            flexDirection: 'column',
+            padding: 0,
+            overflow: 'hidden',
           }}
-          onClick={e => { if (e.target === e.currentTarget) closeModal(); }}
         >
-          <div
-            className="sentinel-card fade-up"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="modal-endpoint-title"
-            style={{
-              width: 'min(640px, calc(100vw - clamp(24px, 6vw, 48px)))',
-              maxWidth: '100%',
-              maxHeight: 'min(90dvh, 900px)',
-              display: 'flex',
-              flexDirection: 'column',
-              padding: 0,
-              overflow: 'hidden',
-              margin: 'auto',
-              flexShrink: 0,
-            }}
-            onClick={e => e.stopPropagation()}
-          >
             <div style={{ padding: 'clamp(16px, 3vw, 24px)', paddingBottom: '12px', borderBottom: '1px solid var(--border)' }}>
               <div
                 id="modal-endpoint-title"
                 style={{ fontFamily: 'var(--font-mono)', fontSize: 'clamp(12px, 2.5vw, 13px)', fontWeight: 700, marginBottom: '12px' }}
               >
-                + NUEVO ENDPOINT
+                {editingEndpointId ? 'EDITAR ENDPOINT' : '+ NUEVO ENDPOINT'}
               </div>
               <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
                 {MODAL_STEPS.map((s, i) => (
@@ -512,7 +612,7 @@ export default function FlowsPage() {
             </div>
 
             <form
-              onSubmit={handleCreate}
+              onSubmit={handleSave}
               style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}
             >
               <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: 'clamp(16px, 3vw, 24px)', paddingTop: '16px' }}>
@@ -615,21 +715,45 @@ export default function FlowsPage() {
                 )}
 
                 {modalStep === 2 && (
-                  <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', padding: '12px', background: 'var(--bg2)', borderRadius: '6px', border: '1px solid var(--border)' }}>
-                    {[
-                      { key: 'autoApply', label: 'Auto-aplicar reglas IA' },
-                      { key: 'notifyOnHeal', label: 'Notificar reparaciones' },
-                      { key: 'notifyOnDead', label: 'Notificar DLQ' },
-                    ].map(({ key, label }) => (
-                      <label key={key} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', cursor: 'pointer' }}>
-                        <input
-                          type="checkbox"
-                          checked={form[key as keyof typeof form] as boolean}
-                          onChange={e => setForm(f => ({ ...f, [key]: e.target.checked }))}
-                        />
-                        {label}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', padding: '12px', background: 'var(--bg2)', borderRadius: '6px', border: '1px solid var(--border)' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={form.healingEnabled}
+                        onChange={e => setForm(f => ({ ...f, healingEnabled: e.target.checked }))}
+                      />
+                      Healing activo
+                    </label>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '9px', fontFamily: 'var(--font-mono)', color: 'var(--muted)', marginBottom: '4px' }}>
+                        MÁX. REINTENTOS
                       </label>
-                    ))}
+                      <input
+                        type="number"
+                        className="sentinel-input"
+                        min={1}
+                        max={20}
+                        value={form.maxAttempts}
+                        onChange={e => setForm(f => ({ ...f, maxAttempts: Number(e.target.value) }))}
+                        style={{ maxWidth: '120px', fontSize: '12px' }}
+                      />
+                    </div>
+                    <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+                      {[
+                        { key: 'autoApply' as const, label: 'Auto-aplicar reglas IA' },
+                        { key: 'notifyOnHeal' as const, label: 'Notificar reparaciones' },
+                        { key: 'notifyOnDead' as const, label: 'Notificar DLQ' },
+                      ].map(({ key, label }) => (
+                        <label key={key} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', cursor: 'pointer' }}>
+                          <input
+                            type="checkbox"
+                            checked={form[key]}
+                            onChange={e => setForm(f => ({ ...f, [key]: e.target.checked }))}
+                          />
+                          {label}
+                        </label>
+                      ))}
+                    </div>
                   </div>
                 )}
 
@@ -664,16 +788,14 @@ export default function FlowsPage() {
                   )}
                   {modalStep === MODAL_STEPS.length - 1 && (
                     <button type="submit" className="btn-primary" disabled={saving}>
-                      {saving ? 'Guardando…' : 'Crear endpoint'}
+                      {saving ? 'Guardando…' : editingEndpointId ? 'Guardar cambios' : 'Crear endpoint'}
                     </button>
                   )}
                 </div>
               </div>
             </form>
           </div>
-        </div>,
-        document.body,
-      )}
+      </SentinelModal>
     </div>
   );
 }

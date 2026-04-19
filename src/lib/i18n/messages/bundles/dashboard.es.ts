@@ -63,5 +63,6 @@ export const dashboardEs = {
     saveError: 'Error al guardar: {msg}',
     saved: '✔ Guardado',
     saveButton: 'Guardar cambios',
+    saving: 'Guardando…',
   },
 } as const;

@@ -28,6 +28,7 @@ export const en = {
     accountMenu: 'Account menu',
     settings: 'Settings',
     signOut: 'Sign out',
+    signingOut: 'Signing out…',
   },
   sidebar: {
     sections: {

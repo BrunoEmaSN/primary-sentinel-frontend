@@ -6,6 +6,7 @@ import { getDictionary } from '@/lib/i18n/messages';
 import { getLocaleFromCookie } from '@/lib/i18n/getLocale';
 import SentinelChat from '@/components/SentinelChat';
 import { SalesContactProvider } from '@/components/SalesContactProvider';
+import { AppToaster } from '@/components/AppToaster';
 
 export const metadata: Metadata = {
   title: 'Primary Sentinel — Autonomous Reliability & Security Intelligence',
@@ -31,6 +32,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             {sentinelChatWorkerUrl !== '' ? (
               <SentinelChat workerUrl={sentinelChatWorkerUrl} position="bottom-right" />
             ) : null}
+            <AppToaster />
           </SalesContactProvider>
         </I18nProvider>
         <Analytics />

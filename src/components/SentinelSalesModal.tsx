@@ -187,14 +187,22 @@ export default function SentinelSalesModal({
         .ssm-backdrop * { box-sizing: border-box; font-family: var(--font-sans), system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
         .ssm-backdrop {
           position: fixed; inset: 0; z-index: 10050;
-          background: rgba(0,0,0,.65);
-          display: flex; align-items: center; justify-content: center;
-          padding: 20px;
+          min-height: 100dvh;
+          box-sizing: border-box;
+          background: rgba(0,0,0,.72);
+          display: flex; align-items: safe center; justify-content: center;
+          padding: clamp(12px, 3vw, 24px);
+          padding-top: max(12px, env(safe-area-inset-top, 0px));
+          padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
+          overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
           animation: ssm-fade-in .2s ease;
         }
         @keyframes ssm-fade-in { from { opacity: 0; } to { opacity: 1; } }
         .ssm-panel {
-          width: 100%; max-width: 720px; max-height: min(900px, 90vh);
+          width: 100%; max-width: 720px; max-height: min(900px, 90dvh);
+          margin: auto;
+          flex-shrink: 0;
           display: flex; flex-direction: column; border-radius: 12px; overflow: hidden;
           box-shadow: 0 24px 48px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.03);
           background: var(--card); color: var(--text);

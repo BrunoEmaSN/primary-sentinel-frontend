@@ -8,7 +8,7 @@ import { useI18n } from '@/lib/i18n/I18nProvider';
 
 export default function NotificationsPage() {
   const { dict } = useI18n();
-  const { notifications, loading, markAllRead, unread } = useNotificationsContext();
+  const { notifications, loading, markAllRead, markingAllRead, unread } = useNotificationsContext();
 
   return (
     <div className="fade-up">
@@ -23,8 +23,14 @@ export default function NotificationsPage() {
             )}
           </div>
           {unread > 0 && (
-            <button className="btn-ghost" onClick={() => void markAllRead()} style={{ fontSize: '10px' }}>
-              Marcar todas como leídas
+            <button
+              type="button"
+              className="btn-ghost"
+              onClick={() => void markAllRead()}
+              disabled={markingAllRead}
+              style={{ fontSize: '10px', opacity: markingAllRead ? 0.65 : 1 }}
+            >
+              {markingAllRead ? 'Marcando…' : 'Marcar todas como leídas'}
             </button>
           )}
         </div>

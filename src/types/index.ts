@@ -3,6 +3,7 @@
 import type { Destination } from './destinations';
 
 export type EventStatus = 'loaded' | 'healed' | 'dead' | 'processing';
+export type EndpointStatus = 'active' | 'paused' | 'error';
 export type RuleStatus = 'active' | 'pending' | 'quarantined' | 'inactive';
 export type RuleSource = 'ai' | 'human';
 export type DestinationType = Destination['type'];
@@ -24,6 +25,8 @@ export interface Endpoint {
     notifyOnHealing: boolean;
     notifyOnDead: boolean;
   };
+  /** Recibido del Worker (`status`); por defecto activo. */
+  status: EndpointStatus;
   webhook_secret?: string;
   created_at: string;
   updated_at: string;

@@ -67,6 +67,34 @@ html, body {
     padding: 16px;
   }
 
+  /**
+   * Overlay reutilizable (DLQ, Reglas, Flujos, etc.):
+   * centrado vertical seguro en viewports bajos, safe-area, scroll del backdrop.
+   */
+  .sentinel-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    min-height: 100dvh;
+    box-sizing: border-box;
+    padding: clamp(12px, 3vw, 24px);
+    padding-top: max(12px, env(safe-area-inset-top, 0px));
+    padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
+    background: rgba(0, 0, 0, 0.72);
+    display: flex;
+    align-items: safe center;
+    justify-content: center;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .sentinel-modal-dialog-root {
+    margin: auto;
+    flex-shrink: 0;
+    max-width: 100%;
+    outline: none;
+  }
+
   /* Buttons */
   .btn-primary {
     @apply flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-bold font-mono cursor-pointer transition-all;

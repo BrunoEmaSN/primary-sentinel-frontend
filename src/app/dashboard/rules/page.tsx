@@ -6,6 +6,9 @@ import type { TransformationRule, Endpoint } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useI18n } from '@/lib/i18n/I18nProvider';
+import SentinelModal from '@/components/SentinelModal';
+
+type RuleBusy = { ruleId: string; op: 'approve' | 'deactivate' | 'remove' };
 
 export default function RulesPage() {
   const { dict } = useI18n();
@@ -14,6 +17,7 @@ export default function RulesPage() {
   const [loading, setLoading] = useState(true);
   const [selectedRule, setSelectedRule] = useState<TransformationRule | null>(null);
   const [filter, setFilter] = useState<'all' | 'pending' | 'active' | 'quarantined'>('all');
+  const [busy, setBusy] = useState<RuleBusy | null>(null);
 
   const load = useCallback(async () => {
     const eps = await listEndpoints();
@@ -33,19 +37,38 @@ export default function RulesPage() {
   }, [load]);
 
   async function approve(rule: TransformationRule) {
-    await updateRule(rule.endpoint_id, rule.id, { status: 'active' });
-    await load();
+    setBusy({ ruleId: rule.id, op: 'approve' });
+    try {
+      await updateRule(rule.endpoint_id, rule.id, { status: 'active' });
+      await load();
+    } finally {
+      setBusy(null);
+    }
   }
 
   async function deactivate(rule: TransformationRule) {
-    await updateRule(rule.endpoint_id, rule.id, { status: 'inactive' });
-    await load();
+    setBusy({ ruleId: rule.id, op: 'deactivate' });
+    try {
+      await updateRule(rule.endpoint_id, rule.id, { status: 'inactive' });
+      await load();
+    } finally {
+      setBusy(null);
+    }
   }
 
   async function remove(rule: TransformationRule) {
     if (!confirm(`¿Eliminar regla "${rule.name}"?`)) return;
-    await deleteRule(rule.endpoint_id, rule.id);
-    await load();
+    setBusy({ ruleId: rule.id, op: 'remove' });
+    try {
+      await deleteRule(rule.endpoint_id, rule.id);
+      await load();
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  function isRuleBusy(rule: TransformationRule, op: RuleBusy['op']) {
+    return busy?.ruleId === rule.id && busy.op === op;
   }
 
   const filtered = rules.filter(r => filter === 'all' || r.status === filter);
@@ -156,10 +179,12 @@ export default function RulesPage() {
                     <div style={{ display: 'flex', gap: '4px' }}>
                       {rule.status === 'pending' && (
                         <button
-                          onClick={() => approve(rule)}
-                          style={{ background: 'rgba(200,245,80,.1)', color: 'var(--accent)', border: '1px solid rgba(200,245,80,.25)', borderRadius: '4px', width: '24px', height: '24px', cursor: 'pointer', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                          type="button"
+                          onClick={() => void approve(rule)}
+                          disabled={busy !== null}
+                          style={{ background: 'rgba(200,245,80,.1)', color: 'var(--accent)', border: '1px solid rgba(200,245,80,.25)', borderRadius: '4px', width: '24px', height: '24px', cursor: busy ? 'default' : 'pointer', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: isRuleBusy(rule, 'approve') ? 0.55 : busy ? 0.35 : 1 }}
                           title="Aprobar"
-                        >✔</button>
+                        >{isRuleBusy(rule, 'approve') ? '…' : '✔'}</button>
                       )}
                       <button
                         onClick={() => setSelectedRule(rule)}
@@ -168,16 +193,20 @@ export default function RulesPage() {
                       >✎</button>
                       {rule.status === 'active' && (
                         <button
-                          onClick={() => deactivate(rule)}
-                          style={{ background: 'transparent', color: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '4px', width: '24px', height: '24px', cursor: 'pointer', fontSize: '11px' }}
+                          type="button"
+                          onClick={() => void deactivate(rule)}
+                          disabled={busy !== null}
+                          style={{ background: 'transparent', color: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '4px', width: '24px', height: '24px', cursor: busy ? 'default' : 'pointer', fontSize: '11px', opacity: isRuleBusy(rule, 'deactivate') ? 0.55 : busy ? 0.35 : 1 }}
                           title="Desactivar"
-                        >◉</button>
+                        >{isRuleBusy(rule, 'deactivate') ? '…' : '◉'}</button>
                       )}
                       <button
-                        onClick={() => remove(rule)}
-                        style={{ background: 'transparent', color: 'var(--red)', border: '1px solid rgba(239,68,68,.2)', borderRadius: '4px', width: '24px', height: '24px', cursor: 'pointer', fontSize: '11px' }}
+                        type="button"
+                        onClick={() => void remove(rule)}
+                        disabled={busy !== null}
+                        style={{ background: 'transparent', color: 'var(--red)', border: '1px solid rgba(239,68,68,.2)', borderRadius: '4px', width: '24px', height: '24px', cursor: busy ? 'default' : 'pointer', fontSize: '11px', opacity: isRuleBusy(rule, 'remove') ? 0.55 : busy ? 0.35 : 1 }}
                         title="Eliminar"
-                      >✕</button>
+                      >{isRuleBusy(rule, 'remove') ? '…' : '✕'}</button>
                     </div>
                   </td>
                 </tr>
@@ -187,52 +216,96 @@ export default function RulesPage() {
         )}
       </div>
 
-      {/* Rule detail modal */}
-      {selectedRule && (
-        <div style={{
-          position: 'fixed', inset: 0, background: 'rgba(0,0,0,.75)',
-          zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px',
-        }} onClick={e => { if (e.target === e.currentTarget) setSelectedRule(null); }}>
-          <div className="sentinel-card fade-up" style={{ width: '600px', maxWidth: '100%', maxHeight: '80vh', overflowY: 'auto', padding: '24px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', fontWeight: 700 }}>{selectedRule.name}</div>
-              <button onClick={() => setSelectedRule(null)} style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '16px' }}>✕</button>
-            </div>
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
-              <span className={`pill ${statusPill(selectedRule.status)}`}>{selectedRule.status.toUpperCase()}</span>
-              <span style={{ fontSize: '10px', color: selectedRule.source === 'ai' ? 'var(--teal)' : 'var(--blue)', fontFamily: 'var(--font-mono)' }}>
-                {selectedRule.source === 'ai' ? '★ Generada por IA' : '♦ Creada manualmente'}
-              </span>
-              {selectedRule.confidence && (
-                <span style={{ fontSize: '10px', color: 'var(--accent)', fontFamily: 'var(--font-mono)' }}>
-                  Confianza: {selectedRule.confidence.toFixed(1)}%
+      <SentinelModal
+        open={!!selectedRule}
+        onClose={() => setSelectedRule(null)}
+        labelledBy="rules-detail-title"
+      >
+        {selectedRule && (
+          <div
+            className="sentinel-card fade-up"
+            style={{
+              width: 'min(600px, calc(100vw - clamp(24px, 6vw, 48px)))',
+              maxWidth: '100%',
+              maxHeight: 'min(90dvh, 900px)',
+              padding: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+            }}
+          >
+            <div
+              style={{
+                padding: 'clamp(16px, 3vw, 24px)',
+                paddingBottom: '12px',
+                borderBottom: '1px solid var(--border)',
+                flexShrink: 0,
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px', marginBottom: '12px' }}>
+                <div id="rules-detail-title" style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', fontWeight: 700, lineHeight: 1.35 }}>
+                  {selectedRule.name}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedRule(null)}
+                  style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '18px', lineHeight: 1, padding: '2px 4px', flexShrink: 0 }}
+                  aria-label="Cerrar"
+                >
+                  ✕
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                <span className={`pill ${statusPill(selectedRule.status)}`}>{selectedRule.status.toUpperCase()}</span>
+                <span style={{ fontSize: '10px', color: selectedRule.source === 'ai' ? 'var(--teal)' : 'var(--blue)', fontFamily: 'var(--font-mono)' }}>
+                  {selectedRule.source === 'ai' ? '★ Generada por IA' : '♦ Creada manualmente'}
                 </span>
+                {selectedRule.confidence && (
+                  <span style={{ fontSize: '10px', color: 'var(--accent)', fontFamily: 'var(--font-mono)' }}>
+                    Confianza: {selectedRule.confidence.toFixed(1)}%
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: 'clamp(16px, 3vw, 24px)', paddingTop: '16px' }}>
+              {selectedRule.description && (
+                <div style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '12px' }}>{selectedRule.description}</div>
               )}
+              <div style={{ fontSize: '9px', color: 'var(--muted)', fontFamily: 'var(--font-mono)', letterSpacing: '1px', marginBottom: '6px' }}>
+                SCRIPT DE TRANSFORMACIÓN
+              </div>
+              <pre style={{
+                background: 'var(--bg2)', borderRadius: '6px', padding: '14px',
+                fontSize: '10px', fontFamily: 'var(--font-mono)', color: 'var(--text)',
+                border: '1px solid var(--border)', overflowX: 'auto', whiteSpace: 'pre-wrap',
+              }}>
+                {selectedRule.script || '// Script generado por Gemini\n// Se ejecuta en sandbox aislado\n\nfunction transform(payload) {\n  // Transformación aquí\n  return payload;\n}'}
+              </pre>
             </div>
-            {selectedRule.description && (
-              <div style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '12px' }}>{selectedRule.description}</div>
-            )}
-            <div style={{ fontSize: '9px', color: 'var(--muted)', fontFamily: 'var(--font-mono)', letterSpacing: '1px', marginBottom: '6px' }}>
-              SCRIPT DE TRANSFORMACIÓN
-            </div>
-            <pre style={{
-              background: 'var(--bg2)', borderRadius: '6px', padding: '14px',
-              fontSize: '10px', fontFamily: 'var(--font-mono)', color: 'var(--text)',
-              border: '1px solid var(--border)', overflowX: 'auto', whiteSpace: 'pre-wrap',
-            }}>
-              {selectedRule.script || '// Script generado por Gemini\n// Se ejecuta en sandbox aislado\n\nfunction transform(payload) {\n  // Transformación aquí\n  return payload;\n}'}
-            </pre>
-            <div style={{ display: 'flex', gap: '8px', marginTop: '14px', justifyContent: 'flex-end' }}>
+
+            <div
+              style={{
+                display: 'flex',
+                gap: '8px',
+                flexWrap: 'wrap',
+                justifyContent: 'flex-end',
+                padding: 'clamp(12px, 2.5vw, 16px) clamp(16px, 3vw, 24px)',
+                borderTop: '1px solid var(--border)',
+                background: 'var(--bg)',
+                flexShrink: 0,
+              }}
+            >
               {selectedRule.status === 'pending' && (
-                <button className="btn-primary" onClick={() => { approve(selectedRule); setSelectedRule(null); }}>
+                <button type="button" className="btn-primary" onClick={() => { approve(selectedRule); setSelectedRule(null); }}>
                   ✔ Aprobar regla
                 </button>
               )}
-              <button className="btn-ghost" onClick={() => setSelectedRule(null)}>Cerrar</button>
+              <button type="button" className="btn-ghost" onClick={() => setSelectedRule(null)}>Cerrar</button>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </SentinelModal>
     </div>
   );
 }

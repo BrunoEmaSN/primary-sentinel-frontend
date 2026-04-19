@@ -13,7 +13,7 @@ type Props = {
 };
 
 export default function TopbarNotifications({ open, onOpenChange }: Props) {
-  const { notifications, loading, markAllRead, unread } = useNotificationsContext();
+  const { notifications, loading, markAllRead, markingAllRead, unread } = useNotificationsContext();
   const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -106,10 +106,11 @@ export default function TopbarNotifications({ open, onOpenChange }: Props) {
               <button
                 type="button"
                 className="btn-ghost"
-                style={{ fontSize: '10px', padding: '4px 8px' }}
+                style={{ fontSize: '10px', padding: '4px 8px', opacity: markingAllRead ? 0.65 : 1 }}
+                disabled={markingAllRead}
                 onClick={() => void markAllRead()}
               >
-                Marcar leídas
+                {markingAllRead ? 'Marcando…' : 'Marcar leídas'}
               </button>
             )}
           </div>

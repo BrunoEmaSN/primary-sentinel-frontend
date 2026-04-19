@@ -8,6 +8,7 @@ import type { User } from '@supabase/supabase-js';
 import { getPublicWorkerUrl, getTenantSettings, putTenantSettings, type TenantSettingsApi } from '@/lib/api';
 import { allowPrices } from '@/lib/allowPrices';
 import { useI18n } from '@/lib/i18n/I18nProvider';
+import { toast } from 'sonner';
 
 type SectionProps = { title: string; children: ReactNode };
 type RowProps = { label: string; sub?: string; children: ReactNode };
@@ -56,8 +57,8 @@ export default function SettingsPage() {
   const { dict } = useI18n();
   const st = dict.dashboard.settings;
   const [user, setUser] = useState<User | null>(null);
-  const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [s, setS] = useState<TenantSettingsApi>(defaultSettings);
   const supabase = useMemo(() => createClient(), []);
 
@@ -73,21 +74,25 @@ export default function SettingsPage() {
   }, []);
 
   async function handleSave() {
-    const res = await putTenantSettings({
-      notify_email_healing: s.notify_email_healing,
-      notify_email_dead: s.notify_email_dead,
-      notify_email_pending_rules: s.notify_email_pending_rules,
-      slack_on_incidents: s.slack_on_incidents,
-      slack_incoming_webhook_url: s.slack_incoming_webhook_url || null,
-      alert_webhook_url: s.alert_webhook_url || null,
-      alert_webhook_secret: s.alert_webhook_secret || null,
-    });
-    if (res.error) {
-      alert(st.saveError.replace('{msg}', String(res.error)));
-      return;
+    setSaving(true);
+    try {
+      const res = await putTenantSettings({
+        notify_email_healing: s.notify_email_healing,
+        notify_email_dead: s.notify_email_dead,
+        notify_email_pending_rules: s.notify_email_pending_rules,
+        slack_on_incidents: s.slack_on_incidents,
+        slack_incoming_webhook_url: s.slack_incoming_webhook_url || null,
+        alert_webhook_url: s.alert_webhook_url || null,
+        alert_webhook_secret: s.alert_webhook_secret || null,
+      });
+      if (res.error) {
+        toast.error(st.saveError.replace('{msg}', String(res.error)));
+        return;
+      }
+      toast.success(st.saved);
+    } finally {
+      setSaving(false);
     }
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
   }
 
   return (
@@ -211,8 +216,8 @@ export default function SettingsPage() {
       </Section>
 
       <div style={{ display: 'flex', gap: '8px' }}>
-        <button className="btn-primary" onClick={() => void handleSave()} disabled={loading}>
-          {saved ? st.saved : st.saveButton}
+        <button className="btn-primary" onClick={() => void handleSave()} disabled={loading || saving}>
+          {saving ? st.saving : st.saveButton}
         </button>
       </div>
     </div>
