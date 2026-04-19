@@ -1,6 +1,7 @@
 'use client';
 
 import type { RawEvent, Endpoint } from '@/types';
+import { useI18n } from '@/lib/i18n/I18nProvider';
 
 interface Props {
   endpoints: Endpoint[];
@@ -8,6 +9,8 @@ interface Props {
 }
 
 export default function FlowDiagram({ endpoints, events }: Props) {
+  const { dict } = useI18n();
+  const fd = dict.dashboard.flowDiagram;
   const epA = endpoints[0]?.name ?? 'endpoint-a';
   const epB = endpoints[1]?.name ?? 'endpoint-b';
   const recentStatuses = events.slice(0, 5).map(e => e.status);
@@ -17,16 +20,19 @@ export default function FlowDiagram({ endpoints, events }: Props) {
   const healLineColor = hasHealed ? '#c8f550' : '#2a3444';
   const deadLineColor = hasDead ? '#ef4444' : '#2a3444';
 
+  const epCount = endpoints.length;
+  const epSubtitle = epCount === 1 ? fd.endpointsOne : fd.endpointsMany.replace('{n}', String(epCount));
+
   return (
     <div className="sentinel-card">
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
         <div>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700 }}>FLUJO ACTIVO</div>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700 }}>{fd.title}</div>
           <div style={{ fontSize: '10px', color: 'var(--muted)', marginTop: '2px' }}>
-            {endpoints.length} endpoint{endpoints.length !== 1 ? 's' : ''} configurados
+            {epSubtitle}
           </div>
         </div>
-        <span className="pill pill-active">● LIVE</span>
+        <span className="pill pill-active">{fd.livePill}</span>
       </div>
 
       <div style={{ background: 'var(--bg2)', borderRadius: '8px', overflow: 'hidden' }}>
@@ -37,7 +43,6 @@ export default function FlowDiagram({ endpoints, events }: Props) {
             </marker>
           </defs>
 
-          {/* Lines */}
           <line x1="100" y1="65" x2="175" y2="65" stroke="#2a3444" strokeWidth="1.5" markerEnd="url(#arr)"/>
           <line x1="100" y1="165" x2="175" y2="165" stroke="#2a3444" strokeWidth="1.5" markerEnd="url(#arr)"/>
           <line x1="285" y1="65" x2="355" y2="110" stroke={healLineColor} strokeWidth="1.5" markerEnd="url(#arr)" style={{ transition: 'stroke 0.5s' }}/>
@@ -45,71 +50,62 @@ export default function FlowDiagram({ endpoints, events }: Props) {
           <line x1="465" y1="115" x2="510" y2="115" stroke={deadLineColor} strokeWidth="1.5" markerEnd="url(#arr)" strokeDasharray={hasDead ? '4 3' : 'none'} style={{ transition: 'stroke 0.5s' }}/>
           <line x1="465" y1="100" x2="510" y2="75" stroke={healLineColor} strokeWidth="1.5" markerEnd="url(#arr)" style={{ transition: 'stroke 0.5s' }}/>
 
-          {/* HEALED label */}
           {hasHealed && (
-            <text x="308" y="78" fill="#c8f550" fontSize="7" fontFamily="Space Mono, monospace" fontWeight="700">HEALED ✦</text>
+            <text x="308" y="78" fill="#c8f550" fontSize="7" fontFamily="Space Mono, monospace" fontWeight="700">{fd.healedLabel}</text>
           )}
 
-          {/* Nodes */}
-          {/* process_order */}
           <g>
             <rect x="10" y="44" width="90" height="42" rx="6" fill="#14171c" stroke="#2a3444" strokeWidth="1"/>
             <text x="18" y="62" fill="#e8eaed" fontSize="7" fontFamily="Space Mono, monospace" fontWeight="700">{epA.slice(0, 14)}</text>
             <rect x="18" y="76" width="56" height="7" rx="1.5" fill="rgba(200,245,80,.1)"/>
-            <text x="21" y="81" fill="#c8f550" fontSize="6" fontFamily="Space Mono, monospace" fontWeight="700">event</text>
+            <text x="21" y="81" fill="#c8f550" fontSize="6" fontFamily="Space Mono, monospace" fontWeight="700">{fd.nodeEvent}</text>
           </g>
 
-          {/* betaCalculator */}
           <g>
             <rect x="10" y="144" width="90" height="42" rx="6" fill="#14171c" stroke="#2a3444" strokeWidth="1"/>
             <text x="18" y="162" fill="#e8eaed" fontSize="7" fontFamily="Space Mono, monospace" fontWeight="700">{epB.slice(0, 14)}</text>
             <rect x="18" y="176" width="48" height="7" rx="1.5" fill="rgba(245,158,11,.1)"/>
-            <text x="21" y="181" fill="#f59e0b" fontSize="6" fontFamily="Space Mono, monospace" fontWeight="700">schema</text>
+            <text x="21" y="181" fill="#f59e0b" fontSize="6" fontFamily="Space Mono, monospace" fontWeight="700">{fd.nodeSchema}</text>
           </g>
 
-          {/* RoutingAgent */}
           <g>
             <rect x="175" y="44" width="110" height="42" rx="6" fill="#14171c" stroke="#2a3444" strokeWidth="1"/>
             <text x="183" y="60" fill="#e8eaed" fontSize="8" fontFamily="Space Mono, monospace" fontWeight="700">RoutingAgent</text>
-            <text x="183" y="70" fill="#6b7a8d" fontSize="7" fontFamily="DM Sans, sans-serif">Repara con reglas IA</text>
+            <text x="183" y="70" fill="#6b7a8d" fontSize="7" fontFamily="DM Sans, sans-serif">{fd.routingSubtitle}</text>
             <rect x="183" y="76" width="68" height="7" rx="1.5" fill="rgba(59,130,246,.1)"/>
-            <text x="186" y="81" fill="#3b82f6" fontSize="6" fontFamily="Space Mono, monospace" fontWeight="700">validation_error</text>
+            <text x="186" y="81" fill="#3b82f6" fontSize="6" fontFamily="Space Mono, monospace" fontWeight="700">{fd.routingTag}</text>
           </g>
 
-          {/* betaCalculator line 2 */}
           <g>
             <rect x="175" y="144" width="110" height="42" rx="6" fill="#14171c" stroke="#2a3444" strokeWidth="1"/>
-            <text x="183" y="160" fill="#e8eaed" fontSize="8" fontFamily="Space Mono, monospace" fontWeight="700">DataValidator</text>
-            <text x="183" y="170" fill="#6b7a8d" fontSize="7" fontFamily="DM Sans, sans-serif">Zod schema check</text>
+            <text x="183" y="160" fill="#e8eaed" fontSize="8" fontFamily="Space Mono, monospace" fontWeight="700">{fd.validatorTitle}</text>
+            <text x="183" y="170" fill="#6b7a8d" fontSize="7" fontFamily="DM Sans, sans-serif">{fd.validatorSubtitle}</text>
             <rect x="183" y="176" width="56" height="7" rx="1.5" fill="rgba(200,245,80,.1)"/>
-            <text x="186" y="181" fill="#c8f550" fontSize="6" fontFamily="Space Mono, monospace" fontWeight="700">validated</text>
+            <text x="186" y="181" fill="#c8f550" fontSize="6" fontFamily="Space Mono, monospace" fontWeight="700">{fd.validatedTag}</text>
           </g>
 
-          {/* RetaLoader */}
           <g>
             <rect x="355" y="90" width="110" height="50" rx="6" fill="#14171c" stroke={healLineColor} strokeWidth="1" style={{ transition: 'stroke 0.5s' }}/>
-            <text x="363" y="108" fill="#e8eaed" fontSize="8" fontFamily="Space Mono, monospace" fontWeight="700">RetaLoader</text>
-            <text x="363" y="118" fill="#6b7a8d" fontSize="7" fontFamily="DM Sans, sans-serif">Inserta en DB</text>
+            <text x="363" y="108" fill="#e8eaed" fontSize="8" fontFamily="Space Mono, monospace" fontWeight="700">{fd.retaTitle}</text>
+            <text x="363" y="118" fill="#6b7a8d" fontSize="7" fontFamily="DM Sans, sans-serif">{fd.retaSubtitle}</text>
             <rect x="363" y="128" width="60" height="7" rx="1.5" fill="rgba(20,184,166,.1)"/>
-            <text x="366" y="133" fill="#14b8a6" fontSize="6" fontFamily="Space Mono, monospace" fontWeight="700">validated_data</text>
+            <text x="366" y="133" fill="#14b8a6" fontSize="6" fontFamily="Space Mono, monospace" fontWeight="700">{fd.retaTag}</text>
           </g>
 
-          {/* DeadLetterQ */}
           <g>
             <rect x="510" y="55" width="95" height="40" rx="6" fill="#14171c" stroke={deadLineColor} strokeWidth="1" style={{ transition: 'stroke 0.5s' }}/>
-            <text x="518" y="71" fill="#e8eaed" fontSize="8" fontFamily="Space Mono, monospace" fontWeight="700">DeadLetterQ</text>
-            <text x="518" y="82" fill="#6b7a8d" fontSize="7" fontFamily="DM Sans, sans-serif">Irrecuperables</text>
+            <text x="518" y="71" fill="#e8eaed" fontSize="8" fontFamily="Space Mono, monospace" fontWeight="700">{fd.dlqTitle}</text>
+            <text x="518" y="82" fill="#6b7a8d" fontSize="7" fontFamily="DM Sans, sans-serif">{fd.dlqSubtitle}</text>
           </g>
 
-          {/* DataLoader (DB) */}
           <g>
             <rect x="510" y="95" width="95" height="40" rx="6" fill="#14171c" stroke="#2a3444" strokeWidth="1"/>
-            <text x="518" y="111" fill="#e8eaed" fontSize="8" fontFamily="Space Mono, monospace" fontWeight="700">DataLoader</text>
+            <text x="518" y="111" fill="#e8eaed" fontSize="8" fontFamily="Space Mono, monospace" fontWeight="700">{fd.dataLoaderTitle}</text>
             <g aria-hidden>
               <line x1="518" y1="121" x2="524" y2="121" stroke="#6b7a8d" strokeWidth="1" strokeLinecap="round" />
               <path d="M524 121 L521 118.5 M524 121 L521 123.5" stroke="#6b7a8d" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" fill="none" />
             </g>
-            <text x="528" y="122" fill="#6b7a8d" fontSize="7" fontFamily="DM Sans, sans-serif">Supabase DB</text>
+            <text x="528" y="122" fill="#6b7a8d" fontSize="7" fontFamily="DM Sans, sans-serif">{fd.dataLoaderSubtitle}</text>
           </g>
         </svg>
       </div>

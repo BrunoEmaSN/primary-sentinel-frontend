@@ -6,6 +6,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useNotificationsContext } from '@/components/layout/NotificationsProvider';
 import { notificationTypeConfig } from '@/lib/notifications';
+import { useI18n } from '@/lib/i18n/I18nProvider';
 
 type Props = {
   open: boolean;
@@ -13,6 +14,8 @@ type Props = {
 };
 
 export default function TopbarNotifications({ open, onOpenChange }: Props) {
+  const { dict } = useI18n();
+  const tn = dict.dashboard.topbarNotifications;
   const { notifications, loading, markAllRead, markingAllRead, unread } = useNotificationsContext();
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -42,7 +45,7 @@ export default function TopbarNotifications({ open, onOpenChange }: Props) {
           position: 'relative',
           borderRadius: '8px',
         }}
-        title="Notificaciones"
+        title={tn.bellTitle}
       >
         <BellIcon />
         {unread > 0 && (
@@ -100,7 +103,7 @@ export default function TopbarNotifications({ open, onOpenChange }: Props) {
             }}
           >
             <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', fontWeight: 700 }}>
-              Notificaciones
+              {tn.title}
             </span>
             {unread > 0 && (
               <button
@@ -110,7 +113,7 @@ export default function TopbarNotifications({ open, onOpenChange }: Props) {
                 disabled={markingAllRead}
                 onClick={() => void markAllRead()}
               >
-                {markingAllRead ? 'Marcando…' : 'Marcar leídas'}
+                {markingAllRead ? tn.loading : tn.markRead}
               </button>
             )}
           </div>
@@ -118,12 +121,12 @@ export default function TopbarNotifications({ open, onOpenChange }: Props) {
           <div style={{ overflowY: 'auto', flex: 1 }}>
             {loading && (
               <div style={{ padding: '24px', textAlign: 'center', fontSize: '11px', color: 'var(--muted)' }}>
-                Cargando…
+                {tn.loading}
               </div>
             )}
             {!loading && preview.length === 0 && (
               <div style={{ padding: '24px', textAlign: 'center', fontSize: '11px', color: 'var(--muted)' }}>
-                Sin notificaciones
+                {tn.empty}
               </div>
             )}
             {!loading &&
@@ -201,7 +204,7 @@ export default function TopbarNotifications({ open, onOpenChange }: Props) {
                 textDecoration: 'none',
               }}
             >
-              Ver todas
+              {tn.viewAll}
             </Link>
           </div>
         </div>

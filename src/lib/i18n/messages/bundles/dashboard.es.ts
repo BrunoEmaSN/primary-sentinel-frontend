@@ -1,3 +1,5 @@
+import { dashboardPortalEs } from './dashboard.portal.es';
+
 export const dashboardEs = {
   stats: {
     eventsToday: 'Eventos hoy',
@@ -65,4 +67,5 @@ export const dashboardEs = {
     saveButton: 'Guardar cambios',
     saving: 'Guardando…',
   },
+  ...dashboardPortalEs,
 } as const;

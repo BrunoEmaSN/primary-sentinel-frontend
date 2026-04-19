@@ -14,14 +14,17 @@ import {
 import { jsonDiffSnapshotVsDlq, type JsonDiffPart } from '@/lib/dlqPayloadDiff';
 import type { DLQEvent } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { enUS, es as esLocale } from 'date-fns/locale';
 import { IconArrowRight } from '@/components/icons/Arrows';
 import { useI18n } from '@/lib/i18n/I18nProvider';
 import SentinelModal from '@/components/SentinelModal';
 import { toast } from 'sonner';
 
 export default function DLQPage() {
-  const { dict } = useI18n();
+  const { locale, dict } = useI18n();
+  const d = dict.dashboard.dlq;
+  const ui = dict.dashboard.ui;
+  const dfLocale = locale === 'en' ? enUS : esLocale;
   const [events, setEvents] = useState<DLQEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<DLQEvent | null>(null);
@@ -58,12 +61,17 @@ export default function DLQPage() {
       snapshotName: snapshotName.trim() || undefined,
     });
     if (res.error) {
-      toast.error('Error: ' + res.error);
+      toast.error(ui.errorWithDetail.replace('{msg}', String(res.error)));
     } else if (res.data?.status === 'dead') {
-      toast.warning(`Reinyección no completó el envío: ${res.data.message ?? 'ver DLQ'}`);
+      toast.warning(
+        d.toastReinjectDead.replace(
+          '{msg}',
+          res.data.message ?? d.toastSeeDlq
+        )
+      );
       void load();
     } else {
-      toast.success('Evento reinyectado y enviado a destinos');
+      toast.success(d.toastReinjectOk);
       setSelected(null);
       void load();
     }
@@ -81,15 +89,15 @@ export default function DLQPage() {
   }, [selected]);
 
   async function handleDiscard(ev: DLQEvent) {
-    if (!confirm('¿Descartar este evento? Esta acción no se puede deshacer.')) return;
+    if (!confirm(d.confirmDiscard)) return;
     setActionLoading(ev.id);
     const r = await discardDLQEvent(ev.id);
     setActionLoading('');
     if (r.error) {
-      toast.error('Error: ' + r.error);
+      toast.error(ui.errorWithDetail.replace('{msg}', String(r.error)));
       return;
     }
-    toast.success('Evento descartado');
+    toast.success(d.toastDiscarded);
     void load();
   }
 
@@ -106,20 +114,22 @@ export default function DLQPage() {
   async function loadDiffForSnapshot(eventId: string, snapshotId: string) {
     setDiffModalLoading(true);
     setDiffModalError('');
-    const d = await getDlqDiff(eventId, snapshotId);
+    const diffRes = await getDlqDiff(eventId, snapshotId);
     setDiffModalLoading(false);
-    if (d.error) {
-      setDiffModalError(typeof d.error === 'string' ? d.error : 'Error al cargar el diff');
+    if (diffRes.error) {
+      setDiffModalError(
+        typeof diffRes.error === 'string' ? diffRes.error : d.errLoadDiff
+      );
       setDiffParts([]);
       return;
     }
-    if (!d.data) {
-      setDiffModalError('Respuesta vacía del servidor');
+    if (!diffRes.data) {
+      setDiffModalError(d.errEmptyResponse);
       setDiffParts([]);
       return;
     }
-    setDiffSameJson(d.data.sameJson);
-    setDiffParts(jsonDiffSnapshotVsDlq(d.data.left, d.data.right));
+    setDiffSameJson(diffRes.data.sameJson);
+    setDiffParts(jsonDiffSnapshotVsDlq(diffRes.data.left, diffRes.data.right));
   }
 
   async function openDiffModal(ev: DLQEvent) {
@@ -150,9 +160,7 @@ export default function DLQPage() {
         .filter((r) => r.id);
       if (normalized.length === 0) {
         setDiffModalLoading(false);
-        setDiffModalError(
-          'No hay snapshots para este evento. Al reinyectar (con o sin corrección), se puede guardar un snapshot con nombre para comparar después.'
-        );
+        setDiffModalError(d.noSnapshotsHint);
         return;
       }
       setDiffSnapshots(normalized);
@@ -168,7 +176,7 @@ export default function DLQPage() {
     <div className="fade-up">
       <div className="sentinel-card" style={{ marginBottom: '16px' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700, marginBottom: '4px' }}>
-          DEAD LETTER QUEUE
+          {d.introTitle}
         </div>
         <div style={{ fontSize: '10px', color: 'var(--muted)', lineHeight: 1.5 }}>
           <div
@@ -180,34 +188,35 @@ export default function DLQPage() {
               marginBottom: '8px',
             }}
           >
-            <span>Flujo:</span>
-            <span>webhook</span>
+            <span>{ui.flowLabel}</span>
+            <span>{ui.webhook}</span>
             <IconArrowRight size={10} style={{ color: 'var(--border2)' }} />
-            <span>validación</span>
+            <span>{ui.validation}</span>
             <IconArrowRight size={10} style={{ color: 'var(--border2)' }} />
-            <span>healing opcional</span>
+            <span>{ui.healingOptional}</span>
             <IconArrowRight size={10} style={{ color: 'var(--border2)' }} />
-            <span>fan-out.</span>
+            <span>{ui.fanOut}</span>
           </div>
           <p style={{ margin: 0 }}>
-            Si todo falla, estado <code>dead</code>, copia en R2 bajo{' '}
-            <code>dlq/&#123;tenant&#125;/&#123;event&#125;.json</code> y alertas multi-canal según ajustes. Reinyección crea un
-            evento nuevo y elimina este registro muerto.
+            {d.introPart1} <code>dead</code>
+            {d.introPart2} <code>{d.introPath}</code> {d.introPart3}
           </p>
         </div>
       </div>
 
-      {loading && <div style={{ textAlign: 'center', padding: '40px', color: 'var(--muted)', fontSize: '11px' }}>{dict.dashboard.loading.dlq}</div>}
+      {loading && (
+        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--muted)', fontSize: '11px' }}>
+          {dict.dashboard.loading.dlq}
+        </div>
+      )}
 
       {!loading && events.length === 0 && (
         <div className="sentinel-card" style={{ textAlign: 'center', padding: '50px' }}>
           <div style={{ fontSize: '32px', marginBottom: '10px' }}>✦</div>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', color: 'var(--accent)', marginBottom: '4px' }}>
-            DLQ limpia
+            {d.emptyTitle}
           </div>
-          <div style={{ fontSize: '11px', color: 'var(--muted)' }}>
-            Todos los eventos fueron procesados o reparados exitosamente
-          </div>
+          <div style={{ fontSize: '11px', color: 'var(--muted)' }}>{d.emptyHint}</div>
         </div>
       )}
 
@@ -219,15 +228,15 @@ export default function DLQPage() {
                 fontFamily: 'var(--font-mono)', fontSize: '9px', padding: '2px 6px',
                 borderRadius: '3px', background: 'rgba(239,68,68,.1)', color: 'var(--red)',
                 border: '1px solid rgba(239,68,68,.2)', fontWeight: 700,
-              }}>ERROR</span>
+              }}>{d.badgeError}</span>
               <div style={{ flex: 1, fontSize: '12px', fontWeight: 500 }}>
-                {ev.error_reason || 'Payload con estructura desconocida'}
+                {ev.error_reason || d.unknownPayload}
               </div>
               <div style={{ fontSize: '9px', color: 'var(--muted)', fontFamily: 'var(--font-mono)' }}>
                 #{ev.event_id?.slice(0, 8)}
               </div>
               <div style={{ fontSize: '9px', color: 'var(--muted)' }}>
-                {formatDistanceToNow(new Date(ev.created_at), { addSuffix: true, locale: es })}
+                {formatDistanceToNow(new Date(ev.created_at), { addSuffix: true, locale: dfLocale })}
               </div>
             </div>
 
@@ -241,7 +250,7 @@ export default function DLQPage() {
             </pre>
 
             <div style={{ fontSize: '10px', color: 'var(--muted)', margin: '8px 0' }}>
-              {ev.attempts} intentos de reparación · IA no pudo corregir con suficiente confianza · Payload guardado completo
+              {d.attemptsLine.replace('{n}', String(ev.attempts))}
             </div>
 
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
@@ -251,27 +260,27 @@ export default function DLQPage() {
                 disabled={diffOpeningId === ev.id}
                 style={{ padding: '5px 12px', borderRadius: '5px', fontSize: '10px', fontFamily: 'var(--font-mono)', cursor: diffOpeningId === ev.id ? 'default' : 'pointer', background: 'rgba(148,163,184,.1)', color: 'var(--muted)', border: '1px solid rgba(148,163,184,.25)', fontWeight: 700, opacity: diffOpeningId === ev.id ? 0.65 : 1 }}
               >
-                {diffOpeningId === ev.id ? 'Cargando…' : 'Ver diff snapshot ↔ DLQ'}
+                {diffOpeningId === ev.id ? ui.loading : d.btnDiff}
               </button>
               <button
                 onClick={() => { setSelected(ev); setCorrectedPayload(JSON.stringify(ev.payload, null, 2)); }}
                 style={{ padding: '5px 12px', borderRadius: '5px', fontSize: '10px', fontFamily: 'var(--font-mono)', cursor: 'pointer', background: 'rgba(59,130,246,.1)', color: 'var(--blue)', border: '1px solid rgba(59,130,246,.3)', fontWeight: 700 }}
               >
-                ✎ Corregir y reinyectar
+                {d.btnCorrect}
               </button>
               <button
                 onClick={() => void handleReinject(ev)}
                 disabled={actionLoading === ev.id}
                 style={{ padding: '5px 12px', borderRadius: '5px', fontSize: '10px', fontFamily: 'var(--font-mono)', cursor: actionLoading === ev.id ? 'default' : 'pointer', background: 'rgba(200,245,80,.1)', color: 'var(--accent)', border: '1px solid rgba(200,245,80,.3)', fontWeight: 700, opacity: actionLoading === ev.id ? 0.65 : 1 }}
               >
-                {actionLoading === ev.id ? 'Enviando…' : '▶ Reinyectar tal cual'}
+                {actionLoading === ev.id ? ui.sending : d.btnReinject}
               </button>
               <button
                 onClick={() => void handleDiscard(ev)}
                 disabled={actionLoading === ev.id}
                 style={{ padding: '5px 12px', borderRadius: '5px', fontSize: '10px', fontFamily: 'var(--font-mono)', cursor: actionLoading === ev.id ? 'default' : 'pointer', background: 'rgba(239,68,68,.08)', color: 'var(--red)', border: '1px solid rgba(239,68,68,.2)', fontWeight: 700, opacity: actionLoading === ev.id ? 0.65 : 1 }}
               >
-                {actionLoading === ev.id ? 'Procesando…' : '✕ Descartar'}
+                {actionLoading === ev.id ? ui.processing : d.btnDiscard}
               </button>
             </div>
           </div>
@@ -308,27 +317,26 @@ export default function DLQPage() {
                 id="dlq-diff-title"
                 style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', fontWeight: 700, marginBottom: '8px' }}
               >
-                DIFF: SNAPSHOT ↔ PAYLOAD EN DLQ
+                {d.diffModalTitle}
               </div>
               <div style={{ fontSize: '10px', color: 'var(--muted)', lineHeight: 1.55 }}>
-                <code>GET /api/dlq/{'{eventId}'}/diff</code>: compara el JSON del <strong>snapshot</strong> (referencia
-                guardada) con el <strong>payload actual</strong> del evento en DLQ (<code>rawPayload</code>). Leyenda
-                del diff JSON:{' '}
+                <code>{d.diffModalIntroPart1}</code>
+                {d.diffModalIntroPart2}{' '}
                 <span style={{ background: 'rgba(239,68,68,.15)', padding: '1px 5px', borderRadius: '3px' }}>
-                  rojo
+                  {d.diffLegendRed}
                 </span>{' '}
-                = contenido que figuraba en el snapshot y ya no coincide o falta en el DLQ;{' '}
+                {d.diffModalIntroPart3}{' '}
                 <span style={{ background: 'rgba(34,197,94,.15)', padding: '1px 5px', borderRadius: '3px' }}>
-                  verde
+                  {d.diffLegendGreen}
                 </span>{' '}
-                = contenido presente en el DLQ y distinto o ausente en el snapshot.
+                {d.diffModalIntroPart4}
               </div>
             </div>
 
             <div style={{ flexShrink: 0, padding: '10px clamp(16px, 3vw, 22px)', borderBottom: '1px solid var(--border)' }}>
               {diffSnapshots.length > 1 ? (
                 <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '10px', color: 'var(--muted)' }}>
-                  <span style={{ fontFamily: 'var(--font-mono)', letterSpacing: '0.5px' }}>SNAPSHOT</span>
+                  <span style={{ fontFamily: 'var(--font-mono)', letterSpacing: '0.5px' }}>{d.snapshotLabel}</span>
                   <select
                     className="sentinel-input"
                     style={{ fontSize: '11px' }}
@@ -341,14 +349,16 @@ export default function DLQPage() {
                   >
                     {diffSnapshots.map(s => (
                       <option key={s.id} value={s.id}>
-                        {(s.name || 'sin nombre') + (s.created_at ? ` · ${s.created_at}` : '')}
+                        {(s.name || d.noSnapshotName) + (s.created_at ? ` · ${s.created_at}` : '')}
                       </option>
                     ))}
                   </select>
                 </label>
               ) : diffSnapshots.length === 1 ? (
                 <div style={{ fontSize: '10px', color: 'var(--muted)', fontFamily: 'var(--font-mono)' }}>
-                  Snapshot: {diffSnapshots[0]!.name || '—'} {diffSnapshots[0]!.created_at ? `· ${diffSnapshots[0]!.created_at}` : ''}
+                  {d.snapshotSingle}{' '}
+                  {diffSnapshots[0]!.name || ui.emDash}{' '}
+                  {diffSnapshots[0]!.created_at ? `· ${diffSnapshots[0]!.created_at}` : ''}
                 </div>
               ) : null}
             </div>
@@ -356,7 +366,7 @@ export default function DLQPage() {
             <div style={{ flex: 1, minHeight: 0, overflow: 'auto', padding: 'clamp(12px, 2vw, 18px) clamp(16px, 3vw, 22px)' }}>
               {diffModalLoading && (
                 <div style={{ textAlign: 'center', padding: '24px', color: 'var(--muted)', fontSize: '11px' }}>
-                  Cargando diff…
+                  {d.loadingDiff}
                 </div>
               )}
               {!diffModalLoading && diffModalError && (
@@ -386,7 +396,7 @@ export default function DLQPage() {
                     marginBottom: '12px',
                   }}
                 >
-                  Los JSON son equivalentes (misma estructura y valores tras normalizar claves).
+                  {d.sameJson}
                 </div>
               )}
               {!diffModalLoading && !diffModalError && diffParts.length > 0 && (
@@ -433,7 +443,7 @@ export default function DLQPage() {
               }}
             >
               <button type="button" className="btn-ghost" onClick={closeDiffModal}>
-                Cerrar
+                {ui.close}
               </button>
             </div>
           </div>
@@ -470,11 +480,9 @@ export default function DLQPage() {
                 id="dlq-correct-title"
                 style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', fontWeight: 700, marginBottom: '10px' }}
               >
-                ✎ CORREGIR PAYLOAD
+                {d.correctTitle}
               </div>
-              <div style={{ fontSize: '11px', color: 'var(--muted)', lineHeight: 1.5 }}>
-                Opcional: nombre del snapshot antes de reintentar (auditoría). Editá el JSON y reinyectá al flujo:
-              </div>
+              <div style={{ fontSize: '11px', color: 'var(--muted)', lineHeight: 1.5 }}>{d.correctHint}</div>
             </div>
 
             <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: 'clamp(16px, 3vw, 24px)', paddingTop: '16px' }}>
@@ -483,7 +491,7 @@ export default function DLQPage() {
                 style={{ marginBottom: '10px', width: '100%' }}
                 value={snapshotName}
                 onChange={(e) => setSnapshotName(e.target.value)}
-                placeholder="Nombre del snapshot"
+                placeholder={d.snapshotNamePh}
               />
               <textarea
                 className="sentinel-input"
@@ -492,9 +500,9 @@ export default function DLQPage() {
                 onChange={e => setCorrectedPayload(e.target.value)}
               />
               <div style={{ borderTop: '1px solid var(--border)', paddingTop: '14px' }}>
-                <div style={{ fontSize: '11px', fontWeight: 600, marginBottom: '8px' }}>Notas del equipo</div>
+                <div style={{ fontSize: '11px', fontWeight: 600, marginBottom: '8px' }}>{d.teamNotes}</div>
                 <div style={{ fontSize: '10px', color: 'var(--muted)', maxHeight: '120px', overflow: 'auto' }}>
-                  {notes.length === 0 ? 'Sin notas.' : notes.map((n, i) => (
+                  {notes.length === 0 ? d.noNotes : notes.map((n, i) => (
                     <div key={i} style={{ marginBottom: '6px' }}>
                       {(n as { body?: string }).body}
                     </div>
@@ -506,7 +514,7 @@ export default function DLQPage() {
                     style={{ flex: 1 }}
                     value={newNote}
                     onChange={(e) => setNewNote(e.target.value)}
-                    placeholder="Añadir nota…"
+                    placeholder={d.notePlaceholder}
                   />
                   <button
                     type="button"
@@ -518,18 +526,18 @@ export default function DLQPage() {
                       try {
                         const r = await addEventNote(selected.id, newNote.trim());
                         if (r.error) {
-                          toast.error('Error: ' + r.error);
+                          toast.error(ui.errorWithDetail.replace('{msg}', String(r.error)));
                           return;
                         }
                         setNewNote('');
                         void loadNotes(selected.id);
-                        toast.success('Nota guardada');
+                        toast.success(d.toastNoteSaved);
                       } finally {
                         setNoteSaving(false);
                       }
                     }}
                   >
-                    {noteSaving ? '…' : 'Añadir'}
+                    {noteSaving ? ui.toggleWait : ui.add}
                   </button>
                 </div>
                 <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
@@ -538,7 +546,7 @@ export default function DLQPage() {
                     style={{ flex: 1 }}
                     value={newTag}
                     onChange={(e) => setNewTag(e.target.value)}
-                    placeholder="Etiqueta (ej. cola_muerta)"
+                    placeholder={d.tagPlaceholder}
                   />
                   <button
                     type="button"
@@ -550,17 +558,17 @@ export default function DLQPage() {
                       try {
                         const r = await addEventTag(selected.id, newTag.trim());
                         if (r.error) {
-                          toast.error('Error: ' + r.error);
+                          toast.error(ui.errorWithDetail.replace('{msg}', String(r.error)));
                           return;
                         }
                         setNewTag('');
-                        toast.success('Etiqueta guardada');
+                        toast.success(d.toastTagSaved);
                       } finally {
                         setTagSaving(false);
                       }
                     }}
                   >
-                    {tagSaving ? '…' : 'Tag'}
+                    {tagSaving ? ui.toggleWait : ui.tag}
                   </button>
                 </div>
               </div>
@@ -578,7 +586,9 @@ export default function DLQPage() {
                 flexShrink: 0,
               }}
             >
-              <button type="button" className="btn-ghost" onClick={() => setSelected(null)}>Cancelar</button>
+              <button type="button" className="btn-ghost" onClick={() => setSelected(null)}>
+                {ui.cancel}
+              </button>
               <button
                 type="button"
                 className="btn-primary"
@@ -588,11 +598,11 @@ export default function DLQPage() {
                     const parsed = JSON.parse(correctedPayload);
                     void handleReinject(selected, parsed);
                   } catch {
-                    toast.error('JSON inválido');
+                    toast.error(d.toastInvalidJson);
                   }
                 }}
               >
-                {actionLoading === selected.id ? 'Enviando…' : '▶ Reinyectar corregido'}
+                {actionLoading === selected.id ? ui.sending : d.btnReinjectCorrected}
               </button>
             </div>
           </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   getPublicWorkerUrl,
   listEndpoints,
@@ -9,6 +9,7 @@ import {
   deleteEndpoint,
   listEvents,
 } from '@/lib/api';
+import type { Dictionary } from '@/lib/i18n/messages';
 import type { Endpoint } from '@/types';
 import {
   DESTINATION_CONFIGS,
@@ -54,27 +55,23 @@ function cloneDestinationsToSlots(destinations: Destination[]): DestSlot[] {
   }));
 }
 
-const MODAL_STEPS = [
-  { id: 'basic', label: 'Básico' },
-  { id: 'dest', label: 'Destinos' },
-  { id: 'heal', label: 'Healing' },
-] as const;
-
-function DestArrowSummary({ dest }: { dest: Destination }) {
+function DestArrowSummary({ dest, dict }: { dest: Destination; dict: Dictionary }) {
+  const dt = dict.dashboard.flows.destTypes;
+  const ell = dict.dashboard.flows.placeholderEllipsis;
   switch (dest.type) {
     case 'supabase':
       return (
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-          <span>Supabase</span>
+          <span>{dt.supabase}</span>
           <IconArrowRight size={10} />
-          <span>{'tableName' in dest ? dest.tableName : '…'}</span>
+          <span>{'tableName' in dest ? dest.tableName : ell}</span>
         </span>
       );
     case 'postgres':
     case 'mysql':
       return (
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-          <span>{dest.type.toUpperCase()}</span>
+          <span>{dest.type === 'postgres' ? dt.postgres : dt.mysql}</span>
           <IconArrowRight size={10} />
           <span>{dest.table}</span>
         </span>
@@ -82,23 +79,23 @@ function DestArrowSummary({ dest }: { dest: Destination }) {
     case 'webhook':
       return (
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-          <span>Webhook</span>
+          <span>{dt.webhook}</span>
           <IconArrowRight size={10} />
-          <span>{dest.url?.slice(0, 42) ?? '…'}</span>
+          <span>{dest.url?.slice(0, 42) ?? ell}</span>
         </span>
       );
     case 'http_api':
       return (
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-          <span>HTTP API</span>
+          <span>{dt.http_api}</span>
           <IconArrowRight size={10} />
-          <span>{dest.url?.slice(0, 42) ?? '…'}</span>
+          <span>{dest.url?.slice(0, 42) ?? ell}</span>
         </span>
       );
     case 'bigquery':
       return (
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-          <span>BigQuery</span>
+          <span>{dt.bigquery}</span>
           <IconArrowRight size={10} />
           <span>
             {dest.datasetId}.{dest.tableId}
@@ -110,15 +107,27 @@ function DestArrowSummary({ dest }: { dest: Destination }) {
   }
 }
 
-function EndpointDestSummary({ ep }: { ep: Endpoint }) {
+function EndpointDestSummary({ ep, dict }: { ep: Endpoint; dict: Dictionary }) {
+  const f = dict.dashboard.flows;
   const d = ep.destinations;
-  if (!d || d.length === 0) return <>Sin destino</>;
-  if (d.length > 1) return <>{d.length} destinos (fan-out)</>;
-  return <DestArrowSummary dest={d[0]!} />;
+  if (!d || d.length === 0) return <>{f.noDestination}</>;
+  if (d.length > 1) return <>{f.multiDestinations.replace('{n}', String(d.length))}</>;
+  return <DestArrowSummary dest={d[0]!} dict={dict} />;
 }
 
 export default function FlowsPage() {
   const { dict } = useI18n();
+  const flows = dict.dashboard.flows;
+  const ui = dict.dashboard.ui;
+  const modalSteps = useMemo(
+    () =>
+      [
+        { id: 'basic' as const, label: flows.stepBasic },
+        { id: 'dest' as const, label: flows.stepDest },
+        { id: 'heal' as const, label: flows.stepHeal },
+      ] as const,
+    [flows.stepBasic, flows.stepDest, flows.stepHeal]
+  );
   const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
   const [eventCounts, setEventCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
@@ -166,23 +175,23 @@ export default function FlowsPage() {
     try {
       const parsed: unknown = JSON.parse(form.schemaJson);
       if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
-        return 'El schema debe ser un objeto JSON';
+        return flows.errSchemaObject;
       }
     } catch {
-      return 'JSON de schema inválido';
+      return flows.errSchemaInvalid;
     }
     return null;
   }
 
   function validateDestinationsStep(): string | null {
-    if (form.slots.length === 0) return 'Agregá al menos un destino';
+    if (form.slots.length === 0) return flows.errAddDestination;
     for (const s of form.slots) {
-      if (!s.type) return 'Elegí el tipo para cada destino';
-      if (!s.config) return 'Completá la configuración de cada destino';
+      if (!s.type) return flows.errPickType;
+      if (!s.config) return flows.errCompleteConfig;
       if ((s.config as { type: string }).type !== s.type) {
-        return 'Destino inconsistente; reconfigurá el slot';
+        return flows.errSlotMismatch;
       }
-      const err = validateDestinationRequiredFields(s.type, s.config);
+      const err = validateDestinationRequiredFields(s.type, s.config, dict);
       if (err) return err;
     }
     return null;
@@ -192,7 +201,7 @@ export default function FlowsPage() {
     setError('');
     if (modalStep === 0) {
       if (!form.name.trim()) {
-        setError('El nombre es obligatorio');
+        setError(flows.errNameRequired);
         return;
       }
       const schemaErr = validateSchemaJson();
@@ -280,13 +289,13 @@ export default function FlowsPage() {
     try {
       const parsed: unknown = JSON.parse(form.schemaJson);
       if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
-        setError('El schema debe ser un objeto JSON');
+        setError(flows.errSchemaObject);
         setSaving(false);
         return;
       }
       schema = parsed as Record<string, unknown>;
     } catch {
-      setError('JSON de schema inválido');
+      setError(flows.errSchemaInvalid);
       setSaving(false);
       return;
     }
@@ -294,21 +303,21 @@ export default function FlowsPage() {
     const destinations: Destination[] = [];
     for (const s of form.slots) {
       if (!s.type) {
-        setError('Elegí el tipo para cada destino');
+        setError(flows.errPickType);
         setSaving(false);
         return;
       }
       if (!s.config) {
-        setError('Completá la configuración de cada destino');
+        setError(flows.errCompleteConfig);
         setSaving(false);
         return;
       }
       if ((s.config as { type: string }).type !== s.type) {
-        setError('Destino inconsistente; reconfigurá el slot');
+        setError(flows.errSlotMismatch);
         setSaving(false);
         return;
       }
-      const vErr = validateDestinationRequiredFields(s.type, s.config);
+      const vErr = validateDestinationRequiredFields(s.type, s.config, dict);
       if (vErr) {
         setError(vErr);
         setSaving(false);
@@ -318,7 +327,7 @@ export default function FlowsPage() {
     }
 
     if (destinations.length === 0) {
-      setError('Agregá al menos un destino');
+      setError(flows.errAddDestination);
       setSaving(false);
       return;
     }
@@ -339,7 +348,7 @@ export default function FlowsPage() {
         healingConfig,
       });
       if (res.error) {
-        setError(typeof res.error === 'string' ? res.error : 'Error al guardar');
+        setError(typeof res.error === 'string' ? res.error : flows.errSave);
       } else {
         setShowModal(false);
         setModalStep(0);
@@ -358,7 +367,7 @@ export default function FlowsPage() {
       });
 
       if (res.error) {
-        setError(typeof res.error === 'string' ? res.error : 'Error al crear');
+        setError(typeof res.error === 'string' ? res.error : flows.errCreate);
       } else {
         setShowModal(false);
         setModalStep(0);
@@ -370,7 +379,7 @@ export default function FlowsPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('¿Eliminar este endpoint?')) return;
+    if (!confirm(flows.confirmDeleteEndpoint)) return;
     setDeletingId(id);
     try {
       await deleteEndpoint(id);
@@ -387,7 +396,7 @@ export default function FlowsPage() {
     const res = await updateEndpoint(ep.id, { status: next });
     setStatusToggleId(null);
     if (res.error) {
-      setPauseError(typeof res.error === 'string' ? res.error : 'No se pudo actualizar el estado');
+      setPauseError(typeof res.error === 'string' ? res.error : flows.errStatusUpdate);
       return;
     }
     void load();
@@ -406,12 +415,12 @@ export default function FlowsPage() {
       <div className="sentinel-card" style={{ marginBottom: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
           <div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700 }}>ENDPOINTS CONFIGURADOS</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700 }}>{flows.title}</div>
             <div style={{ fontSize: '10px', color: 'var(--muted)', marginTop: '2px' }}>
-              Multi-destino: cada fila puede ser un tipo distinto (Supabase, webhook, SQL, BigQuery…).
+              {flows.subtitle}
             </div>
           </div>
-          <button className="btn-primary" onClick={openModal}>+ Nuevo endpoint</button>
+          <button className="btn-primary" onClick={openModal}>{flows.newEndpoint}</button>
         </div>
 
         {pauseError && (
@@ -435,8 +444,8 @@ export default function FlowsPage() {
         {!loading && endpoints.length === 0 && (
           <div style={{ textAlign: 'center', padding: '40px', color: 'var(--muted)' }}>
             <div style={{ fontSize: '32px', marginBottom: '8px' }}>⬡</div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', marginBottom: '6px' }}>Sin endpoints aún</div>
-            <div style={{ fontSize: '11px' }}>Creá tu primer endpoint para empezar a recibir webhooks</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', marginBottom: '6px' }}>{flows.emptyTitle}</div>
+            <div style={{ fontSize: '11px' }}>{flows.emptyHint}</div>
           </div>
         )}
 
@@ -446,11 +455,11 @@ export default function FlowsPage() {
             const status = ep.status ?? 'active';
             const statusPill =
               status === 'active' ? (
-                <span className="pill pill-active">LIVE</span>
+                <span className="pill pill-active">{flows.statusLive}</span>
               ) : status === 'paused' ? (
-                <span className="pill pill-inactive">PAUSA</span>
+                <span className="pill pill-inactive">{flows.statusPaused}</span>
               ) : (
-                <span className="pill pill-dead">ERROR</span>
+                <span className="pill pill-dead">{flows.statusError}</span>
               );
             const toggling = statusToggleId === ep.id;
             return (
@@ -468,7 +477,10 @@ export default function FlowsPage() {
                   </div>
                   <div style={{ textAlign: 'right', marginRight: '12px' }}>
                     <div style={{ fontSize: '11px', color: 'var(--accent)', fontFamily: 'var(--font-mono)' }}>
-                      {eventCounts[ep.id] ?? '—'} eventos
+                      {flows.eventsCount.replace(
+                        '{n}',
+                        eventCounts[ep.id] != null ? String(eventCounts[ep.id]) : ui.emDash
+                      )}
                     </div>
                     <div
                       style={{
@@ -485,10 +497,10 @@ export default function FlowsPage() {
                       {ep.destinations && ep.destinations.length > 0 ? (
                         <>
                           <IconArrowRight size={10} style={{ color: 'var(--border2)' }} />
-                          <EndpointDestSummary ep={ep} />
+                          <EndpointDestSummary ep={ep} dict={dict} />
                         </>
                       ) : (
-                        <span>Sin destino</span>
+                        <span>{flows.noDestination}</span>
                       )}
                     </div>
                   </div>
@@ -497,7 +509,7 @@ export default function FlowsPage() {
                     className="btn-ghost"
                     style={{ fontSize: '10px', padding: '4px 8px' }}
                   >
-                    Copiar URL
+                    {flows.copyUrl}
                   </button>
                   <button
                     type="button"
@@ -506,7 +518,7 @@ export default function FlowsPage() {
                     style={{ fontSize: '10px', padding: '4px 8px' }}
                     disabled={toggling}
                   >
-                    {toggling ? '…' : status === 'active' ? 'Pausar' : 'Reanudar'}
+                    {toggling ? ui.toggleWait : status === 'active' ? flows.pause : flows.resume}
                   </button>
                   <button
                     type="button"
@@ -514,7 +526,7 @@ export default function FlowsPage() {
                     className="btn-ghost"
                     style={{ fontSize: '10px', padding: '4px 8px' }}
                   >
-                    Editar
+                    {flows.edit}
                   </button>
                   <button
                     type="button"
@@ -523,19 +535,19 @@ export default function FlowsPage() {
                     style={{ fontSize: '10px', padding: '4px 8px', opacity: deletingId === ep.id ? 0.65 : 1 }}
                     disabled={deletingId === ep.id}
                   >
-                    {deletingId === ep.id ? 'Eliminando…' : 'Eliminar'}
+                    {deletingId === ep.id ? ui.deleting : flows.delete}
                   </button>
                 </div>
 
                 <div style={{ marginTop: '10px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                   <span style={{ fontSize: '9px', color: 'var(--muted)', fontFamily: 'var(--font-mono)' }}>
-                    Healing: {ep.healingConfig.enabled ? '✓ activo' : '✗ inactivo'}
+                    {flows.healingLine} {ep.healingConfig.enabled ? flows.healingOn : flows.healingOff}
                   </span>
                   <span style={{ fontSize: '9px', color: 'var(--muted)', fontFamily: 'var(--font-mono)' }}>
-                    Auto-apply: {ep.healingConfig.autoApplyRules ? '✓' : '✗'}
+                    {flows.autoApply} {ep.healingConfig.autoApplyRules ? '✓' : '✗'}
                   </span>
                   <span style={{ fontSize: '9px', color: 'var(--muted)', fontFamily: 'var(--font-mono)' }}>
-                    Max reintentos: {ep.healingConfig.maxAttempts}
+                    {flows.maxRetries} {ep.healingConfig.maxAttempts}
                   </span>
                 </div>
               </div>
@@ -545,9 +557,9 @@ export default function FlowsPage() {
       </div>
 
       <div className="sentinel-card">
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700, marginBottom: '10px' }}>PROBAR UN WEBHOOK</div>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700, marginBottom: '10px' }}>{flows.tryWebhookTitle}</div>
         <div style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '8px' }}>
-          Enviá un POST a tu endpoint para ver Primary Sentinel en acción:
+          {flows.tryWebhookHint}
         </div>
         <pre style={{
           background: 'var(--bg2)', borderRadius: '6px', padding: '12px',
@@ -579,10 +591,10 @@ export default function FlowsPage() {
                 id="modal-endpoint-title"
                 style={{ fontFamily: 'var(--font-mono)', fontSize: 'clamp(12px, 2.5vw, 13px)', fontWeight: 700, marginBottom: '12px' }}
               >
-                {editingEndpointId ? 'EDITAR ENDPOINT' : '+ NUEVO ENDPOINT'}
+                {editingEndpointId ? flows.modalEditTitle : flows.modalNewTitle}
               </div>
               <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
-                {MODAL_STEPS.map((s, i) => (
+                {modalSteps.map((s, i) => (
                   <span key={s.id} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '10px', fontFamily: 'var(--font-mono)', color: 'var(--muted)' }}>
                     <span style={{
                       display: 'inline-flex',
@@ -603,7 +615,7 @@ export default function FlowsPage() {
                     <span style={{ color: i === modalStep ? 'var(--text)' : 'var(--muted)', fontWeight: i === modalStep ? 600 : 400 }}>
                       {s.label}
                     </span>
-                    {i < MODAL_STEPS.length - 1 && (
+                    {i < modalSteps.length - 1 && (
                       <IconArrowRight size={12} aria-hidden style={{ color: 'var(--border)', marginLeft: '2px' }} />
                     )}
                   </span>
@@ -619,11 +631,11 @@ export default function FlowsPage() {
                 {modalStep === 0 && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     <div>
-                      <label style={{ display: 'block', fontSize: '9px', fontFamily: 'var(--font-mono)', letterSpacing: '1px', color: 'var(--muted)', marginBottom: '4px' }}>NOMBRE</label>
-                      <input className="sentinel-input" placeholder="ej: Stripe Webhooks" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+                      <label style={{ display: 'block', fontSize: '9px', fontFamily: 'var(--font-mono)', letterSpacing: '1px', color: 'var(--muted)', marginBottom: '4px' }}>{flows.labelName}</label>
+                      <input className="sentinel-input" placeholder={flows.namePlaceholder} value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
                     </div>
                     <div>
-                      <label style={{ display: 'block', fontSize: '9px', fontFamily: 'var(--font-mono)', letterSpacing: '1px', color: 'var(--muted)', marginBottom: '4px' }}>SCHEMA JSON (Zod-compatible)</label>
+                      <label style={{ display: 'block', fontSize: '9px', fontFamily: 'var(--font-mono)', letterSpacing: '1px', color: 'var(--muted)', marginBottom: '4px' }}>{flows.labelSchema}</label>
                       <textarea
                         className="sentinel-input"
                         style={{ height: 'clamp(100px, 25vh, 180px)', resize: 'vertical', minHeight: '100px' }}
@@ -637,12 +649,12 @@ export default function FlowsPage() {
                 {modalStep === 1 && (
                   <div style={{ background: 'rgba(34,197,94,.05)', padding: '12px', borderRadius: '6px', border: '1px solid rgba(34,197,94,.2)' }}>
                     <div style={{ fontSize: '9px', fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--accent)', marginBottom: '10px' }}>
-                      DESTINOS (fan-out paralelo, hasta 5)
+                      {flows.destSectionTitle}
                     </div>
 
                     {form.slots.length === 0 && (
                       <button type="button" className="btn-ghost" style={{ fontSize: '11px' }} onClick={addSlot}>
-                        + Agregar primer destino
+                        {flows.addFirstDest}
                       </button>
                     )}
 
@@ -651,7 +663,7 @@ export default function FlowsPage() {
                         <div key={slot.id} style={{ background: 'var(--bg2)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border)' }}>
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
                             <span style={{ fontSize: '9px', fontFamily: 'var(--font-mono)', color: 'var(--muted)' }}>
-                              Destino #{idx + 1}
+                              {flows.destSlot.replace('{n}', String(idx + 1))}
                             </span>
                             <button
                               type="button"
@@ -662,7 +674,7 @@ export default function FlowsPage() {
                                 color: 'var(--red)', borderRadius: '4px', cursor: 'pointer',
                               }}
                             >
-                              Quitar
+                              {flows.removeSlot}
                             </button>
                           </div>
 
@@ -674,7 +686,7 @@ export default function FlowsPage() {
                           ) : (
                             <>
                               <div style={{ marginBottom: '10px' }}>
-                                <label style={{ fontSize: '9px', color: 'var(--muted)', display: 'block', marginBottom: '6px' }}>Cambiar tipo</label>
+                                <label style={{ fontSize: '9px', color: 'var(--muted)', display: 'block', marginBottom: '6px' }}>{flows.changeType}</label>
                                 <select
                                   className="sentinel-input"
                                   value={slot.type}
@@ -682,7 +694,7 @@ export default function FlowsPage() {
                                   style={{ fontSize: '11px' }}
                                 >
                                   {(Object.keys(DESTINATION_CONFIGS) as DestinationType[]).map(k => (
-                                    <option key={k} value={k}>{DESTINATION_CONFIGS[k].label}</option>
+                                    <option key={k} value={k}>{dict.dashboard.destinations.types[k].label}</option>
                                   ))}
                                 </select>
                               </div>
@@ -708,7 +720,7 @@ export default function FlowsPage() {
                           borderRadius: '6px', cursor: 'pointer', color: 'var(--accent)', fontWeight: 500,
                         }}
                       >
-                        + Agregar otro destino
+                        {flows.addAnotherDest}
                       </button>
                     )}
                   </div>
@@ -722,11 +734,11 @@ export default function FlowsPage() {
                         checked={form.healingEnabled}
                         onChange={e => setForm(f => ({ ...f, healingEnabled: e.target.checked }))}
                       />
-                      Healing activo
+                      {flows.healingActive}
                     </label>
                     <div>
                       <label style={{ display: 'block', fontSize: '9px', fontFamily: 'var(--font-mono)', color: 'var(--muted)', marginBottom: '4px' }}>
-                        MÁX. REINTENTOS
+                        {flows.maxAttemptsLabel}
                       </label>
                       <input
                         type="number"
@@ -740,9 +752,9 @@ export default function FlowsPage() {
                     </div>
                     <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
                       {[
-                        { key: 'autoApply' as const, label: 'Auto-aplicar reglas IA' },
-                        { key: 'notifyOnHeal' as const, label: 'Notificar reparaciones' },
-                        { key: 'notifyOnDead' as const, label: 'Notificar DLQ' },
+                        { key: 'autoApply' as const, label: flows.checkAutoApply },
+                        { key: 'notifyOnHeal' as const, label: flows.checkNotifyHeal },
+                        { key: 'notifyOnDead' as const, label: flows.checkNotifyDead },
                       ].map(({ key, label }) => (
                         <label key={key} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', cursor: 'pointer' }}>
                           <input
@@ -774,21 +786,21 @@ export default function FlowsPage() {
                 borderTop: '1px solid var(--border)',
                 background: 'var(--bg)',
               }}>
-                <button type="button" className="btn-ghost" onClick={closeModal}>Cancelar</button>
+                <button type="button" className="btn-ghost" onClick={closeModal}>{flows.cancel}</button>
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginLeft: 'auto' }}>
                   {modalStep > 0 && (
                     <button type="button" className="btn-ghost" onClick={goPrevStep} disabled={saving}>
-                      Atrás
+                      {flows.back}
                     </button>
                   )}
-                  {modalStep < MODAL_STEPS.length - 1 && (
+                  {modalStep < modalSteps.length - 1 && (
                     <button type="button" className="btn-primary" onClick={goNextStep}>
-                      Siguiente
+                      {flows.next}
                     </button>
                   )}
-                  {modalStep === MODAL_STEPS.length - 1 && (
+                  {modalStep === modalSteps.length - 1 && (
                     <button type="submit" className="btn-primary" disabled={saving}>
-                      {saving ? 'Guardando…' : editingEndpointId ? 'Guardar cambios' : 'Crear endpoint'}
+                      {saving ? ui.saving : editingEndpointId ? flows.saveEndpoint : flows.createEndpoint}
                     </button>
                   )}
                 </div>

@@ -4,8 +4,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { Notification } from '@/lib/notifications';
 import { toast } from 'sonner';
+import { useI18n } from '@/lib/i18n/I18nProvider';
 
 export function useNotifications() {
+  const { dict } = useI18n();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [markingAllRead, setMarkingAllRead] = useState(false);
@@ -48,14 +50,14 @@ export function useNotifications() {
     try {
       const { error } = await supabase.from('notifications').update({ read: true }).eq('read', false);
       if (error) {
-        toast.error(error.message);
+        toast.error(dict.dashboard.notificationsPage.markReadFailed);
         return;
       }
       setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
     } finally {
       setMarkingAllRead(false);
     }
-  }, [supabase]);
+  }, [supabase, dict.dashboard.notificationsPage.markReadFailed]);
 
   const unread = notifications.filter((n) => !n.read).length;
 

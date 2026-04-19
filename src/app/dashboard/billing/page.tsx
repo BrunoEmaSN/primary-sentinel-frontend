@@ -5,9 +5,13 @@ import Link from 'next/link';
 import { getBillingStatus, getPublicPricing, type PublicPricingCatalog } from '@/lib/api';
 import { allowPrices } from '@/lib/allowPrices';
 import { IconArrowLeft } from '@/components/icons/Arrows';
+import { useI18n } from '@/lib/i18n/I18nProvider';
 
 export default function BillingPage() {
-  const [plan, setPlan] = useState<string>('—');
+  const { dict } = useI18n();
+  const b = dict.dashboard.billing;
+  const ui = dict.dashboard.ui;
+  const [plan, setPlan] = useState<string>(ui.emDash);
   const [note, setNote] = useState<string>('');
   const [catalog, setCatalog] = useState<PublicPricingCatalog | null>(null);
   const [catalogError, setCatalogError] = useState<string | null>(null);
@@ -34,9 +38,9 @@ export default function BillingPage() {
   return (
     <div className="fade-up">
       <div className="sentinel-card" style={{ marginBottom: '16px' }}>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700 }}>FACTURACIÓN</div>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700 }}>{b.title}</div>
         <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '8px', lineHeight: 1.55 }}>
-          Plan actual: <span style={{ color: 'var(--accent)' }}>{plan}</span>
+          {b.currentPlan} <span style={{ color: 'var(--accent)' }}>{plan}</span>
           {note ? (
             <>
               <br />
@@ -45,13 +49,11 @@ export default function BillingPage() {
           ) : null}
         </div>
         <p style={{ fontSize: '11px', marginTop: '14px', color: 'var(--muted)' }}>
-          Stripe y portal de cliente están previstos en la fase de planes de pago del roadmap. Los límites del plan free se
-          aplican ya en la API (un endpoint activo).
+          {b.roadmapNote}
         </p>
         {!allowPrices ? (
           <p style={{ fontSize: '11px', marginTop: '12px', color: 'var(--muted)' }}>
-            Tarifas y promociones públicas desactivadas: configurá <code style={{ fontSize: '10px' }}>ALLOW_PRICES=true</code>{' '}
-            en el entorno del front para mostrar precios y enlaces de facturación.
+            {b.pricesDisabled}
           </p>
         ) : null}
         <Link
@@ -60,27 +62,28 @@ export default function BillingPage() {
           style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '12px', fontSize: '11px' }}
         >
           <IconArrowLeft size={14} />
-          Configuración
+          {b.backSettings}
         </Link>
       </div>
 
       {allowPrices ? (
         <div className="sentinel-card" style={{ marginBottom: '16px' }}>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700 }}>TARIFAS Y DESCUENTOS</div>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700 }}>{b.pricingTitle}</div>
           <p style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '8px', lineHeight: 1.55 }}>
-            Importes y promociones definidos en base de datos (endpoint público <code style={{ fontSize: '10px' }}>GET /api/public/pricing</code>
-            ).
+            {b.pricingIntro}
           </p>
           {catalogError ? (
-            <p style={{ fontSize: '11px', marginTop: '10px', color: 'var(--amber)' }}>No se pudieron cargar las tarifas: {catalogError}</p>
+            <p style={{ fontSize: '11px', marginTop: '10px', color: 'var(--amber)' }}>
+              {b.catalogError.replace('{msg}', catalogError)}
+            </p>
           ) : null}
           {catalog?.plans && catalog.plans.length > 0 ? (
             <table className="sentinel-table" style={{ marginTop: '14px' }}>
               <thead>
                 <tr>
-                  <th>Plan</th>
-                  <th>Mensual (USD)</th>
-                  <th>Anual (USD/mes efectivos)</th>
+                  <th>{b.thPlan}</th>
+                  <th>{b.thMonthly}</th>
+                  <th>{b.thYearly}</th>
                 </tr>
               </thead>
               <tbody>
@@ -96,12 +99,12 @@ export default function BillingPage() {
           ) : null}
           {catalog?.yearlyCommitmentSavingsPercent != null ? (
             <p style={{ fontSize: '10px', color: 'var(--muted)', marginTop: '10px', fontFamily: 'var(--font-mono)' }}>
-              Ahorro pago anual vs mensual (plan professional): −{catalog.yearlyCommitmentSavingsPercent}%
+              {b.yearlySavings.replace('{pct}', String(catalog.yearlyCommitmentSavingsPercent))}
             </p>
           ) : null}
           {catalog?.discounts && catalog.discounts.length > 0 ? (
             <div style={{ marginTop: '16px' }}>
-              <div style={{ fontSize: '11px', fontWeight: 600, marginBottom: '8px' }}>Promociones</div>
+              <div style={{ fontSize: '11px', fontWeight: 600, marginBottom: '8px' }}>{b.promotions}</div>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {catalog.discounts.map((d) => (
                   <li

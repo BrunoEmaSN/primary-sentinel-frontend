@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { DESTINATION_CONFIGS, type Destination, type DestinationType } from '@/types/destinations';
+import { useI18n } from '@/lib/i18n/I18nProvider';
+import { destinationFieldLabel, destinationTypeCopy } from '@/lib/i18n/dashboardDestinations';
 
 interface DestinationConfigFormProps {
   type: DestinationType;
@@ -59,7 +61,11 @@ function buildDestination(
 }
 
 export function DestinationConfigForm({ type, initialValue, onChange, onMultiAddClick }: DestinationConfigFormProps) {
+  const { dict } = useI18n();
+  const df = dict.dashboard.destinations;
+  const ui = dict.dashboard.ui;
   const config = DESTINATION_CONFIGS[type];
+  const typeCopy = destinationTypeCopy(dict, type);
   const [headerError, setHeaderError] = useState('');
 
   const [values, setValues] = useState<Record<string, unknown>>(() => {
@@ -84,7 +90,7 @@ export function DestinationConfigForm({ type, initialValue, onChange, onMultiAdd
       }
       const built = buildDestination(updated, type, key);
       if (!built) {
-        setHeaderError('JSON inválido');
+        setHeaderError(df.formInvalidHeadersJson);
         return;
       }
       setHeaderError('');
@@ -94,7 +100,7 @@ export function DestinationConfigForm({ type, initialValue, onChange, onMultiAdd
 
     const built = buildDestination(updated, type, key);
     if (!built) {
-      setHeaderError('Revisá el JSON de headers');
+      setHeaderError(df.formCheckHeadersJson);
       return;
     }
     setHeaderError('');
@@ -104,16 +110,17 @@ export function DestinationConfigForm({ type, initialValue, onChange, onMultiAdd
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', background: 'var(--bg2)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border)' }}>
       <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--muted)', marginBottom: '4px' }}>
-        {config.icon} {config.label}
+        {config.icon} {typeCopy.label}
       </div>
 
-      {config.fields.map(field => {
+      {config.fields.map((field) => {
         const value = values[field.key];
+        const fieldLabel = destinationFieldLabel(dict, type, field.key);
 
         return (
           <div key={field.key} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             <label style={{ fontSize: '9px', fontFamily: 'var(--font-mono)', letterSpacing: '1px', color: 'var(--muted)' }}>
-              {field.label}
+              {fieldLabel}
               {field.required && ' *'}
             </label>
 
@@ -122,9 +129,9 @@ export function DestinationConfigForm({ type, initialValue, onChange, onMultiAdd
                 <input
                   type="checkbox"
                   checked={Boolean(value)}
-                  onChange={e => handleChange(field.key, e.target.checked)}
+                  onChange={(e) => handleChange(field.key, e.target.checked)}
                 />
-                <span>Activado</span>
+                <span>{ui.activated}</span>
               </label>
             )}
 
@@ -132,9 +139,9 @@ export function DestinationConfigForm({ type, initialValue, onChange, onMultiAdd
               <>
                 <textarea
                   className="sentinel-input"
-                  placeholder={field.key === 'headers' ? '{"Authorization": "Bearer ..."}' : ''}
+                  placeholder={field.key === 'headers' ? df.headersPlaceholder : ''}
                   value={typeof value === 'string' ? value : ''}
-                  onChange={e => handleChange(field.key, e.target.value)}
+                  onChange={(e) => handleChange(field.key, e.target.value)}
                   style={{ height: '80px', resize: 'vertical', fontFamily: 'monospace', fontSize: '11px' }}
                 />
                 {field.key === 'headers' && headerError && (
@@ -147,11 +154,15 @@ export function DestinationConfigForm({ type, initialValue, onChange, onMultiAdd
               <select
                 className="sentinel-input"
                 value={typeof value === 'string' ? value : ''}
-                onChange={e => handleChange(field.key, e.target.value || undefined)}
+                onChange={(e) => handleChange(field.key, e.target.value || undefined)}
               >
-                <option value="">— Por defecto —</option>
-                {(field.options || []).map(opt => (
-                  <option key={opt} value={opt}>{opt}</option>
+                <option value="">{ui.selectDefault}</option>
+                {(field.options || []).map((opt) => (
+                  <option key={opt} value={opt}>
+                    {field.key === 'authType'
+                      ? (ui.authTypes as Record<string, string>)[opt] ?? opt
+                      : opt}
+                  </option>
                 ))}
               </select>
             )}
@@ -162,7 +173,7 @@ export function DestinationConfigForm({ type, initialValue, onChange, onMultiAdd
                 className="sentinel-input"
                 placeholder={field.key === 'timeoutMs' ? '5000' : ''}
                 value={value === '' || value === undefined || value === null ? '' : String(value)}
-                onChange={e => {
+                onChange={(e) => {
                   const v = e.target.value;
                   handleChange(field.key, v === '' ? undefined : parseInt(v, 10));
                 }}
@@ -176,29 +187,28 @@ export function DestinationConfigForm({ type, initialValue, onChange, onMultiAdd
                   className="sentinel-input"
                   placeholder={
                     field.key === 'url' && type === 'webhook'
-                      ? 'https://tu-worker.workers.dev/api/public/webhook-test-sink'
+                      ? df.placeholderWebhookUrl
                       : field.key === 'url'
-                        ? 'https://api.example.com/events'
+                        ? df.placeholderGenericUrl
                         : ''
                   }
                   value={typeof value === 'string' ? value : ''}
-                  onChange={e => handleChange(field.key, e.target.value)}
+                  onChange={(e) => handleChange(field.key, e.target.value)}
                 />
                 {field.key === 'url' && (type === 'webhook' || type === 'http_api') && (
                   <div style={{ fontSize: '9px', color: 'var(--muted)', marginTop: '4px', lineHeight: 1.45 }}>
-                    No uses solo la raíz del sitio (<code style={{ fontSize: '9px' }}>https://localhost:3000</code>): suele
-                    responder <code style={{ fontSize: '9px' }}>Cannot POST /</code>. Incluí una ruta (p. ej.{' '}
-                    <code style={{ fontSize: '9px' }}>/api/public/webhook-test-sink</code> en el Worker o{' '}
-                    <code style={{ fontSize: '9px' }}>https://httpbin.org/post</code>).
+                    {df.urlHintBefore}
+                    <code style={{ fontSize: '9px' }}>{df.urlHintLocalhost}</code>
+                    {df.urlHintMid}
+                    <code style={{ fontSize: '9px' }}>{df.urlHintCannotPost}</code>
+                    {df.urlHintAfter}
                   </div>
                 )}
               </>
             )}
 
             {field.key === 'connectionString' && (
-              <div style={{ fontSize: '9px', color: 'var(--muted)', marginTop: '-2px' }}>
-                <strong>Se cifra en el servidor</strong> con <code>SENTINEL_DESTINATION_SECRET_KEY</code> si está configurada.
-              </div>
+              <div style={{ fontSize: '9px', color: 'var(--muted)', marginTop: '-2px' }}>{df.encryptedServerNote}</div>
             )}
           </div>
         );
@@ -220,7 +230,7 @@ export function DestinationConfigForm({ type, initialValue, onChange, onMultiAdd
             marginTop: '4px',
           }}
         >
-          + Agregar otro destino (multi-destino)
+          {df.multiAddButton}
         </button>
       )}
     </div>

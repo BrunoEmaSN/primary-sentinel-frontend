@@ -40,7 +40,7 @@ export default function Topbar({ user }: { user: User }) {
       }
       router.push('/auth');
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'No se pudo cerrar sesión');
+      toast.error(e instanceof Error ? e.message : t('dashboard.errors.signOutFailed'));
     } finally {
       setSigningOut(false);
     }

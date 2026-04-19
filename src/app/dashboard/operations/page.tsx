@@ -12,6 +12,7 @@ import { useI18n } from '@/lib/i18n/I18nProvider';
 
 export default function OperationsPage() {
   const { dict } = useI18n();
+  const o = dict.dashboard.operations;
   const [graph, setGraph] = useState<{ nodes: unknown[]; edges: { from: string; to: string; label: string }[] } | null>(
     null
   );
@@ -41,7 +42,7 @@ export default function OperationsPage() {
   return (
     <div className="fade-up">
       <div className="sentinel-card" style={{ marginBottom: '16px' }}>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700 }}>OPERACIONES</div>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700 }}>{o.title}</div>
         <div
           style={{
             fontSize: '10px',
@@ -53,9 +54,9 @@ export default function OperationsPage() {
             gap: '6px',
           }}
         >
-          <span>Mapa de dependencias, historial de decisiones IA y métricas por etapa (Worker</span>
+          <span>{o.introBefore}</span>
           <IconArrowRight size={10} style={{ color: 'var(--muted)' }} />
-          <span>Supabase).</span>
+          <span>{o.introAfter}</span>
         </div>
       </div>
 
@@ -77,18 +78,18 @@ export default function OperationsPage() {
               flexWrap: 'wrap',
             }}
           >
-            <span>MAPA endpoint</span>
+            <span>{o.mapTitleBefore}</span>
             <IconArrowRight size={12} style={{ color: 'var(--accent)' }} />
-            <span>destinos</span>
+            <span>{o.mapTitleAfter}</span>
           </div>
           {!graph?.nodes?.length && !loading ? (
-            <div style={{ fontSize: '11px', color: 'var(--muted)' }}>Sin endpoints todavía.</div>
+            <div style={{ fontSize: '11px', color: 'var(--muted)' }}>{o.noEndpoints}</div>
           ) : (
             <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '11px', color: 'var(--text)', lineHeight: 1.6 }}>
               {graph?.nodes.map((n, i) => (
                 <li key={i}>
-                  {(n as { name?: string }).name ?? 'endpoint'} ·{' '}
-                  <span style={{ color: 'var(--muted)' }}>{(n as { environment?: string }).environment ?? 'prod'}</span>
+                  {(n as { name?: string }).name ?? o.endpointFallback} ·{' '}
+                  <span style={{ color: 'var(--muted)' }}>{(n as { environment?: string }).environment ?? o.envFallback}</span>
                 </li>
               ))}
             </ul>
@@ -108,10 +109,10 @@ export default function OperationsPage() {
 
         <div className="sentinel-card">
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', fontWeight: 700, marginBottom: '10px' }}>
-            SUGERENCIAS (heurísticas)
+            {o.suggestionsTitle}
           </div>
           {suggestions.length === 0 && !loading ? (
-            <div style={{ fontSize: '11px', color: 'var(--muted)' }}>Sin sugerencias recientes.</div>
+            <div style={{ fontSize: '11px', color: 'var(--muted)' }}>{o.noSuggestions}</div>
           ) : (
             <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '11px', lineHeight: 1.55 }}>
               {suggestions.map((s) => (
@@ -126,11 +127,11 @@ export default function OperationsPage() {
 
       <div className="sentinel-card" style={{ marginBottom: '16px' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', fontWeight: 700, marginBottom: '10px' }}>
-          HISTORIAL IA + ACCIONES
+          {o.aiHistoryTitle}
         </div>
         <div style={{ maxHeight: '220px', overflow: 'auto', fontSize: '10px', fontFamily: 'var(--font-mono)', color: 'var(--muted)' }}>
           {aiLog.length === 0 && !loading ? (
-            <span>Sin entradas.</span>
+            <span>{o.noAiEntries}</span>
           ) : (
             aiLog.map((row, i) => (
               <pre key={i} style={{ margin: '0 0 8px', whiteSpace: 'pre-wrap' }}>
@@ -143,11 +144,11 @@ export default function OperationsPage() {
 
       <div className="sentinel-card">
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', fontWeight: 700, marginBottom: '10px' }}>
-          MÉTRICAS por etapa (muestras recientes)
+          {o.metricsTitle}
         </div>
         <div style={{ maxHeight: '160px', overflow: 'auto', fontSize: '10px', fontFamily: 'var(--font-mono)', color: 'var(--muted)' }}>
           {metrics.length === 0 && !loading ? (
-            <span>Sin métricas aún (procesá eventos en el Worker).</span>
+            <span>{o.noMetrics}</span>
           ) : (
             metrics.slice(0, 40).map((row, i) => (
               <div key={i} style={{ marginBottom: '4px' }}>

@@ -1,3 +1,5 @@
+import { dashboardPortalEn } from './dashboard.portal.en';
+
 export const dashboardEn = {
   stats: {
     eventsToday: 'Events today',
@@ -65,4 +67,5 @@ export const dashboardEn = {
     saveButton: 'Save changes',
     saving: 'Saving…',
   },
+  ...dashboardPortalEn,
 } as const;

@@ -13,9 +13,14 @@ interface Props {
 }
 
 function MetricCard({
-  label, value, sub, accent, loading,
+  label, value, sub, accent, loading, loadingPlaceholder,
 }: {
-  label: string; value: string | number; sub: string; accent: string; loading: boolean;
+  label: string;
+  value: string | number;
+  sub: string;
+  accent: string;
+  loading: boolean;
+  loadingPlaceholder: string;
 }) {
   return (
     <div className="sentinel-card" style={{ position: 'relative', overflow: 'hidden' }}>
@@ -24,7 +29,7 @@ function MetricCard({
         {label}
       </div>
       <div style={{ fontSize: '28px', fontFamily: 'var(--font-mono)', fontWeight: 700, color: accent, lineHeight: 1 }}>
-        {loading ? '—' : value}
+        {loading ? loadingPlaceholder : value}
       </div>
       <div style={{ fontSize: '10px', color: 'var(--muted)', marginTop: '5px' }}>{sub}</div>
     </div>
@@ -34,6 +39,7 @@ function MetricCard({
 export default function StatsCards({ eventsToday, healedToday, activeRules, pendingRules, dlqCount, healingRate, loading }: Props) {
   const { dict } = useI18n();
   const s = dict.dashboard.stats;
+  const em = dict.dashboard.ui.emDash;
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '20px' }}>
@@ -43,6 +49,7 @@ export default function StatsCards({ eventsToday, healedToday, activeRules, pend
         sub={s.subEventsOk.replace('{rate}', String(healingRate))}
         accent="var(--accent)"
         loading={loading}
+        loadingPlaceholder={em}
       />
       <MetricCard
         label={s.healedToday}
@@ -50,6 +57,7 @@ export default function StatsCards({ eventsToday, healedToday, activeRules, pend
         sub={s.subHealRate.replace('{rate}', String(healingRate))}
         accent="var(--blue)"
         loading={loading}
+        loadingPlaceholder={em}
       />
       <MetricCard
         label={s.activeRules}
@@ -57,6 +65,7 @@ export default function StatsCards({ eventsToday, healedToday, activeRules, pend
         sub={pendingRules > 0 ? s.subPending.replace('{n}', String(pendingRules)) : s.subAllApproved}
         accent="var(--amber)"
         loading={loading}
+        loadingPlaceholder={em}
       />
       <MetricCard
         label={s.dlq}
@@ -64,6 +73,7 @@ export default function StatsCards({ eventsToday, healedToday, activeRules, pend
         sub={dlqCount > 0 ? s.subDlqReview : s.subDlqClean}
         accent={dlqCount > 0 ? 'var(--red)' : 'var(--teal)'}
         loading={loading}
+        loadingPlaceholder={em}
       />
     </div>
   );

@@ -56,6 +56,8 @@ const defaultSettings: TenantSettingsApi = {
 export default function SettingsPage() {
   const { dict } = useI18n();
   const st = dict.dashboard.settings;
+  const p = dict.dashboard.settingsPage;
+  const ui = dict.dashboard.ui;
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -97,96 +99,96 @@ export default function SettingsPage() {
 
   return (
     <div className="fade-up">
-      <Section title="CUENTA">
-        <Row label="Email" sub="Tu dirección de email registrada">
+      <Section title={p.sectionAccount}>
+        <Row label={p.rowEmail} sub={p.rowEmailSub}>
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--muted)' }}>
-            {user?.email ?? '—'}
+            {user?.email ?? ui.emDash}
           </span>
         </Row>
-        <Row label="Tenant ID" sub="Usalo en tus URLs de webhook">
+        <Row label={p.rowTenantId} sub={p.rowTenantIdSub}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--accent)' }}>
-              {user?.id?.slice(0, 16) ?? '—'}…
+              {user?.id?.slice(0, 16) ?? ui.emDash}…
             </span>
             <button
               onClick={() => user && navigator.clipboard.writeText(user.id)}
               className="btn-ghost"
               style={{ fontSize: '9px', padding: '3px 8px' }}
             >
-              Copiar
+              {ui.copy}
             </button>
           </div>
         </Row>
-        <Row label="Plan" sub="Límite free: 1 endpoint activo (API)">
+        <Row label={p.rowPlan} sub={p.rowPlanSub}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span className="pill pill-active">{s.billing_plan.toUpperCase()}</span>
             {allowPrices ? (
               <Link href="/dashboard/billing" style={{ fontSize: '10px', color: 'var(--accent)' }}>
-                Facturación
+                {p.billingLink}
               </Link>
             ) : null}
           </div>
         </Row>
       </Section>
 
-      <Section title="NOTIFICACIONES (Resend + Slack + webhook firmado)">
+      <Section title={p.sectionNotifications}>
         {loading ? (
           <div style={{ fontSize: '11px', color: 'var(--muted)' }}>{dict.dashboard.loading.preferences}</div>
         ) : (
           <>
-            <Row label="Email en reparaciones" sub="Mismo resumen JSON/HTML que Slack y webhook">
+            <Row label={p.notifyHeal} sub={p.notifyHealSub}>
               <input
                 type="checkbox"
                 checked={s.notify_email_healing}
                 onChange={(e) => setS((x) => ({ ...x, notify_email_healing: e.target.checked }))}
               />
             </Row>
-            <Row label="Email en DLQ" sub="Incidente crítico">
+            <Row label={p.notifyDead} sub={p.notifyDeadSub}>
               <input
                 type="checkbox"
                 checked={s.notify_email_dead}
                 onChange={(e) => setS((x) => ({ ...x, notify_email_dead: e.target.checked }))}
               />
             </Row>
-            <Row label="Email en reglas pendientes" sub="Reservado para flujos de aprobación">
+            <Row label={p.notifyPending} sub={p.notifyPendingSub}>
               <input
                 type="checkbox"
                 checked={s.notify_email_pending_rules}
                 onChange={(e) => setS((x) => ({ ...x, notify_email_pending_rules: e.target.checked }))}
               />
             </Row>
-            <Row label="Slack (Incoming Webhook)" sub="Mensaje de texto con el resumen">
+            <Row label={p.slackToggle} sub={p.slackToggleSub}>
               <input
                 type="checkbox"
                 checked={s.slack_on_incidents}
                 onChange={(e) => setS((x) => ({ ...x, slack_on_incidents: e.target.checked }))}
               />
             </Row>
-            <Row label="URL Slack" sub="https://hooks.slack.com/services/...">
+            <Row label={p.slackUrl} sub={p.slackUrlSub}>
               <input
                 className="sentinel-input"
                 style={{ width: '280px' }}
-                placeholder="Webhook de Slack"
+                placeholder={p.slackPlaceholder}
                 value={s.slack_incoming_webhook_url ?? ''}
                 onChange={(e) => setS((x) => ({ ...x, slack_incoming_webhook_url: e.target.value || null }))}
               />
             </Row>
-            <Row label="Webhook de alertas (cliente)" sub="POST JSON firmado (HMAC-SHA256), distinto del webhook de ingesta">
+            <Row label={p.alertWebhook} sub={p.alertWebhookSub}>
               <input
                 className="sentinel-input"
                 style={{ width: '240px' }}
-                placeholder="https://tu-api.com/sentinel/alerts"
+                placeholder={p.alertWebhookPlaceholder}
                 value={s.alert_webhook_url ?? ''}
                 onChange={(e) => setS((x) => ({ ...x, alert_webhook_url: e.target.value || null }))}
               />
             </Row>
-            <Row label="Secreto HMAC" sub="Cabecera X-Sentinel-Signature: sha256=...">
+            <Row label={p.hmacSecret} sub={p.hmacSecretSub}>
               <input
                 className="sentinel-input"
                 style={{ width: '200px' }}
                 type="password"
                 autoComplete="off"
-                placeholder="secreto compartido"
+                placeholder={p.hmacPlaceholder}
                 value={s.alert_webhook_secret ?? ''}
                 onChange={(e) => setS((x) => ({ ...x, alert_webhook_secret: e.target.value || null }))}
               />
@@ -195,22 +197,22 @@ export default function SettingsPage() {
         )}
       </Section>
 
-      <Section title="INFRAESTRUCTURA">
-        <Row label="Backend URL" sub="Cloudflare Worker URL (ingesta webhooks; el dashboard usa proxy /worker-api)">
+      <Section title={p.sectionInfra}>
+        <Row label={p.backendUrl} sub={p.backendUrlSub}>
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--muted)' }}>{getPublicWorkerUrl()}</span>
         </Row>
-        <Row label="Base de datos" sub="Supabase PostgreSQL">
-          <span className="pill pill-active">CONECTADO</span>
+        <Row label={p.database} sub={p.databaseSub}>
+          <span className="pill pill-active">{p.statusConnected}</span>
         </Row>
-        <Row label="Cache (Redis)" sub="Upstash Redis para reglas en caché">
-          <span className="pill pill-active">CONECTADO</span>
+        <Row label={p.cacheRedis} sub={p.cacheRedisSub}>
+          <span className="pill pill-active">{p.statusConnected}</span>
         </Row>
-        <Row label="Storage (DLQ)" sub="Cloudflare R2">
-          <span className="pill pill-active">CONECTADO</span>
+        <Row label={p.storageDlq} sub={p.storageDlqSub}>
+          <span className="pill pill-active">{p.statusConnected}</span>
         </Row>
         <div style={{ paddingTop: '0', borderBottom: 'none' }}>
-          <Row label="Email (Resend)" sub="Para notificaciones">
-            <span className="pill pill-active">CONECTADO</span>
+          <Row label={p.emailResend} sub={p.emailResendSub}>
+            <span className="pill pill-active">{p.statusConnected}</span>
           </Row>
         </div>
       </Section>

@@ -11,6 +11,7 @@ export default function RecentEvents({ events, loading }: { events: RawEvent[]; 
   const dfLocale = locale === 'en' ? enUS : esLocale;
   const ev = dict.dashboard.eventStatus;
   const re = dict.dashboard.recentEvents;
+  const ui = dict.dashboard.ui;
 
   const statusConfig = {
     loaded:     { icon: '●', color: 'var(--blue)',   bg: 'rgba(59,130,246,.12)',  label: ev.loaded },
@@ -44,7 +45,7 @@ export default function RecentEvents({ events, loading }: { events: RawEvent[]; 
           const at = new Date(event.created_at);
           const timeLabel = isValid(at)
             ? formatDistanceToNow(at, { addSuffix: true, locale: dfLocale })
-            : '—';
+            : ui.emDash;
           return (
             <div
               key={event.id}
@@ -64,7 +65,8 @@ export default function RecentEvents({ events, loading }: { events: RawEvent[]; 
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: '10px', color: 'var(--text)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {cfg.label} · {event.id.slice(0, 8)}…
+                  {cfg.label} · {event.id.slice(0, 8)}
+                  {ui.ellipsis}
                 </div>
                 <div style={{ fontSize: '9px', color: 'var(--muted)', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>
                   {timeLabel}

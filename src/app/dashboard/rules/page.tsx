@@ -4,19 +4,31 @@ import { useCallback, useEffect, useState } from 'react';
 import { listEndpoints, listRules, updateRule, deleteRule } from '@/lib/api';
 import type { TransformationRule, Endpoint } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { enUS, es as esLocale } from 'date-fns/locale';
 import { useI18n } from '@/lib/i18n/I18nProvider';
 import SentinelModal from '@/components/SentinelModal';
 
 type RuleBusy = { ruleId: string; op: 'approve' | 'deactivate' | 'remove' };
 
+const RULE_FILTER_KEYS = ['all', 'pending', 'active', 'quarantined'] as const;
+type RuleFilterKey = (typeof RULE_FILTER_KEYS)[number];
+
 export default function RulesPage() {
-  const { dict } = useI18n();
+  const { locale, dict } = useI18n();
+  const r = dict.dashboard.rules;
+  const ui = dict.dashboard.ui;
+  const dfLocale = locale === 'en' ? enUS : esLocale;
+  const filterLabels: Record<RuleFilterKey, string> = {
+    all: r.filterAll,
+    pending: r.filterPending,
+    active: r.filterActive,
+    quarantined: r.filterQuarantined,
+  };
   const [rules, setRules] = useState<TransformationRule[]>([]);
   const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedRule, setSelectedRule] = useState<TransformationRule | null>(null);
-  const [filter, setFilter] = useState<'all' | 'pending' | 'active' | 'quarantined'>('all');
+  const [filter, setFilter] = useState<RuleFilterKey>('all');
   const [busy, setBusy] = useState<RuleBusy | null>(null);
 
   const load = useCallback(async () => {
@@ -24,8 +36,8 @@ export default function RulesPage() {
     setEndpoints(eps);
     const allRules: TransformationRule[] = [];
     await Promise.all(eps.map(async ep => {
-      const r = await listRules(ep.id);
-      allRules.push(...r);
+      const epRules = await listRules(ep.id);
+      allRules.push(...epRules);
     }));
     allRules.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     setRules(allRules);
@@ -57,7 +69,7 @@ export default function RulesPage() {
   }
 
   async function remove(rule: TransformationRule) {
-    if (!confirm(`¿Eliminar regla "${rule.name}"?`)) return;
+    if (!confirm(r.confirmDelete.replace('{name}', rule.name))) return;
     setBusy({ ruleId: rule.id, op: 'remove' });
     try {
       await deleteRule(rule.endpoint_id, rule.id);
@@ -74,6 +86,16 @@ export default function RulesPage() {
   const filtered = rules.filter(r => filter === 'all' || r.status === filter);
   const pendingCount = rules.filter(r => r.status === 'pending').length;
 
+  function ruleStatusLabel(status: string) {
+    const map: Record<string, string> = {
+      active: r.ruleStatusActive,
+      pending: r.ruleStatusPending,
+      inactive: r.ruleStatusInactive,
+      quarantined: r.ruleStatusQuarantined,
+    };
+    return map[status] ?? status.toUpperCase();
+  }
+
   const statusPill = (status: string) => {
     const map: Record<string, string> = {
       active: 'pill-active',
@@ -89,18 +111,20 @@ export default function RulesPage() {
       <div className="sentinel-card">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
           <div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700 }}>GESTOR DE REGLAS</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700 }}>{r.title}</div>
             <div style={{ fontSize: '10px', color: 'var(--muted)', marginTop: '2px' }}>
-              Revisá, aprobá o editá las reglas generadas por la IA
+              {r.subtitle}
               {pendingCount > 0 && (
                 <span style={{ color: 'var(--amber)', marginLeft: '8px' }}>
-                  · {pendingCount} pendiente{pendingCount !== 1 ? 's' : ''} de aprobación
+                  {pendingCount === 1
+                    ? r.pendingOne
+                    : r.pendingMany.replace('{n}', String(pendingCount))}
                 </span>
               )}
             </div>
           </div>
           <div style={{ display: 'flex', gap: '6px' }}>
-            {(['all', 'pending', 'active', 'quarantined'] as const).map(f => (
+            {RULE_FILTER_KEYS.map(f => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
@@ -112,7 +136,7 @@ export default function RulesPage() {
                   fontWeight: filter === f ? 700 : 400,
                 }}
               >
-                {f.toUpperCase()}
+                {filterLabels[f]}
               </button>
             ))}
           </div>
@@ -122,8 +146,13 @@ export default function RulesPage() {
 
         {!loading && filtered.length === 0 && (
           <div style={{ textAlign: 'center', padding: '40px', color: 'var(--muted)' }}>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px' }}>Sin reglas {filter !== 'all' ? `"${filter}"` : ''}</div>
-            <div style={{ fontSize: '11px', marginTop: '4px' }}>Las reglas se generan automáticamente cuando la IA detecta y repara un error</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px' }}>
+              {r.emptyFiltered}
+              {filter !== 'all'
+                ? ` ${r.emptyFilteredSuffix.replace('{filter}', filter)}`
+                : ''}
+            </div>
+            <div style={{ fontSize: '11px', marginTop: '4px' }}>{r.emptyHint}</div>
           </div>
         )}
 
@@ -131,13 +160,13 @@ export default function RulesPage() {
           <table className="sentinel-table">
             <thead>
               <tr>
-                <th>NOMBRE / DESCRIPCIÓN</th>
-                <th>ORIGEN</th>
-                <th>ESTADO</th>
-                <th>CONFIANZA</th>
-                <th>ÉXITOS</th>
-                <th>CREADA</th>
-                <th>ACCIONES</th>
+                <th>{r.thName}</th>
+                <th>{r.thSource}</th>
+                <th>{r.thStatus}</th>
+                <th>{r.thConfidence}</th>
+                <th>{r.thSuccess}</th>
+                <th>{r.thCreated}</th>
+                <th>{r.thActions}</th>
               </tr>
             </thead>
             <tbody>
@@ -154,15 +183,15 @@ export default function RulesPage() {
                   </td>
                   <td>
                     <span style={{ fontSize: '10px', fontFamily: 'var(--font-mono)', color: rule.source === 'ai' ? 'var(--teal)' : 'var(--blue)' }}>
-                      {rule.source === 'ai' ? '★ IA' : '♦ Humano'}
+                      {rule.source === 'ai' ? r.sourceAi : r.sourceHuman}
                     </span>
                   </td>
                   <td>
-                    <span className={`pill ${statusPill(rule.status)}`}>{rule.status.toUpperCase()}</span>
+                    <span className={`pill ${statusPill(rule.status)}`}>{ruleStatusLabel(rule.status)}</span>
                   </td>
                   <td>
                     <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: rule.confidence && rule.confidence > 90 ? 'var(--accent)' : 'var(--amber)' }}>
-                      {rule.confidence ? `${rule.confidence.toFixed(1)}%` : '—'}
+                      {rule.confidence ? `${rule.confidence.toFixed(1)}%` : ui.emDash}
                     </span>
                   </td>
                   <td>
@@ -172,7 +201,7 @@ export default function RulesPage() {
                   </td>
                   <td>
                     <span style={{ fontSize: '10px', color: 'var(--muted)', fontFamily: 'var(--font-mono)' }}>
-                      {formatDistanceToNow(new Date(rule.created_at), { addSuffix: true, locale: es })}
+                      {formatDistanceToNow(new Date(rule.created_at), { addSuffix: true, locale: dfLocale })}
                     </span>
                   </td>
                   <td>
@@ -183,13 +212,13 @@ export default function RulesPage() {
                           onClick={() => void approve(rule)}
                           disabled={busy !== null}
                           style={{ background: 'rgba(200,245,80,.1)', color: 'var(--accent)', border: '1px solid rgba(200,245,80,.25)', borderRadius: '4px', width: '24px', height: '24px', cursor: busy ? 'default' : 'pointer', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: isRuleBusy(rule, 'approve') ? 0.55 : busy ? 0.35 : 1 }}
-                          title="Aprobar"
-                        >{isRuleBusy(rule, 'approve') ? '…' : '✔'}</button>
+                          title={r.approveTitle}
+                        >{isRuleBusy(rule, 'approve') ? ui.toggleWait : '✔'}</button>
                       )}
                       <button
                         onClick={() => setSelectedRule(rule)}
                         style={{ background: 'transparent', color: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '4px', width: '24px', height: '24px', cursor: 'pointer', fontSize: '11px' }}
-                        title="Ver script"
+                        title={r.viewScriptTitle}
                       >✎</button>
                       {rule.status === 'active' && (
                         <button
@@ -197,16 +226,16 @@ export default function RulesPage() {
                           onClick={() => void deactivate(rule)}
                           disabled={busy !== null}
                           style={{ background: 'transparent', color: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '4px', width: '24px', height: '24px', cursor: busy ? 'default' : 'pointer', fontSize: '11px', opacity: isRuleBusy(rule, 'deactivate') ? 0.55 : busy ? 0.35 : 1 }}
-                          title="Desactivar"
-                        >{isRuleBusy(rule, 'deactivate') ? '…' : '◉'}</button>
+                          title={r.deactivateTitle}
+                        >{isRuleBusy(rule, 'deactivate') ? ui.toggleWait : '◉'}</button>
                       )}
                       <button
                         type="button"
                         onClick={() => void remove(rule)}
                         disabled={busy !== null}
                         style={{ background: 'transparent', color: 'var(--red)', border: '1px solid rgba(239,68,68,.2)', borderRadius: '4px', width: '24px', height: '24px', cursor: busy ? 'default' : 'pointer', fontSize: '11px', opacity: isRuleBusy(rule, 'remove') ? 0.55 : busy ? 0.35 : 1 }}
-                        title="Eliminar"
-                      >{isRuleBusy(rule, 'remove') ? '…' : '✕'}</button>
+                        title={r.deleteTitle}
+                      >{isRuleBusy(rule, 'remove') ? ui.toggleWait : '✕'}</button>
                     </div>
                   </td>
                 </tr>
@@ -250,19 +279,19 @@ export default function RulesPage() {
                   type="button"
                   onClick={() => setSelectedRule(null)}
                   style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '18px', lineHeight: 1, padding: '2px 4px', flexShrink: 0 }}
-                  aria-label="Cerrar"
+                  aria-label={r.closeAria}
                 >
                   ✕
                 </button>
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                <span className={`pill ${statusPill(selectedRule.status)}`}>{selectedRule.status.toUpperCase()}</span>
+                <span className={`pill ${statusPill(selectedRule.status)}`}>{ruleStatusLabel(selectedRule.status)}</span>
                 <span style={{ fontSize: '10px', color: selectedRule.source === 'ai' ? 'var(--teal)' : 'var(--blue)', fontFamily: 'var(--font-mono)' }}>
-                  {selectedRule.source === 'ai' ? '★ Generada por IA' : '♦ Creada manualmente'}
+                  {selectedRule.source === 'ai' ? r.detailAi : r.detailHuman}
                 </span>
                 {selectedRule.confidence && (
                   <span style={{ fontSize: '10px', color: 'var(--accent)', fontFamily: 'var(--font-mono)' }}>
-                    Confianza: {selectedRule.confidence.toFixed(1)}%
+                    {r.confidence} {selectedRule.confidence.toFixed(1)}%
                   </span>
                 )}
               </div>
@@ -273,14 +302,14 @@ export default function RulesPage() {
                 <div style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '12px' }}>{selectedRule.description}</div>
               )}
               <div style={{ fontSize: '9px', color: 'var(--muted)', fontFamily: 'var(--font-mono)', letterSpacing: '1px', marginBottom: '6px' }}>
-                SCRIPT DE TRANSFORMACIÓN
+                {r.scriptHeading}
               </div>
               <pre style={{
                 background: 'var(--bg2)', borderRadius: '6px', padding: '14px',
                 fontSize: '10px', fontFamily: 'var(--font-mono)', color: 'var(--text)',
                 border: '1px solid var(--border)', overflowX: 'auto', whiteSpace: 'pre-wrap',
               }}>
-                {selectedRule.script || '// Script generado por Gemini\n// Se ejecuta en sandbox aislado\n\nfunction transform(payload) {\n  // Transformación aquí\n  return payload;\n}'}
+                {selectedRule.script || r.scriptPlaceholder}
               </pre>
             </div>
 
@@ -298,10 +327,12 @@ export default function RulesPage() {
             >
               {selectedRule.status === 'pending' && (
                 <button type="button" className="btn-primary" onClick={() => { approve(selectedRule); setSelectedRule(null); }}>
-                  ✔ Aprobar regla
+                  {r.approveRule}
                 </button>
               )}
-              <button type="button" className="btn-ghost" onClick={() => setSelectedRule(null)}>Cerrar</button>
+              <button type="button" className="btn-ghost" onClick={() => setSelectedRule(null)}>
+                {ui.close}
+              </button>
             </div>
           </div>
         )}
