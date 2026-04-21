@@ -8,7 +8,13 @@ function backendProxyTarget() {
     process.env.BACKEND_PROXY_URL?.trim() ||
     process.env.NEXT_PUBLIC_API_URL?.trim() ||
     'http://127.0.0.1:8787';
-  return raw.replace(/\/$/, '');
+  let base = raw.replace(/\/$/, '');
+  // Si la env termina en `/worker-api`, el rewrite `/worker-api/:path*` → `${base}/:path*` envía
+  // `/worker-api/api/...` al Worker y las rutas reales (`/api/...`) devuelven 404.
+  if (base.endsWith('/worker-api')) {
+    base = base.slice(0, -'/worker-api'.length);
+  }
+  return base.replace(/\/$/, '');
 }
 
 const nextConfig = {
