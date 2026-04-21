@@ -14,6 +14,7 @@ import type {
   ApiResponse,
   CreateEndpointResponse,
 } from '@/types';
+import { LOCALE_COOKIE, type Locale, isLocale } from '@/lib/i18n/types';
 
 /**
  * URL pública del Worker (webhooks, documentación). No usar para fetch del dashboard:
@@ -88,6 +89,15 @@ function normalizeDlqRow(row: Record<string, unknown>): DLQEvent {
   };
 }
 
+/** Alineado con la cookie del `I18nProvider` para que el Worker traduzca mensajes. */
+function getBrowserApiLocale(): Locale {
+  if (typeof document === 'undefined') return 'es';
+  const escaped = LOCALE_COOKIE.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const match = document.cookie.match(new RegExp(`(?:^|; )${escaped}=([^;]*)`));
+  const raw = match?.[1] ? decodeURIComponent(match[1]) : '';
+  return isLocale(raw) ? raw : 'es';
+}
+
 async function getAccessToken(): Promise<string | null> {
   if (typeof window === 'undefined') return null;
   const { createClient } = await import('@/lib/supabase/client');
@@ -112,11 +122,15 @@ async function apiFetch<T>(
   const url = `${getBrowserApiBaseUrl()}${path}`;
   const token = await getAccessToken();
 
+  const lang = getBrowserApiLocale();
+
   const doFetch = (accessToken: string | null) =>
     fetch(url, {
       ...options,
       headers: {
         'Content-Type': 'application/json',
+        'X-Sentinel-Locale': lang,
+        'Accept-Language': lang === 'en' ? 'en,es;q=0.5' : 'es,en;q=0.5',
         ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
         ...options.headers,
       },
@@ -553,9 +567,14 @@ export type PublicPricingCatalog = {
 /** Público: sin JWT. Precios y promociones desde la base (Worker). */
 export async function getPublicPricing(): Promise<ApiResponse<PublicPricingCatalog>> {
   const url = `${getBrowserApiBaseUrl()}/api/public/pricing`;
+  const lang = typeof window !== 'undefined' ? getBrowserApiLocale() : 'es';
   try {
     const res = await fetch(url, {
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Sentinel-Locale': lang,
+        'Accept-Language': lang === 'en' ? 'en,es;q=0.5' : 'es,en;q=0.5',
+      },
       cache: 'no-store',
     });
     if (!res.ok) {
@@ -634,8 +653,14 @@ export async function getPublicSlo(): Promise<{
   note: string;
   measured: boolean;
 } | null> {
+  const lang = typeof window !== 'undefined' ? getBrowserApiLocale() : 'es';
   try {
-    const res = await fetch(`${getBrowserApiBaseUrl()}/api/public/slo`);
+    const res = await fetch(`${getBrowserApiBaseUrl()}/api/public/slo`, {
+      headers: {
+        'X-Sentinel-Locale': lang,
+        'Accept-Language': lang === 'en' ? 'en,es;q=0.5' : 'es,en;q=0.5',
+      },
+    });
     if (!res.ok) return null;
     return (await res.json()) as {
       availabilityTargetPercent: number;
