@@ -14,6 +14,7 @@ import {
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import { useI18n } from "@/lib/i18n/I18nProvider";
+import { absoluteSentinelWorkerFetchBase } from "@/lib/sentinelWorkerProxy";
 
 const PLAN_VALUES = ["unknown", "free", "starter", "pro", "enterprise"] as const;
 
@@ -153,7 +154,7 @@ export default function SentinelSalesModal({
     }
     setLoading(true);
     try {
-      const base = workerUrl.replace(/\/$/, "");
+      const base = absoluteSentinelWorkerFetchBase(workerUrl);
       const res = await fetch(`${base}/email/contact`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

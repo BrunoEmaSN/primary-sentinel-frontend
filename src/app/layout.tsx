@@ -7,6 +7,7 @@ import { getLocaleFromCookie } from '@/lib/i18n/getLocale';
 import SentinelChat from '@/components/SentinelChat';
 import { SalesContactProvider } from '@/components/SalesContactProvider';
 import { AppToaster } from '@/components/AppToaster';
+import { resolveSentinelWorkerBrowserBase } from '@/lib/sentinelWorkerProxy';
 
 export const metadata: Metadata = {
   title: 'Primary Sentinel — Autonomous Reliability & Security Intelligence',
@@ -20,8 +21,14 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const locale = await getLocaleFromCookie();
   const dictionary = getDictionary(locale);
-  const sentinelChatWorkerUrl = process.env.NEXT_PUBLIC_SENTINEL_CHAT_WORKER_URL?.trim() ?? '';
-  const sentinelSalesWorkerUrl = process.env.NEXT_PUBLIC_SENTINEL_SALES_WORKER_URL?.trim() ?? '';
+  const sentinelChatWorkerUrl = resolveSentinelWorkerBrowserBase(
+    process.env.NEXT_PUBLIC_SENTINEL_CHAT_WORKER_URL?.trim() ?? '',
+    'chat',
+  );
+  const sentinelSalesWorkerUrl = resolveSentinelWorkerBrowserBase(
+    process.env.NEXT_PUBLIC_SENTINEL_SALES_WORKER_URL?.trim() ?? '',
+    'sales',
+  );
 
   return (
     <html lang={locale}>

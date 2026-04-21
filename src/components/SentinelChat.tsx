@@ -26,6 +26,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useI18n } from "@/lib/i18n/I18nProvider";
 import type { Locale } from "@/lib/i18n/types";
+import { absoluteSentinelWorkerFetchBase } from "@/lib/sentinelWorkerProxy";
 
 type ChatRole = "user" | "assistant";
 
@@ -204,7 +205,8 @@ export default function SentinelChat({
         .map(({ role, content }) => ({ role, content }))
         .slice(-MAX_CHAT_HISTORY_MESSAGES);
 
-      const res = await fetch(`${workerUrl.replace(/\/$/, "")}/chat`, {
+      const base = absoluteSentinelWorkerFetchBase(workerUrl);
+      const res = await fetch(`${base}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
