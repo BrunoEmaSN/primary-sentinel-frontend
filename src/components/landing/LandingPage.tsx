@@ -292,6 +292,7 @@ export default function LandingPage() {
               ['#features', t('landing.navFeatures')],
               ...(allowPrices ? ([['#pricing', t('landing.navPricing')]] as const) : []),
               ['#faq', t('landing.navFaq')],
+              ['/docs', t('landing.navDocs')],
             ].map(([href, label]) => (
               <a
                 key={href}
@@ -375,7 +376,7 @@ export default function LandingPage() {
         </section>
 
         {/* Métricas */}
-        <section style={{ maxWidth: '1040px', margin: '0 auto', padding: '32px 20px 48px' }}>
+        {/* <section style={{ maxWidth: '1040px', margin: '0 auto', padding: '32px 20px 48px' }}>
           <div
             className="sentinel-card"
             style={{
@@ -398,7 +399,7 @@ export default function LandingPage() {
           <p style={{ textAlign: 'center', fontSize: '10px', color: 'var(--muted)', marginTop: '12px', fontFamily: 'var(--font-mono)' }}>
             {L.metricsCaption}
           </p>
-        </section>
+        </section> */}
 
         {/* Logo cloud */}
         {/* <section style={{ maxWidth: '1040px', margin: '0 auto', padding: '0 20px 56px' }}>

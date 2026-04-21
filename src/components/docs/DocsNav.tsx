@@ -127,10 +127,7 @@ export default function DocsNav() {
 
       <div style={{ padding: '12px 16px', borderTop: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
         <Link href="/" className="btn-ghost" style={{ justifyContent: 'center', textDecoration: 'none', fontSize: '11px' }} onClick={() => setOpen(false)}>
-          {n.backHome}
-        </Link>
-        <Link href="/dashboard" className="btn-primary" style={{ justifyContent: 'center', textDecoration: 'none', fontSize: '11px' }} onClick={() => setOpen(false)}>
-          {n.goDashboard}
+          {n.back}
         </Link>
       </div>
     </>
