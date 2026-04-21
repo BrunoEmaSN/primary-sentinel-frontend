@@ -119,16 +119,20 @@ export default function SettingsPage() {
             </button>
           </div>
         </Row>
-        <Row label={p.rowPlan} sub={p.rowPlanSub}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span className="pill pill-active">{s.billing_plan.toUpperCase()}</span>
-            {allowPrices ? (
+        {allowPrices ? (
+          <Row label={p.rowPlan} sub={p.rowPlanSub}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span className="pill pill-active">{s.billing_plan.toUpperCase()}</span>
               <Link href="/dashboard/billing" style={{ fontSize: '10px', color: 'var(--accent)' }}>
                 {p.billingLink}
               </Link>
-            ) : null}
-          </div>
-        </Row>
+            </div>
+          </Row>
+        ) : (
+          <Row label={p.rowTrialLimits} sub={p.rowTrialLimitsSub}>
+            <span />
+          </Row>
+        )}
       </Section>
 
       <Section title={p.sectionNotifications}>

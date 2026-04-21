@@ -84,6 +84,12 @@ export const landingEn = {
   faqTitle: 'Frequently asked questions',
   faqSubtitle:
     'For Enterprise (SSO, VPC, compliance), we schedule a short call from the matching plan.',
+  faqSubtitleNoPrices:
+    'If you need SSO, VPC, or advanced compliance, contact us to align on operations.',
+  faqDataAnswerNoPrices:
+    'You manage ingestion and pipeline state from the product; residency, retention, and contractual terms are agreed with Primary Sentinel under contract or onboarding.',
+  faqTrialAnswerNoPrices:
+    'You can validate the flow with one trial endpoint active under current API limits; this app does not publish paid plans or purchases.',
   faqItems: [
     {
       q: 'What is an endpoint in Primary Sentinel?',
@@ -141,7 +147,7 @@ export const landingEn = {
         name: 'Basic',
         desc: 'Try the end-to-end flow.',
         cta: 'Try for free',
-        features: ['1 active endpoint', 'Email alerts', 'Observability dashboard'],
+        features: ['1 trial endpoint active', 'Email alerts', 'Observability dashboard'],
       },
       {
         name: 'Professional',

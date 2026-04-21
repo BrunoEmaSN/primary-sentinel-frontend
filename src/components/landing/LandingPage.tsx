@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import SentinelBrand from '@/components/SentinelBrand';
 import { IconArrowRight } from '@/components/icons/Arrows';
@@ -241,6 +241,15 @@ function HeroDashboardMock() {
 export default function LandingPage() {
   const { t, dict } = useI18n();
   const L = dict.landing;
+  const faqSubtitle = allowPrices ? L.faqSubtitle : L.faqSubtitleNoPrices;
+  const faqItems = useMemo(() => {
+    if (allowPrices) return [...L.faqItems];
+    return L.faqItems.slice(0, -1).map((item, i) => {
+      if (i === 3) return { ...item, a: L.faqDataAnswerNoPrices };
+      if (i === 4) return { ...item, a: L.faqTrialAnswerNoPrices };
+      return item;
+    });
+  }, [L, allowPrices]);
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', position: 'relative' }}>
@@ -758,11 +767,11 @@ export default function LandingPage() {
                 {L.faqTitle}
               </h2>
               <p style={{ fontSize: '13px', color: 'var(--muted)', lineHeight: 1.55 }}>
-                {L.faqSubtitle}
+                {faqSubtitle}
               </p>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {L.faqItems.map((item) => (
+              {faqItems.map((item) => (
                 <details
                   key={item.q}
                   className="sentinel-card"

@@ -85,6 +85,12 @@ export const landingEs = {
   faqTitle: 'Preguntas frecuentes',
   faqSubtitle:
     'Si tu caso es Enterprise (SSO, VPC, compliance), coordinamos una llamada corta desde el plan correspondiente.',
+  faqSubtitleNoPrices:
+    'Si tu caso requiere SSO, VPC o compliance avanzado, escribinos para coordinar el encaje operativo.',
+  faqDataAnswerNoPrices:
+    'Gestionás la ingesta y el estado del pipeline desde el producto; residencia, retención y términos contractuales los acordás con Primary Sentinel según contrato u onboarding.',
+  faqTrialAnswerNoPrices:
+    'Podés validar el flujo con un endpoint de prueba activo y los límites actuales del API; en esta app no hay planes de pago ni compras publicadas.',
   faqItems: [
     {
       q: '¿Qué es un endpoint en Primary Sentinel?',
@@ -142,7 +148,7 @@ export const landingEs = {
         name: 'Básico',
         desc: 'Para probar el flujo end-to-end.',
         cta: 'Probar gratis',
-        features: ['1 endpoint activo', 'Alertas por email', 'Panel de observabilidad'],
+        features: ['1 endpoint de prueba activo', 'Alertas por email', 'Panel de observabilidad'],
       },
       {
         name: 'Profesional',

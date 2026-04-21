@@ -1,13 +1,18 @@
+import { redirect } from 'next/navigation';
 import { DocHtml } from '@/components/docs/DocHtml';
 import { docsPageMetadata } from '@/lib/i18n/docsMeta';
 import { getDictionary } from '@/lib/i18n/messages';
 import { getLocaleFromCookie } from '@/lib/i18n/getLocale';
+import { allowPrices } from '@/lib/allowPrices';
 
 export async function generateMetadata() {
   return docsPageMetadata('facturacion');
 }
 
 export default async function DocsFacturacionPage() {
+  if (!allowPrices) {
+    redirect('/docs');
+  }
   const p = getDictionary(await getLocaleFromCookie()).docs.pages.facturacion;
 
   return (

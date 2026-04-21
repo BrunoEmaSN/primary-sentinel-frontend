@@ -3,6 +3,7 @@ import { docsPageMetadata } from '@/lib/i18n/docsMeta';
 import { getDictionary } from '@/lib/i18n/messages';
 import { getLocaleFromCookie } from '@/lib/i18n/getLocale';
 import { IconArrowRight } from '@/components/icons/Arrows';
+import { allowPrices } from '@/lib/allowPrices';
 
 export async function generateMetadata() {
   return docsPageMetadata('api');
@@ -10,6 +11,7 @@ export async function generateMetadata() {
 
 export default async function DocsApiPage() {
   const p = getDictionary(await getLocaleFromCookie()).docs.pages.api;
+  const rows = allowPrices ? p.rows : p.rows.filter((r) => r.path !== '/api/billing/status');
 
   return (
     <>
@@ -30,7 +32,7 @@ export default async function DocsApiPage() {
           </tr>
         </thead>
         <tbody>
-          {p.rows.map((row) => (
+          {rows.map((row) => (
             <tr key={row.path}>
               <td>
                 <code>{row.method}</code>

@@ -40,7 +40,9 @@ export const dashboardPortalEs = {
     rowTenantId: 'Tenant ID',
     rowTenantIdSub: 'Usalo en tus URLs de webhook',
     rowPlan: 'Plan',
-    rowPlanSub: 'Límite free: 1 endpoint activo (API)',
+    rowPlanSub: 'Plan free: 1 endpoint de prueba activo (API)',
+    rowTrialLimits: 'Límites (API)',
+    rowTrialLimitsSub: '1 endpoint de prueba activo a la vez',
     billingLink: 'Facturación',
     sectionNotifications: 'NOTIFICACIONES (Resend + Slack + webhook firmado)',
     notifyHeal: 'Email en reparaciones',
@@ -252,7 +254,7 @@ export const dashboardPortalEs = {
     title: 'FACTURACIÓN',
     currentPlan: 'Plan actual:',
     roadmapNote:
-      'Stripe y portal de cliente están previstos en la fase de planes de pago del roadmap. Los límites del plan free se aplican ya en la API (un endpoint activo).',
+      'Stripe y portal de cliente están previstos en la fase de planes de pago del roadmap. Los límites del plan free se aplican ya en la API (un endpoint de prueba activo).',
     pricesDisabled:
       'Tarifas y promociones públicas desactivadas: configurá ALLOW_PRICES=true en el entorno del front para mostrar precios y enlaces de facturación.',
     backSettings: 'Configuración',

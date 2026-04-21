@@ -53,9 +53,20 @@ export const docsEs = {
         '<strong>Alertas</strong> — <strong>Notificaciones</strong> en el panel en tiempo real y canales configurables en <strong>Configuración</strong> (email, mensajería de equipo si la activás, webhook firmado hacia tu URL).',
         '<strong>Plan</strong> — <strong>Facturación</strong> resume tu plan SaaS y el roadmap de pagos.',
       ],
+      liFlowNoPrices: [
+        '<strong>Monitor</strong> — En el <strong>Dashboard</strong> ves métricas, el diagrama de flujo y eventos recientes.',
+        '<strong>Configurar ingesta</strong> — En <strong>Flujos</strong> definís endpoints y la URL de webhook por tenant.',
+        '<strong>Operaciones</strong> — En <strong>Operaciones</strong> revisás dependencias, historial IA y métricas por etapa.',
+        '<strong>Reglas IA</strong> — Gestionás reglas de reparación (aprobar, editar o eliminar).',
+        '<strong>Incidentes</strong> — Lo que no se sanó automáticamente aparece en <strong>Dead Letter</strong> para reintento o descarte.',
+        '<strong>Alertas</strong> — <strong>Notificaciones</strong> en el panel en tiempo real y canales configurables en <strong>Configuración</strong> (email, mensajería de equipo si la activás, webhook firmado hacia tu URL).',
+        '<strong>Límites</strong> — En esta fase podés operar con <strong>un endpoint de prueba</strong> activo; no hay precios, compras ni facturación publicadas en la app.',
+      ],
       hStack: 'Documentación por tema',
       pStack:
         'Profundizá desde la propia app: <a href="/docs/empezar">Primeros pasos</a>, <a href="/docs/dashboard">Dashboard</a>, <a href="/docs/flujos">Flujos</a>, <a href="/docs/operaciones">Operaciones</a>, <a href="/docs/reglas">Reglas IA</a>, <a href="/docs/dlq">Dead Letter</a>, <a href="/docs/notificaciones">Notificaciones</a>, <a href="/docs/configuracion">Configuración</a>, <a href="/docs/facturacion">Facturación</a> e <a href="/docs/api">API y webhooks</a>. No necesitás conocer detalles de implementación internos para operar el producto.',
+      pStackNoPrices:
+        'Profundizá desde la propia app: <a href="/docs/empezar">Primeros pasos</a>, <a href="/docs/dashboard">Dashboard</a>, <a href="/docs/flujos">Flujos</a>, <a href="/docs/operaciones">Operaciones</a>, <a href="/docs/reglas">Reglas IA</a>, <a href="/docs/dlq">Dead Letter</a>, <a href="/docs/notificaciones">Notificaciones</a>, <a href="/docs/configuracion">Configuración</a> e <a href="/docs/api">API y webhooks</a>. No necesitás conocer detalles de implementación internos para operar el producto.',
     },
     empezar: {
       metaTitle: 'Primeros pasos',
@@ -66,6 +77,8 @@ export const docsEs = {
       hExplore: 'Documentación por tema en la app',
       pExplore:
         'Cada guía vive bajo <code>/docs/…</code>. Podés abrir directamente: <a href="/docs">introducción</a> (<code>/docs</code>), <a href="/docs/dashboard">panel principal</a> (<code>/docs/dashboard</code>), <a href="/docs/flujos">flujos y webhooks</a> (<code>/docs/flujos</code>), <a href="/docs/operaciones">operaciones</a> (<code>/docs/operaciones</code>), <a href="/docs/reglas">reglas IA</a> (<code>/docs/reglas</code>), <a href="/docs/dlq">Dead Letter</a> (<code>/docs/dlq</code>), <a href="/docs/notificaciones">notificaciones</a> (<code>/docs/notificaciones</code>), <a href="/docs/configuracion">configuración</a> (<code>/docs/configuracion</code>), <a href="/docs/facturacion">facturación</a> (<code>/docs/facturacion</code>) e <a href="/docs/api">API y webhooks</a> (<code>/docs/api</code>).',
+      pExploreNoPrices:
+        'Cada guía vive bajo <code>/docs/…</code>. Podés abrir directamente: <a href="/docs">introducción</a> (<code>/docs</code>), <a href="/docs/dashboard">panel principal</a> (<code>/docs/dashboard</code>), <a href="/docs/flujos">flujos y webhooks</a> (<code>/docs/flujos</code>), <a href="/docs/operaciones">operaciones</a> (<code>/docs/operaciones</code>), <a href="/docs/reglas">reglas IA</a> (<code>/docs/reglas</code>), <a href="/docs/dlq">Dead Letter</a> (<code>/docs/dlq</code>), <a href="/docs/notificaciones">notificaciones</a> (<code>/docs/notificaciones</code>), <a href="/docs/configuracion">configuración</a> (<code>/docs/configuracion</code>) e <a href="/docs/api">API y webhooks</a> (<code>/docs/api</code>).',
       hSignIn: 'Cuenta e inicio de sesión',
       pAuth:
         'Si no hay sesión activa, la app te lleva a <code>/auth</code>. Tras iniciar sesión accedés al <a href="/dashboard">panel</a> (<code>/dashboard</code>), donde todo lo que ves queda acotado a tu <strong>tenant</strong>.',
@@ -188,6 +201,8 @@ export const docsEs = {
       hAccount: 'Cuenta y plan',
       pAccount:
         'Ves tu email, el <strong>Tenant ID</strong> (útil para componer URLs de webhook de ingesta) y el <strong>plan</strong> actual del SaaS. El plan free incluye límites en API (p. ej. endpoints activos); más detalle en <a href="/docs/facturacion">Facturación</a>.',
+      pAccountNoPrices:
+        'Ves tu email y el <strong>Tenant ID</strong> (útil para componer URLs de webhook de ingesta). Sin precios ni facturación publicados en esta app, aplican los <strong>límites del API</strong> (p. ej. un <strong>endpoint de prueba</strong> activo a la vez).',
       hNotif: 'Notificaciones: email y webhooks',
       pNotif:
         'Podés activar envío por <strong>email</strong> (reparaciones, DLQ, reglas pendientes), avisos a un <strong>canal de mensajería de equipo</strong> si lo configurás en la pantalla, y un <strong>webhook HTTPS propio</strong> hacia tu URL con firma en la cabecera <code>X-Sentinel-Signature</code> (secreto compartido). Son canales paralelos al centro de notificaciones en el panel.',
@@ -206,7 +221,7 @@ export const docsEs = {
         'En <code>/dashboard/billing</code> ves el <strong>plan actual</strong> y notas operativas que muestra el producto (por ejemplo estado de facturación o mensajes de cuenta). Desde ahí podés volver a <a href="/docs/configuracion">Configuración</a> para revisar el mismo plan en el resumen de cuenta.',
       hFree: 'Plan free y límites',
       pFree:
-        'En la fase actual, el plan gratuito aplica <strong>límites en la API</strong> (por ejemplo un número acotado de endpoints activos). Los límites concretos pueden evolucionar; la pantalla de configuración y la respuesta del API de facturación reflejan lo que aplica a tu tenant.',
+        'En la fase actual, el plan gratuito aplica <strong>límites en la API</strong> (por ejemplo un <strong>endpoint de prueba</strong> activo a la vez). Los límites concretos pueden evolucionar; la pantalla de configuración y la respuesta del API de facturación reflejan lo que aplica a tu tenant.',
       hRoadmap: 'Roadmap: pagos self-service',
       pRoadmap:
         'Un <strong>portal de facturación</strong> para cambiar plan, método de pago y comprobantes está previsto en el roadmap del producto. Hasta entonces, los upgrades o acuerdos enterprise se gestionan fuera de la app o con el equipo de Primary Sentinel.',

@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from 'react';
 import SentinelBrand from '@/components/SentinelBrand';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useI18n } from '@/lib/i18n/I18nProvider';
+import { allowPrices } from '@/lib/allowPrices';
 
 function navLinkStyle(active: boolean) {
   return {
@@ -30,36 +31,35 @@ export default function DocsNav() {
   const { dict } = useI18n();
   const n = dict.docs.nav;
 
-  const NAV = useMemo(
-    () =>
-      [
-        {
-          section: n.intro,
-          items: [
-            { href: '/docs', label: n.linkIntro },
-            { href: '/docs/empezar', label: n.linkEmpezar },
-          ],
-        },
-        {
-          section: n.app,
-          items: [
-            { href: '/docs/dashboard', label: n.linkDashboard },
-            { href: '/docs/flujos', label: n.linkFlujos },
-            { href: '/docs/operaciones', label: n.linkOperaciones },
-            { href: '/docs/reglas', label: n.linkReglas },
-            { href: '/docs/dlq', label: n.linkDlq },
-            { href: '/docs/notificaciones', label: n.linkNotif },
-            { href: '/docs/configuracion', label: n.linkConfig },
-            { href: '/docs/facturacion', label: n.linkBilling },
-          ],
-        },
-        {
-          section: n.integration,
-          items: [{ href: '/docs/api', label: n.linkApi }],
-        },
-      ] as const,
-    [n]
-  );
+  const NAV = useMemo(() => {
+    const appItems = [
+      { href: '/docs/dashboard', label: n.linkDashboard },
+      { href: '/docs/flujos', label: n.linkFlujos },
+      { href: '/docs/operaciones', label: n.linkOperaciones },
+      { href: '/docs/reglas', label: n.linkReglas },
+      { href: '/docs/dlq', label: n.linkDlq },
+      { href: '/docs/notificaciones', label: n.linkNotif },
+      { href: '/docs/configuracion', label: n.linkConfig },
+      ...(allowPrices ? [{ href: '/docs/facturacion', label: n.linkBilling }] : []),
+    ];
+    return [
+      {
+        section: n.intro,
+        items: [
+          { href: '/docs', label: n.linkIntro },
+          { href: '/docs/empezar', label: n.linkEmpezar },
+        ],
+      },
+      {
+        section: n.app,
+        items: appItems,
+      },
+      {
+        section: n.integration,
+        items: [{ href: '/docs/api', label: n.linkApi }],
+      },
+    ];
+  }, [n]);
 
   useEffect(() => {
     setOpen(false);

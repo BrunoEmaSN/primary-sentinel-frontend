@@ -40,7 +40,9 @@ export const dashboardPortalEn = {
     rowTenantId: 'Tenant ID',
     rowTenantIdSub: 'Use it in your webhook URLs',
     rowPlan: 'Plan',
-    rowPlanSub: 'Free limit: 1 active endpoint (API)',
+    rowPlanSub: 'Free plan: 1 trial endpoint active (API)',
+    rowTrialLimits: 'Limits (API)',
+    rowTrialLimitsSub: 'One trial endpoint active at a time',
     billingLink: 'Billing',
     sectionNotifications: 'NOTIFICATIONS (Resend + Slack + signed webhook)',
     notifyHeal: 'Email on repairs',
@@ -251,7 +253,7 @@ export const dashboardPortalEn = {
     title: 'BILLING',
     currentPlan: 'Current plan:',
     roadmapNote:
-      'Stripe and a customer portal are planned for the paid-plans roadmap. Free-plan limits already apply in the API (one active endpoint).',
+      'Stripe and a customer portal are planned for the paid-plans roadmap. Free-plan limits already apply in the API (one trial endpoint active).',
     pricesDisabled:
       'Public pricing and promotions are disabled: set ALLOW_PRICES=true in the frontend environment to show prices and billing links.',
     backSettings: 'Settings',
