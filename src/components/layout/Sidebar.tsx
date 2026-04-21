@@ -13,7 +13,6 @@ const navItems = [
   { href: '/dashboard/rules', section: 'monitor', badge: 'pending' as const },
   { href: '/dashboard/dlq', section: 'incidents', badge: 'dlq' as const },
   { href: '/dashboard/settings', section: 'config' },
-  { href: '/docs', section: 'help' },
 ] as const;
 
 export default function Sidebar() {
