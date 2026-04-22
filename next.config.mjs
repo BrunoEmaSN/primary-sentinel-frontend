@@ -80,7 +80,7 @@ const nextConfig = {
     }
     return list;
   },
-  // CSP: nonces + enforcing en prod vía `src/proxy.ts` y `src/lib/contentSecurityPolicy.ts`.
+  // CSP: nonces + enforcing en prod vía `src/proxy.ts` (Next 16+) y `src/lib/contentSecurityPolicy.ts`.
 };
 
 export default nextConfig;
