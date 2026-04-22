@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
 import { Analytics } from '@vercel/analytics/next';
 import './globals.css';
 import { I18nProvider } from '@/lib/i18n/I18nProvider';
@@ -19,6 +20,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const nonce = (await headers()).get('x-nonce') ?? undefined;
   const locale = await getLocaleFromCookie();
   const dictionary = getDictionary(locale);
   const sentinelChatWorkerUrl = resolveSentinelWorkerBrowserBase(
@@ -31,7 +33,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   );
 
   return (
-    <html lang={locale}>
+    <html lang={locale} nonce={nonce}>
       <body>
         <I18nProvider initialLocale={locale} dictionary={dictionary}>
           <SalesContactProvider workerUrl={sentinelSalesWorkerUrl}>
