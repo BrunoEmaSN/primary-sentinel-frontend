@@ -1,11 +1,28 @@
 import { NextResponse } from 'next/server';
 import { createClientIfConfigured } from '@/lib/supabase/server';
 
+function resolveSafeNextPath(nextParam: string | null, origin: string): string {
+  const fallback = '/dashboard';
+  if (!nextParam) return fallback;
+  const trimmed = nextParam.trim();
+  if (!trimmed) return fallback;
+  try {
+    const base = new URL(origin);
+    const resolved = new URL(trimmed, base);
+    if (resolved.origin !== base.origin) return fallback;
+    if (resolved.pathname.includes('..')) return fallback;
+    const path = `${resolved.pathname}${resolved.search}${resolved.hash}`;
+    return path.startsWith('/') ? path || fallback : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
   const oauthError = searchParams.get('error');
-  const next = searchParams.get('next') ?? '/dashboard';
+  const next = resolveSafeNextPath(searchParams.get('next'), origin);
 
   if (oauthError) {
     const desc = searchParams.get('error_description') ?? oauthError;

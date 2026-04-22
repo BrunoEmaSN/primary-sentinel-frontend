@@ -80,6 +80,28 @@ const nextConfig = {
     }
     return list;
   },
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Content-Security-Policy-Report-Only',
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live",
+              "style-src 'self' 'unsafe-inline'",
+              "img-src 'self' data: https:",
+              "font-src 'self' data:",
+              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://vercel.live http://127.0.0.1:8787 http://localhost:8787",
+              "frame-ancestors 'none'",
+              "base-uri 'self'",
+            ].join('; '),
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
