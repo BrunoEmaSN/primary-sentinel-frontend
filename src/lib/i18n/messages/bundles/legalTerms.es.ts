@@ -31,6 +31,7 @@ export const legalTermsEs = {
     { term: 'Servicio', body: 'se refiere al Sitio web.' },
     {
       term: 'Suscripciones',
+      showOnlyWithPrices: true,
       body: 'designan los servicios o el acceso al Servicio ofrecidos por la Empresa por suscripción.',
     },
     {
@@ -83,6 +84,8 @@ export const legalTermsEs = {
   hLiability: 'Limitación de responsabilidad',
   liabilityP:
     'Sin perjuicio de los daños que pudieras sufrir, la responsabilidad total de la Empresa y de sus proveedores frente a cualquier disposición de estos Términos y tu recurso exclusivo por lo anterior se limitará al monto efectivamente abonado por vos a través del Servicio o a 100 USD si no compraste nada a través del Servicio.',
+  liabilityPNoPrices:
+    'Sin perjuicio de los daños que pudieras sufrir, la responsabilidad total de la Empresa y de sus proveedores frente a cualquier disposición de estos Términos y tu recurso exclusivo por lo anterior se limitará al máximo que permita la ley aplicable.',
   hAsIs: 'Exención de garantías "TAL CUAL" y "SEGÚN DISPONIBILIDAD"',
   asIsP:
     'El Servicio se te brinda "TAL CUAL" y "SEGÚN DISPONIBILIDAD", con todos sus fallos y defectos y sin garantía de ningún tipo. En el máximo alcance permitido por la ley aplicable, la Empresa no garantiza ni asume obligación alguna de que el Servicio satisfaga tus requisitos, logre resultados previstos o esté libre de errores.',
@@ -95,5 +98,5 @@ export const legalTermsEs = {
   hContact: 'Contacto',
   contactP: 'Si tenés preguntas sobre estos Términos y condiciones, podés contactarnos:',
   contactEmailLabel: 'Por correo electrónico:',
-  contactEmail: 'sanchezbruno689@gmail.com',
+  contactEmail: 'lema@primary-sentinel.com',
 } as const;

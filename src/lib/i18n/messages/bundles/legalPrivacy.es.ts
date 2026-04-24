@@ -90,6 +90,8 @@ export const legalPrivacyEs = {
     'Las cookies pueden ser "persistentes" o de "sesión". Las persistentes permanecen en tu ordenador o dispositivo móvil cuando te desconectás; las de sesión se eliminan al cerrar el navegador.',
   trackP3:
     'Cuando la ley lo exija, usamos cookies no esenciales (p. ej. analíticas, publicitarias y de remarketing) solo con tu consentimiento. Podés retirar o modificar tu consentimiento en cualquier momento mediante nuestra herramienta de preferencias de cookies (si está disponible) o la configuración del navegador o del dispositivo. Retirar el consentimiento no afecta la licitud del tratamiento basado en el consentimiento previo a su retiro.',
+  trackP3NoPrices:
+    'Cuando la ley lo exija, usamos cookies no esenciales (p. ej. analíticas) solo con tu consentimiento. Podés retirar o modificar tu consentimiento en cualquier momento mediante nuestra herramienta de preferencias de cookies (si está disponible) o la configuración del navegador o del dispositivo. Retirar el consentimiento no afecta la licitud del tratamiento basado en el consentimiento previo a su retiro.',
   trackP4: 'Usamos cookies de sesión y persistentes para los fines que se indican a continuación:',
   cookieNecTitle: 'Cookies necesarias / esenciales',
   cookieNecType: 'Tipo: cookies de sesión',
@@ -120,12 +122,27 @@ export const legalPrivacyEs = {
     'Operaciones corporativas: podemos usar tus Datos personales para evaluar o llevar a cabo fusiones, desinversiones, reestructuraciones, reorganizaciones, disoluciones u otra venta o transferencia de parte o la totalidad de nuestros activos, en funcionamiento continuo o en el marco de quiebra, liquidación o procedimiento similar, en el que los Datos personales que conservamos sobre los usuarios figuren entre los activos transferidos.',
     'Otros fines: podemos usar tu información para análisis de datos, tendencias de uso, efectividad de campañas promocionales y para evaluar y mejorar nuestro Servicio, productos, servicios, marketing y tu experiencia.',
   ],
+  useLiNoPrices: [
+    'Prestar y mantener nuestro Servicio, incluido el monitoreo del uso del Servicio.',
+    'Gestionar tu Cuenta: administrar tu registro como usuario del Servicio. Los Datos personales que proporcionás pueden darte acceso a distintas funcionalidades del Servicio disponibles para usuarios registrados.',
+    'Contactarte: por correo, llamadas, SMS u otros medios equivalentes, como notificaciones push de una aplicación móvil, respecto de actualizaciones o comunicaciones informativas sobre funcionalidades, incluidas actualizaciones de seguridad, cuando sea necesario o razonable.',
+    'Gestionar tus solicitudes: atender y gestionar las solicitudes que nos envíes.',
+    'Operaciones corporativas: podemos usar tus Datos personales para evaluar o llevar a cabo fusiones, desinversiones, reestructuraciones, reorganizaciones, disoluciones u otra venta o transferencia de parte o la totalidad de nuestros activos, en funcionamiento continuo o en el marco de quiebra, liquidación o procedimiento similar, en el que los Datos personales que conservamos sobre los usuarios figuren entre los activos transferidos.',
+    'Otros fines: podemos usar tu información para análisis de datos, tendencias de uso y para evaluar y mejorar nuestro Servicio, productos, servicios y tu experiencia.',
+  ],
   shareIntro: 'Podemos compartir tus Datos personales en las siguientes situaciones:',
   shareLi: [
     'Con Proveedores del servicio: podemos compartir tus Datos personales con ellos para monitorear y analizar el uso del Servicio y para contactarte.',
     'Por operaciones corporativas: podemos compartir o transferir tus Datos personales en relación con, o durante negociaciones de, fusiones, venta de activos de la Empresa, financiación o adquisición de parte o la totalidad de nuestro negocio por otra empresa.',
     'Con Afiliadas: podemos compartir tus Datos personales con nuestras afiliadas; en ese caso exigiremos que respeten esta Política de privacidad. Incluye a la sociedad matriz y filiales, socios de joint venture u otras empresas que controlamos o que están bajo control común con Nosotros.',
     'Con socios comerciales: podemos compartir tus Datos personales para ofrecerte ciertos productos, servicios o promociones.',
+    'Con otros usuarios: si el Servicio ofrece áreas públicas, cuando compartís Datos personales o interactuás en esas áreas, dicha información puede ser vista por todos los usuarios y distribuidse públicamente fuera del Servicio.',
+    'Con tu consentimiento: podemos divulgar tus Datos personales para cualquier otro fin con tu consentimiento.',
+  ],
+  shareLiNoPrices: [
+    'Con Proveedores del servicio: podemos compartir tus Datos personales con ellos para monitorear y analizar el uso del Servicio y para contactarte.',
+    'Por operaciones corporativas: podemos compartir o transferir tus Datos personales en relación con, o durante negociaciones de, fusiones, venta de activos de la Empresa, financiación o adquisición de parte o la totalidad de nuestro negocio por otra empresa.',
+    'Con Afiliadas: podemos compartir tus Datos personales con nuestras afiliadas; en ese caso exigiremos que respeten esta Política de privacidad. Incluye a la sociedad matriz y filiales, socios de joint venture u otras empresas que controlamos o que están bajo control común con Nosotros.',
     'Con otros usuarios: si el Servicio ofrece áreas públicas, cuando compartís Datos personales o interactuás en esas áreas, dicha información puede ser vista por todos los usuarios y distribuidse públicamente fuera del Servicio.',
     'Con tu consentimiento: podemos divulgar tus Datos personales para cualquier otro fin con tu consentimiento.',
   ],
@@ -160,6 +177,12 @@ export const legalPrivacyEs = {
   retP4: 'Podemos conservar Datos personales más allá de esos plazos por distintos motivos:',
   retBeyond: [
     'Obligación legal: la ley nos exige conservar determinados datos (p. ej. registros contables ante la administración tributaria).',
+    'Reclamaciones legales: los datos son necesarios para ejercer o defender derechos en un procedimiento.',
+    'Tu solicitud explícita: pedís que conservemos determinada información.',
+    'Limitaciones técnicas: los datos existen en copias de respaldo programadas para borrado periódico.',
+  ],
+  retBeyondNoPrices: [
+    'Obligación legal: la ley nos exige conservar determinados datos en los supuestos y plazos previstos por la normativa aplicable.',
     'Reclamaciones legales: los datos son necesarios para ejercer o defender derechos en un procedimiento.',
     'Tu solicitud explícita: pedís que conservemos determinada información.',
     'Limitaciones técnicas: los datos existen en copias de respaldo programadas para borrado periódico.',
@@ -224,6 +247,6 @@ export const legalPrivacyEs = {
   hContact: 'Contacto',
   contactP: 'Si tenés preguntas sobre esta Política de privacidad, podés contactarnos:',
   contactEmailLabel: 'Por correo electrónico:',
-  contactEmail: 'sanchezbruno689@gmail.com',
+  contactEmail: 'lema@primary-sentinel.com',
   generatorHref: 'https://www.termsfeed.com/privacy-policy-generator/',
 } as const;

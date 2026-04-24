@@ -3,13 +3,15 @@ import { IconArrowLeft } from '@/components/icons/Arrows';
 import { getDictionary } from '@/lib/i18n/messages';
 import { getLocaleFromCookie } from '@/lib/i18n/getLocale';
 import type { Dictionary } from '@/lib/i18n/messages';
+import { allowPrices } from '@/lib/allowPrices';
 
 type TermsCopy = Dictionary['legal']['terms'];
+type TermDefinition = TermsCopy['definitions'][number];
 
-function DefinitionList({ lt }: { lt: TermsCopy }) {
+function DefinitionList({ lt, definitions }: { lt: TermsCopy; definitions: readonly TermDefinition[] }) {
   return (
     <ul>
-      {lt.definitions.map((d, i) => (
+      {definitions.map((d, i) => (
         <li key={i}>
           {'kind' in d && d.kind === 'withSiteLink' ? (
             <p>
@@ -34,6 +36,11 @@ export default async function TermsPage() {
   const locale = await getLocaleFromCookie();
   const dict = getDictionary(locale);
   const lt = dict.legal.terms;
+  const definitions = allowPrices
+    ? lt.definitions
+    : lt.definitions.filter(
+        (d) => !('showOnlyWithPrices' in d && d.showOnlyWithPrices),
+      );
 
   return (
     <div className="legal-doc">
@@ -51,21 +58,25 @@ export default async function TermsPage() {
 
       <h3>{lt.hDefinitions}</h3>
       <p>{lt.defIntro}</p>
-      <DefinitionList lt={lt} />
+      <DefinitionList lt={lt} definitions={definitions} />
 
       <h2>{lt.hAck}</h2>
       <p>{lt.ackP1}</p>
       <p>{lt.ackP2}</p>
       <p>{lt.ackP3}</p>
 
-      <h2>{lt.hSubBilling}</h2>
-      <h3>{lt.hSubPeriod}</h3>
-      <p>{lt.subPeriodP}</p>
-      <h3>{lt.hFeeChanges}</h3>
-      <p>{lt.feeChangesP}</p>
+      {allowPrices ? (
+        <>
+          <h2>{lt.hSubBilling}</h2>
+          <h3>{lt.hSubPeriod}</h3>
+          <p>{lt.subPeriodP}</p>
+          <h3>{lt.hFeeChanges}</h3>
+          <p>{lt.feeChangesP}</p>
 
-      <h2>{lt.hPromo}</h2>
-      <p>{lt.promoP}</p>
+          <h2>{lt.hPromo}</h2>
+          <p>{lt.promoP}</p>
+        </>
+      ) : null}
 
       <h2>{lt.hUserAccounts}</h2>
       <h3>{lt.hUserContent}</h3>
@@ -81,7 +92,7 @@ export default async function TermsPage() {
       <p>{lt.feedbackP}</p>
 
       <h2>{lt.hLiability}</h2>
-      <p>{lt.liabilityP}</p>
+      <p>{allowPrices ? lt.liabilityP : lt.liabilityPNoPrices}</p>
 
       <h2>{lt.hAsIs}</h2>
       <p>{lt.asIsP}</p>

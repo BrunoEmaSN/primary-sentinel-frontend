@@ -3,6 +3,7 @@ import { IconArrowLeft } from '@/components/icons/Arrows';
 import { getDictionary } from '@/lib/i18n/messages';
 import { getLocaleFromCookie } from '@/lib/i18n/getLocale';
 import type { Dictionary } from '@/lib/i18n/messages';
+import { allowPrices } from '@/lib/allowPrices';
 
 type PrivacyCopy = Dictionary['legal']['privacy'];
 
@@ -37,6 +38,10 @@ export default async function PrivacyPage() {
   const locale = await getLocaleFromCookie();
   const dict = getDictionary(locale);
   const lp = dict.legal.privacy;
+  const useLi = allowPrices ? lp.useLi : lp.useLiNoPrices;
+  const shareLi = allowPrices ? lp.shareLi : lp.shareLiNoPrices;
+  const trackP3 = allowPrices ? lp.trackP3 : lp.trackP3NoPrices;
+  const retBeyond = allowPrices ? lp.retBeyond : lp.retBeyondNoPrices;
 
   return (
     <div className="legal-doc">
@@ -80,7 +85,7 @@ export default async function PrivacyPage() {
         <li>{lp.trackLi2}</li>
       </ul>
       <p>{lp.trackP2}</p>
-      <p>{lp.trackP3}</p>
+      <p>{trackP3}</p>
       <p>{lp.trackP4}</p>
       <ul>
         <li>
@@ -112,7 +117,7 @@ export default async function PrivacyPage() {
       <h3>{lp.hUse}</h3>
       <p>{lp.useIntro}</p>
       <ul>
-        {lp.useLi.map((text, i) => (
+        {useLi.map((text, i) => (
           <li key={i}>
             <p>{text}</p>
           </li>
@@ -120,7 +125,7 @@ export default async function PrivacyPage() {
       </ul>
       <p>{lp.shareIntro}</p>
       <ul>
-        {lp.shareLi.map((text, i) => {
+        {shareLi.map((text, i) => {
           const idx = text.indexOf(':');
           return (
             <li key={i}>
@@ -136,20 +141,24 @@ export default async function PrivacyPage() {
           );
         })}
       </ul>
-      <h3>{lp.hPayments}</h3>
-      <p>{lp.payP1}</p>
-      <p>{lp.payP2}</p>
-      <ul>
-        <li>
-          <strong>{lp.payStripeName}</strong>
-          <p>
-            {lp.payStripePrivacyBefore}{' '}
-            <a href={lp.stripePrivacyUrl} target="_blank" rel="noreferrer">
-              {lp.stripePrivacyUrl}
-            </a>
-          </p>
-        </li>
-      </ul>
+      {allowPrices ? (
+        <>
+          <h3>{lp.hPayments}</h3>
+          <p>{lp.payP1}</p>
+          <p>{lp.payP2}</p>
+          <ul>
+            <li>
+              <strong>{lp.payStripeName}</strong>
+              <p>
+                {lp.payStripePrivacyBefore}{' '}
+                <a href={lp.stripePrivacyUrl} target="_blank" rel="noreferrer">
+                  {lp.stripePrivacyUrl}
+                </a>
+              </p>
+            </li>
+          </ul>
+        </>
+      ) : null}
       <h3>{lp.hRetention}</h3>
       <p>{lp.retP1}</p>
       <p>{lp.retP2}</p>
@@ -182,7 +191,7 @@ export default async function PrivacyPage() {
       <p>{lp.retP3}</p>
       <p>{lp.retP4}</p>
       <ul>
-        {lp.retBeyond.map((t, i) => (
+        {retBeyond.map((t, i) => (
           <li key={i}>{t}</li>
         ))}
       </ul>

@@ -89,6 +89,8 @@ export const legalPrivacyEn = {
     'Cookies can be "Persistent" or "Session" Cookies. Persistent Cookies remain on Your personal computer or mobile device when You go offline, while Session Cookies are deleted as soon as You close Your web browser.',
   trackP3:
     'Where required by law, we use non-essential cookies (such as analytics, advertising, and remarketing cookies) only with Your consent. You can withdraw or change Your consent at any time using Our cookie preferences tool (if available) or through Your browser/device settings. Withdrawing consent does not affect the lawfulness of processing based on consent before its withdrawal.',
+  trackP3NoPrices:
+    'Where required by law, we use non-essential cookies (such as analytics cookies) only with Your consent. You can withdraw or change Your consent at any time using Our cookie preferences tool (if available) or through Your browser/device settings. Withdrawing consent does not affect the lawfulness of processing based on consent before its withdrawal.',
   trackP4: 'We use both Session and Persistent Cookies for the purposes set out below:',
   cookieNecTitle: 'Necessary / Essential Cookies',
   cookieNecType: 'Type: Session Cookies',
@@ -119,6 +121,14 @@ export const legalPrivacyEn = {
     'For business transfers: We may use Your Personal Data to evaluate or conduct a merger, divestiture, restructuring, reorganization, dissolution, or other sale or transfer of some or all of Our assets, whether as a going concern or as part of bankruptcy, liquidation, or similar proceeding, in which Personal Data held by Us about our Service users is among the assets transferred.',
     'For other purposes: We may use Your information for other purposes, such as data analysis, identifying usage trends, determining the effectiveness of our promotional campaigns and to evaluate and improve our Service, products, services, marketing and your experience.',
   ],
+  useLiNoPrices: [
+    'To provide and maintain our Service, including to monitor the usage of our Service.',
+    "To manage Your Account: to manage Your registration as a user of the Service. The Personal Data You provide can give You access to different functionalities of the Service that are available to You as a registered user.",
+    "To contact You: to contact You by email, telephone calls, SMS, or other equivalent forms of electronic communication, such as a mobile application's push notifications regarding updates or informative communications related to the functionalities, including the security updates, when necessary or reasonable for their implementation.",
+    "To manage Your requests: to attend and manage Your requests to Us.",
+    "For business transfers: We may use Your Personal Data to evaluate or conduct a merger, divestiture, restructuring, reorganization, dissolution, or other sale or transfer of some or all of Our assets, whether as a going concern or as part of bankruptcy, liquidation, or similar proceeding, in which Personal Data held by Us about our Service users is among the assets transferred.",
+    'For other purposes: We may use Your information for other purposes, such as data analysis, identifying usage trends, and to evaluate and improve our Service, products, services, and your experience.',
+  ],
   shareIntro: 'We may share Your Personal Data in the following situations:',
   shareLi: [
     'With Service Providers: We may share Your Personal Data with Service Providers to monitor and analyze the use of our Service, to contact You.',
@@ -127,6 +137,13 @@ export const legalPrivacyEn = {
     'With business partners: We may share Your Personal Data with Our business partners to offer You certain products, services or promotions.',
     'With other users: If Our Service offers public areas, when You share Personal Data or otherwise interact in the public areas with other users, such information may be viewed by all users and may be publicly distributed outside.',
     'With Your consent: We may disclose Your Personal Data for any other purpose with Your consent.',
+  ],
+  shareLiNoPrices: [
+    'With Service Providers: We may share Your Personal Data with Service Providers to monitor and analyze the use of our Service, to contact You.',
+    "For business transfers: We may share or transfer Your Personal Data in connection with, or during negotiations of, any merger, sale of Company assets, financing, or acquisition of all or a portion of Our business to another company.",
+    "With Affiliates: We may share Your Personal Data with Our affiliates, in which case we will require those affiliates to honor this Privacy Policy. Affiliates include Our parent company and any other subsidiaries, joint venture partners or other companies that We control or that are under common control with Us.",
+    'With other users: If Our Service offers public areas, when You share Personal Data or otherwise interact in the public areas with other users, such information may be viewed by all users and may be publicly distributed outside.',
+    "With Your consent: We may disclose Your Personal Data for any other purpose with Your consent.",
   ],
   hPayments: 'Payments',
   payP1:
@@ -158,6 +175,12 @@ export const legalPrivacyEn = {
   retP4: 'We may retain Personal Data beyond the periods stated above for different reasons:',
   retBeyond: [
     'Legal obligation: We are required by law to retain specific data (e.g., financial records for tax authorities).',
+    'Legal claims: Data is necessary to establish, exercise, or defend legal claims.',
+    'Your explicit request: You ask Us to retain specific information.',
+    'Technical limitations: Data exists in backup systems that are scheduled for routine deletion.',
+  ],
+  retBeyondNoPrices: [
+    'Legal obligation: We are required by law to retain specific data in the circumstances and timeframes set by applicable law.',
     'Legal claims: Data is necessary to establish, exercise, or defend legal claims.',
     'Your explicit request: You ask Us to retain specific information.',
     'Technical limitations: Data exists in backup systems that are scheduled for routine deletion.',
@@ -222,6 +245,6 @@ export const legalPrivacyEn = {
   hContact: 'Contact Us',
   contactP: 'If you have any questions about this Privacy Policy, You can contact us:',
   contactEmailLabel: 'By email:',
-  contactEmail: 'sanchezbruno689@gmail.com',
+  contactEmail: 'lema@primary-sentinel.com',
   generatorHref: 'https://www.termsfeed.com/privacy-policy-generator/',
 } as const;
