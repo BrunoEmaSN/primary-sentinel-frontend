@@ -49,7 +49,7 @@ export const legalTermsEn = {
       body: 'means the individual accessing or using the Service, or the company, or other legal entity on behalf of which such individual is accessing or using the Service, as applicable.',
     },
   ],
-  siteUrl: 'https://primary-sentinel.vercel.app/',
+  siteUrl: 'www.primary-sentinel.com',
   hAck: 'Acknowledgment',
   ackP1:
     'These are the Terms and Conditions governing the use of this Service and the agreement between You and the Company. These Terms and Conditions set out the rights and obligations of all users regarding the use of the Service.',

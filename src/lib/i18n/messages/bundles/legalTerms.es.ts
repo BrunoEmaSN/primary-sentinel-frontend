@@ -49,7 +49,7 @@ export const legalTermsEs = {
       body: 'designa la persona que accede o usa el Servicio, o la empresa u otra entidad en cuyo nombre accede o usa el Servicio, según corresponda.',
     },
   ],
-  siteUrl: 'https://primary-sentinel.vercel.app/',
+  siteUrl: 'www.primary-sentinel.com',
   hAck: 'Aceptación',
   ackP1:
     'Estos Términos y condiciones rigen el uso de este Servicio y el acuerdo entre vos y la Empresa. Establecen los derechos y obligaciones de todos los usuarios respecto del Servicio.',
