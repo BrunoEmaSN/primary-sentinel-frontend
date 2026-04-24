@@ -34,17 +34,16 @@ export async function GET(request: Request) {
   if (code) {
     const supabase = await createClientIfConfigured();
     if (!supabase) {
-      return NextResponse.redirect(
-        `${origin}/auth?error=oauth&details=${encodeURIComponent(
-          'Configurá NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY en .env.local (Settings / API, clave anon).'
-        )}`
-      );
+      return NextResponse.redirect(`${origin}/auth?error=auth&details=${encodeURIComponent('missing_env')}`);
     }
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
       return NextResponse.redirect(`${origin}${next}`);
     }
+    return NextResponse.redirect(
+      `${origin}/auth?error=auth&details=${encodeURIComponent(error.message)}`
+    );
   }
 
-  return NextResponse.redirect(`${origin}/auth?error=oauth`);
+  return NextResponse.redirect(`${origin}/auth?error=auth`);
 }

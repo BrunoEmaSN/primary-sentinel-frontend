@@ -73,6 +73,16 @@ export const es = {
     errorMissingEnv:
       'Falta configurar Supabase: en .env.local copiá Project URL y la clave anon public desde el panel (Settings / API). Reiniciá next dev después de guardar.',
     confirmEmail: 'Revisá tu email para confirmar la cuenta.',
+    fullNameLabel: 'NOMBRE COMPLETO',
+    fullNamePlaceholder: 'Tu nombre',
+    errorEmailRequired: 'Ingresá tu correo electrónico.',
+    errorFullNameRequired: 'Ingresá tu nombre completo.',
+    errorFullNameTooLong: 'El nombre no puede superar los 120 caracteres.',
+    errorEmailNotConfirmed: 'Confirmá tu correo antes de ingresar. Revisá tu bandeja de entrada.',
+    resendEmail: 'Reenviar correo de confirmación',
+    resendEmailLoading: 'Enviando…',
+    resendEmailSuccess: 'Si el correo existe, te enviamos otro enlace de confirmación.',
+    callbackAuthFailed: 'No se pudo completar el inicio de sesión. Intentá de nuevo o pedí un nuevo enlace por correo.',
     configureSupabase: 'Configurá Supabase en .env.local antes de continuar.',
     oauthFailed: 'No se pudo completar el inicio de sesión con Google. Intentá de nuevo.',
     errorNetwork:

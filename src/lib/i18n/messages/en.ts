@@ -73,6 +73,16 @@ export const en = {
     errorMissingEnv:
       'Supabase is not configured: copy Project URL and the anon public key from the dashboard (Settings / API) into .env.local. Restart next dev after saving.',
     confirmEmail: 'Check your email to confirm your account.',
+    fullNameLabel: 'FULL NAME',
+    fullNamePlaceholder: 'Your name',
+    errorEmailRequired: 'Enter your email address.',
+    errorFullNameRequired: 'Enter your full name.',
+    errorFullNameTooLong: 'Name cannot exceed 120 characters.',
+    errorEmailNotConfirmed: 'Confirm your email before signing in. Check your inbox.',
+    resendEmail: 'Resend confirmation email',
+    resendEmailLoading: 'Sending…',
+    resendEmailSuccess: 'If the account exists, we sent another confirmation link.',
+    callbackAuthFailed: 'Could not complete sign-in. Try again or request a new email link.',
     configureSupabase: 'Configure Supabase in .env.local before continuing.',
     oauthFailed: 'Could not complete Google sign-in. Please try again.',
     errorNetwork:

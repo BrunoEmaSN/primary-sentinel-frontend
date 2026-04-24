@@ -10,6 +10,12 @@ import SentinelBrand from '@/components/SentinelBrand';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useI18n } from '@/lib/i18n/I18nProvider';
 
+const FULL_NAME_MAX = 120;
+
+function isEmailNotConfirmed(err: { message: string; code?: string }): boolean {
+  return err.code === 'email_not_confirmed' || /email not confirmed/i.test(err.message);
+}
+
 function CloseIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -70,21 +76,37 @@ export default function AuthPage() {
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
+  const [canResendConfirmation, setCanResendConfirmation] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get('error') === 'oauth') {
+    const errType = params.get('error');
+    if (errType !== 'oauth' && errType !== 'auth') return;
+
+    if (errType === 'oauth') {
       const details = params.get('details');
       setError(details ? `Google: ${decodeURIComponent(details)}` : t('auth.oauthFailed'));
-      const url = new URL(window.location.href);
-      url.searchParams.delete('error');
-      url.searchParams.delete('details');
-      window.history.replaceState({}, '', url.pathname + url.search);
+    } else {
+      const details = params.get('details');
+      if (details === 'missing_env') {
+        setError(t('auth.configureSupabase'));
+      } else if (details) {
+        setError(decodeURIComponent(details));
+      } else {
+        setError(t('auth.callbackAuthFailed'));
+      }
     }
+
+    const url = new URL(window.location.href);
+    url.searchParams.delete('error');
+    url.searchParams.delete('details');
+    window.history.replaceState({}, '', url.pathname + url.search);
   }, [t]);
 
   async function signInWithGoogle() {
@@ -112,10 +134,43 @@ export default function AuthPage() {
     }
   }
 
+  async function handleResendConfirmation() {
+    setError('');
+    if (!supabase) {
+      setError(t('auth.configureSupabase'));
+      return;
+    }
+    const emailNorm = email.trim().toLowerCase();
+    if (!emailNorm) {
+      setError(t('auth.errorEmailRequired'));
+      return;
+    }
+    setResendLoading(true);
+    try {
+      const { error: resendError } = await supabase.auth.resend({
+        type: 'signup',
+        email: emailNorm,
+        options: { emailRedirectTo: getOAuthCallbackUrl() },
+      });
+      if (resendError) setError(resendError.message);
+      else setInfo(t('auth.resendEmailSuccess'));
+    } catch (err) {
+      setError(networkErrorMessage(err));
+    } finally {
+      setResendLoading(false);
+    }
+  }
+
+  function mapSignInError(err: { message: string; code?: string }): string {
+    if (isEmailNotConfirmed(err)) return t('auth.errorEmailNotConfirmed');
+    return err.message;
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
     setInfo('');
+    setCanResendConfirmation(false);
     if (!supabase) {
       setError(t('auth.configureSupabase'));
       return;
@@ -124,20 +179,39 @@ export default function AuthPage() {
     try {
       const emailNorm = email.trim().toLowerCase();
       if (mode === 'login') {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { error: signInError } = await supabase.auth.signInWithPassword({
           email: emailNorm,
           password,
         });
-        if (error) setError(error.message);
-        else router.push('/dashboard');
+        if (signInError) {
+          setError(mapSignInError(signInError));
+          if (isEmailNotConfirmed(signInError)) setCanResendConfirmation(true);
+        } else {
+          router.push('/dashboard');
+        }
       } else {
-        const { error } = await supabase.auth.signUp({
+        const nameTrim = fullName.trim();
+        if (!nameTrim) {
+          setError(t('auth.errorFullNameRequired'));
+          return;
+        }
+        if (nameTrim.length > FULL_NAME_MAX) {
+          setError(t('auth.errorFullNameTooLong'));
+          return;
+        }
+        const { error: signUpError } = await supabase.auth.signUp({
           email: emailNorm,
           password,
-          options: { emailRedirectTo: getOAuthCallbackUrl() },
+          options: {
+            emailRedirectTo: getOAuthCallbackUrl(),
+            data: { full_name: nameTrim },
+          },
         });
-        if (error) setError(error.message);
-        else setInfo(t('auth.confirmEmail'));
+        if (signUpError) setError(signUpError.message);
+        else {
+          setInfo(t('auth.confirmEmail'));
+          setCanResendConfirmation(true);
+        }
       }
     } catch (err) {
       setError(networkErrorMessage(err));
@@ -252,6 +326,23 @@ export default function AuthPage() {
           </div>
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {mode === 'signup' && (
+              <div>
+                <label style={{ display: 'block', fontSize: '9px', fontFamily: 'var(--font-mono)', letterSpacing: '1px', color: 'var(--muted)', marginBottom: '5px' }}>
+                  {t('auth.fullNameLabel')}
+                </label>
+                <input
+                  className="sentinel-input"
+                  type="text"
+                  autoComplete="name"
+                  placeholder={t('auth.fullNamePlaceholder')}
+                  value={fullName}
+                  onChange={e => setFullName(e.target.value)}
+                  required
+                  maxLength={FULL_NAME_MAX}
+                />
+              </div>
+            )}
             <div>
               <label style={{ display: 'block', fontSize: '9px', fontFamily: 'var(--font-mono)', letterSpacing: '1px', color: 'var(--muted)', marginBottom: '5px' }}>
                 {t('auth.emailLabel')}
@@ -291,6 +382,25 @@ export default function AuthPage() {
               </div>
             )}
 
+            {canResendConfirmation && email.trim() && (
+              <button
+                type="button"
+                className="sentinel-input"
+                onClick={handleResendConfirmation}
+                disabled={!configured || loading || googleLoading || resendLoading}
+                style={{
+                  padding: '10px 12px',
+                  fontSize: '11px',
+                  fontFamily: 'var(--font-mono)',
+                  cursor: configured && !loading && !googleLoading && !resendLoading ? 'pointer' : 'not-allowed',
+                  color: 'var(--accent)',
+                  background: 'rgba(200,245,80,.06)',
+                }}
+              >
+                {resendLoading ? t('auth.resendEmailLoading') : t('auth.resendEmail')}
+              </button>
+            )}
+
             <button
               className="btn-primary"
               type="submit"
@@ -304,7 +414,15 @@ export default function AuthPage() {
           <div style={{ marginTop: '16px', textAlign: 'center', fontSize: '11px', color: 'var(--muted)' }}>
             {mode === 'login' ? t('auth.toggleSignup') : t('auth.toggleLogin')}{' '}
             <button
-              onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
+              onClick={() => {
+                setMode(prev => {
+                  if (prev === 'signup') setFullName('');
+                  return prev === 'login' ? 'signup' : 'login';
+                });
+                setError('');
+                setInfo('');
+                setCanResendConfirmation(false);
+              }}
               style={{ color: 'var(--accent)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: '11px' }}
             >
               {mode === 'login' ? t('auth.register') : t('auth.loginLink')}
