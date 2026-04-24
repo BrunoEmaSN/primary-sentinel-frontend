@@ -8,6 +8,8 @@
  * - Site URL = public origin (e.g. https://yourdomain.com).
  * - Redirect URLs must include this app’s callback, e.g. https://yourdomain.com/auth/callback
  *   and http://localhost:3000/auth/callback (match port). Must match NEXT_PUBLIC_SITE_URL when set.
+ * - Password recovery uses the same callback with ?next=/auth/reset-password; that path must stay
+ *   allowed (same callback URL in the Supabase allow list covers query variants).
  */
 export function getOAuthCallbackOrigin(): string {
   const fromEnv = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, '');
@@ -19,4 +21,21 @@ export function getOAuthCallbackOrigin(): string {
 export function getOAuthCallbackUrl(): string {
   const base = getOAuthCallbackOrigin();
   return base ? `${base}/auth/callback` : '/auth/callback';
+}
+
+/** Callback URL that, after exchanging the recovery code, sends the user to set a new password. */
+export function getPasswordRecoveryCallbackUrl(): string {
+  const callback = getOAuthCallbackUrl();
+  const nextPath = '/auth/reset-password';
+  try {
+    if (callback.startsWith('http://') || callback.startsWith('https://')) {
+      const url = new URL(callback);
+      url.searchParams.set('next', nextPath);
+      return url.toString();
+    }
+  } catch {
+    /* fall through */
+  }
+  const sep = callback.includes('?') ? '&' : '?';
+  return `${callback}${sep}next=${encodeURIComponent(nextPath)}`;
 }

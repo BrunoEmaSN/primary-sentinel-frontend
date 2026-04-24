@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
-import { getOAuthCallbackUrl } from '@/lib/app-url';
+import { getOAuthCallbackUrl, getPasswordRecoveryCallbackUrl } from '@/lib/app-url';
 import { getSupabasePublicEnv } from '@/lib/supabase/public-env';
 import { useRouter } from 'next/navigation';
 import SentinelBrand from '@/components/SentinelBrand';
@@ -73,7 +73,7 @@ export default function AuthPage() {
     [configured]
   );
 
-  const [mode, setMode] = useState<'login' | 'signup'>('login');
+  const [mode, setMode] = useState<'login' | 'signup' | 'forgot'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
@@ -178,6 +178,18 @@ export default function AuthPage() {
     setLoading(true);
     try {
       const emailNorm = email.trim().toLowerCase();
+      if (mode === 'forgot') {
+        if (!emailNorm) {
+          setError(t('auth.errorEmailRequired'));
+          return;
+        }
+        const { error: resetError } = await supabase.auth.resetPasswordForEmail(emailNorm, {
+          redirectTo: getPasswordRecoveryCallbackUrl(),
+        });
+        if (resetError) setError(resetError.message);
+        else setInfo(t('auth.forgotEmailSent'));
+        return;
+      }
       if (mode === 'login') {
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email: emailNorm,
@@ -271,10 +283,14 @@ export default function AuthPage() {
                   textAlign: 'center',
                 }}
               >
-                {mode === 'login' ? t('auth.loginTitle') : t('auth.signupTitle')}
+                {mode === 'forgot' ? t('auth.forgotTitle') : mode === 'login' ? t('auth.loginTitle') : t('auth.signupTitle')}
               </h1>
               <p style={{ fontSize: '11px', color: 'var(--muted)', lineHeight: 1.45, textAlign: 'center' }}>
-                {mode === 'login' ? t('auth.loginSubtitle') : t('auth.signupSubtitle')}
+                {mode === 'forgot'
+                  ? t('auth.forgotSubtitle')
+                  : mode === 'login'
+                    ? t('auth.loginSubtitle')
+                    : t('auth.signupSubtitle')}
               </p>
             </div>
             <Link
@@ -296,6 +312,7 @@ export default function AuthPage() {
             </div>
           )}
 
+          {mode !== 'forgot' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '16px' }}>
             <button
               type="button"
@@ -324,6 +341,7 @@ export default function AuthPage() {
               <span style={{ flex: 1, height: '1px', background: 'var(--border2)' }} />
             </div>
           </div>
+          )}
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {mode === 'signup' && (
@@ -356,20 +374,48 @@ export default function AuthPage() {
                 required
               />
             </div>
-            <div>
-              <label style={{ display: 'block', fontSize: '9px', fontFamily: 'var(--font-mono)', letterSpacing: '1px', color: 'var(--muted)', marginBottom: '5px' }}>
-                {t('auth.passwordLabel')}
-              </label>
-              <input
-                className="sentinel-input"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                required
-                minLength={6}
-              />
-            </div>
+            {mode !== 'forgot' && (
+              <div>
+                <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '8px', marginBottom: '5px' }}>
+                  <label style={{ fontSize: '9px', fontFamily: 'var(--font-mono)', letterSpacing: '1px', color: 'var(--muted)' }}>
+                    {t('auth.passwordLabel')}
+                  </label>
+                  {mode === 'login' && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMode('forgot');
+                        setError('');
+                        setInfo('');
+                        setCanResendConfirmation(false);
+                      }}
+                      style={{
+                        fontSize: '9px',
+                        fontFamily: 'var(--font-mono)',
+                        color: 'var(--accent)',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: 0,
+                        textDecoration: 'underline',
+                        textUnderlineOffset: '2px',
+                      }}
+                    >
+                      {t('auth.forgotPasswordLink')}
+                    </button>
+                  )}
+                </div>
+                <input
+                  className="sentinel-input"
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                  minLength={6}
+                />
+              </div>
+            )}
 
             {error && (
               <div style={{ padding: '8px 10px', borderRadius: '6px', background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.2)', fontSize: '11px', color: 'var(--red)' }}>
@@ -407,26 +453,50 @@ export default function AuthPage() {
               disabled={loading || googleLoading || !configured}
               style={{ justifyContent: 'center', marginTop: '4px', opacity: loading ? 0.7 : 1 }}
             >
-              {loading ? t('auth.loading') : mode === 'login' ? t('auth.submitLogin') : t('auth.submitSignup')}
+              {loading
+                ? t('auth.loading')
+                : mode === 'forgot'
+                  ? t('auth.forgotSubmit')
+                  : mode === 'login'
+                    ? t('auth.submitLogin')
+                    : t('auth.submitSignup')}
             </button>
           </form>
 
           <div style={{ marginTop: '16px', textAlign: 'center', fontSize: '11px', color: 'var(--muted)' }}>
-            {mode === 'login' ? t('auth.toggleSignup') : t('auth.toggleLogin')}{' '}
-            <button
-              onClick={() => {
-                setMode(prev => {
-                  if (prev === 'signup') setFullName('');
-                  return prev === 'login' ? 'signup' : 'login';
-                });
-                setError('');
-                setInfo('');
-                setCanResendConfirmation(false);
-              }}
-              style={{ color: 'var(--accent)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: '11px' }}
-            >
-              {mode === 'login' ? t('auth.register') : t('auth.loginLink')}
-            </button>
+            {mode === 'forgot' ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setMode('login');
+                  setError('');
+                  setInfo('');
+                  setCanResendConfirmation(false);
+                }}
+                style={{ color: 'var(--accent)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: '11px' }}
+              >
+                {t('auth.forgotBackToLogin')}
+              </button>
+            ) : (
+              <>
+                {mode === 'login' ? t('auth.toggleSignup') : t('auth.toggleLogin')}{' '}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode(prev => {
+                      if (prev === 'signup') setFullName('');
+                      return prev === 'login' ? 'signup' : 'login';
+                    });
+                    setError('');
+                    setInfo('');
+                    setCanResendConfirmation(false);
+                  }}
+                  style={{ color: 'var(--accent)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: '11px' }}
+                >
+                  {mode === 'login' ? t('auth.register') : t('auth.loginLink')}
+                </button>
+              </>
+            )}
           </div>
         </div>
 
