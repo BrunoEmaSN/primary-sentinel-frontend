@@ -98,5 +98,5 @@ export const legalTermsEn = {
   hContact: 'Contact Us',
   contactP: 'If you have any questions about these Terms and Conditions, You can contact us:',
   contactEmailLabel: 'By email:',
-  contactEmail: 'lema@primary-sentinel.com',
+  contactEmail: 'support@primary-sentinel.com',
 } as const;

@@ -63,7 +63,7 @@ export const legalPrivacyEs = {
       body: 'designa la persona que accede o usa el Servicio, o la empresa u otra entidad jurídica en nombre de la cual dicha persona accede o usa el Servicio, según corresponda.',
     },
   ],
-  siteUrl: 'https://primary-sentinel.vercel.app/',
+  siteUrl: 'www.primary-sentinel.com',
   hCollect: 'Recopilación y uso de tus datos personales',
   hTypes: 'Tipos de datos recopilados',
   hPersonal: 'Datos personales',
@@ -247,6 +247,6 @@ export const legalPrivacyEs = {
   hContact: 'Contacto',
   contactP: 'Si tenés preguntas sobre esta Política de privacidad, podés contactarnos:',
   contactEmailLabel: 'Por correo electrónico:',
-  contactEmail: 'lema@primary-sentinel.com',
+  contactEmail: 'support@primary-sentinel.com',
   generatorHref: 'https://www.termsfeed.com/privacy-policy-generator/',
 } as const;
