@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import SentinelBrand from '@/components/SentinelBrand';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useI18n } from '@/lib/i18n/I18nProvider';
+import LegalDocModal, { type LegalDocModalDoc } from '@/components/legal/LegalDocModal';
 
 const FULL_NAME_MAX = 120;
 
@@ -83,6 +84,8 @@ export default function AuthPage() {
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
   const [canResendConfirmation, setCanResendConfirmation] = useState(false);
+  const [acceptedLegal, setAcceptedLegal] = useState(false);
+  const [legalModal, setLegalModal] = useState<LegalDocModalDoc | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -112,6 +115,10 @@ export default function AuthPage() {
   async function signInWithGoogle() {
     setError('');
     setInfo('');
+    if (mode === 'signup' && !acceptedLegal) {
+      setError(t('auth.errorTermsRequired'));
+      return;
+    }
     if (!supabase) {
       setError(t('auth.configureSupabase'));
       return;
@@ -202,6 +209,10 @@ export default function AuthPage() {
           router.push('/dashboard');
         }
       } else {
+        if (!acceptedLegal) {
+          setError(t('auth.errorTermsRequired'));
+          return;
+        }
         const nameTrim = fullName.trim();
         if (!nameTrim) {
           setError(t('auth.errorFullNameRequired'));
@@ -318,17 +329,21 @@ export default function AuthPage() {
               type="button"
               className="sentinel-input"
               onClick={signInWithGoogle}
-              disabled={!configured || loading || googleLoading}
+              disabled={!configured || loading || googleLoading || (mode === 'signup' && !acceptedLegal)}
+              title={mode === 'signup' && !acceptedLegal ? t('auth.googleDisabledNeedTerms') : undefined}
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '10px',
-                cursor: configured && !loading && !googleLoading ? 'pointer' : 'not-allowed',
+                cursor:
+                  configured && !loading && !googleLoading && !(mode === 'signup' && !acceptedLegal)
+                    ? 'pointer'
+                    : 'not-allowed',
                 padding: '12px 14px',
                 fontSize: '12px',
                 fontFamily: 'var(--font-mono)',
-                opacity: googleLoading ? 0.7 : 1,
+                opacity: googleLoading ? 0.7 : mode === 'signup' && !acceptedLegal ? 0.55 : 1,
                 background: 'rgba(255,255,255,.03)',
               }}
             >
@@ -417,6 +432,68 @@ export default function AuthPage() {
               </div>
             )}
 
+            {mode === 'signup' && (
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                <input
+                  id="auth-accept-legal"
+                  type="checkbox"
+                  checked={acceptedLegal}
+                  onChange={e => setAcceptedLegal(e.target.checked)}
+                  aria-label={t('auth.acceptTermsCheckboxAria')}
+                  style={{
+                    marginTop: '4px',
+                    width: '14px',
+                    height: '14px',
+                    accentColor: 'var(--accent)',
+                    flexShrink: 0,
+                    cursor: 'pointer',
+                  }}
+                />
+                <div style={{ fontSize: '11px', lineHeight: 1.55, color: 'var(--muted)' }}>
+                  <label htmlFor="auth-accept-legal" style={{ cursor: 'pointer' }}>
+                    {t('auth.acceptTermsLead')}{' '}
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setLegalModal('terms')}
+                    style={{
+                      color: 'var(--accent)',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: 0,
+                      font: 'inherit',
+                      fontSize: '11px',
+                      textDecoration: 'underline',
+                      textUnderlineOffset: '2px',
+                    }}
+                  >
+                    {t('auth.acceptTermsTermsLink')}
+                  </button>
+                  <label htmlFor="auth-accept-legal" style={{ cursor: 'pointer' }}>
+                    {' '}{t('auth.acceptTermsMid')}{' '}
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setLegalModal('privacy')}
+                    style={{
+                      color: 'var(--accent)',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: 0,
+                      font: 'inherit',
+                      fontSize: '11px',
+                      textDecoration: 'underline',
+                      textUnderlineOffset: '2px',
+                    }}
+                  >
+                    {t('auth.acceptTermsPrivacyLink')}
+                  </button>
+                </div>
+              </div>
+            )}
+
             {error && (
               <div style={{ padding: '8px 10px', borderRadius: '6px', background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.2)', fontSize: '11px', color: 'var(--red)' }}>
                 {error}
@@ -487,6 +564,7 @@ export default function AuthPage() {
                       if (prev === 'signup') setFullName('');
                       return prev === 'login' ? 'signup' : 'login';
                     });
+                    setAcceptedLegal(false);
                     setError('');
                     setInfo('');
                     setCanResendConfirmation(false);
@@ -504,6 +582,8 @@ export default function AuthPage() {
           {t('auth.footerTag')}
         </div>
       </div>
+
+      <LegalDocModal open={legalModal !== null} doc={legalModal} onClose={() => setLegalModal(null)} />
     </div>
   );
 }
